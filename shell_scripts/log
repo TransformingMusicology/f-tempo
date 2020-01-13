@@ -1,0 +1,162 @@
+
+2019-11-20 16:29:41+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081883_00070/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+16:29:42: Warning: Check if negative disabled
+16:29:42: Skew -0.25000
+16:29:43: Line width=3; Space beetween lines=22
+16:29:43: Normalization factor 0.943396
+16:29:43: Borders position 132 1728
+16:29:44: Brink (2 classes) binarization
+16:29:44: Binarization threshold: 173
+16:29:44: Removing small elements (minimal size = 17)
+16:29:46: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081883_00070
+abD-cBaaaaaaAAAdAAAAAadqaAbaBabAaaAbaGaAaaaaAcAbDdq--ABabDaaaaaabDu-cAAAx-cAAAxC---Adq-aaaAaaaAaaaqCcDuC-bbAd-C-A-dqCcDuC-bbAd-C-A-dCt
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081883_00070 of length 134
+Elapsed time for processing 1 sequence(s): 0.001735 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 16:34:29+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081882_00067/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+16:34:32: Warning: Check if negative disabled
+16:34:32: Skew 1.00000
+16:34:33: Line width=3; Space beetween lines=20
+16:34:33: Normalization factor 1.020408
+16:34:33: Borders position 100 1852
+16:34:34: Brink (2 classes) binarization
+16:34:34: Binarization threshold: 159
+16:34:34: Removing small elements (minimal size = 19)
+16:34:39: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081882_00067
+----bAAbbxx---aaBaAazAGBaaaABaaz-Dbb-CAAdyAAdAAbDbaaaaaAaDbAAbwAAbCcxbBAabAACAAAaaaaABabaAAbaubBAay-bAAaaaaBaybAAaaaCaA-CAAdv--bBaaaAz--bBaaaAaABabAAz--bB-AaAbAAAAaA-bCzbdaaaaBzAAAAabAabAA-aaaABaaa
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081882_00067 of length 197
+Elapsed time for processing 1 sequence(s): 0.002117 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 17:46:00+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081883_00031/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+17:46:02: Warning: Check if negative disabled
+17:46:02: Skew 1.37500
+17:46:03: Line width=3; Space beetween lines=21
+17:46:03: Normalization factor 0.980392
+17:46:03: Borders position 168 1808
+17:46:03: Brink (2 classes) binarization
+17:46:03: Binarization threshold: 169
+17:46:03: Removing small elements (minimal size = 17)
+17:46:07: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081883_00031
+ybaBAaABcB-azBdA-Az--Ab-aaAbCaAy--Baay-A-A-bCaaaAaCaAcx-A-A-bCazEaaaAAAaABa-AcAeDaaCaAAdvEccAcAAAAAadv--eDdCbDAAbaAAbAbavabAAAAAaaaaBaaaAavbDdCAdEabAAAAbx
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081883_00031 of length 154
+Elapsed time for processing 1 sequence(s): 0.001523 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 17:50:43+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081883_00052/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+17:50:44: Warning: Check if negative disabled
+17:50:44: Skew 0.06250
+17:50:44: Line width=3; Space beetween lines=21
+17:50:44: Normalization factor 0.980392
+17:50:45: Borders position 148 1780
+17:50:45: Brink (2 classes) binarization
+17:50:45: Binarization threshold: 177
+17:50:45: Removing small elements (minimal size = 16)
+17:50:48: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081883_00052
+cBactaAcAaftaAdCaABaaAaaaAbBx--aaaaA-aAAAcCy--aaaaaAaaaAwCaAeDabAAAAAAaaaAAaacat-bAAbAbcDbAAAAAbAbCbAcF
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081883_00052 of length 103
+Elapsed time for processing 1 sequence(s): 0.001186 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 17:52:23+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081883_00054/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+17:52:24: Warning: Check if negative disabled
+17:52:24: Skew 0.06250
+17:52:25: Line width=3; Space beetween lines=21
+17:52:25: Normalization factor 0.980392
+17:52:25: Borders position 176 1800
+17:52:26: Brink (2 classes) binarization
+17:52:26: Binarization threshold: 167
+17:52:26: Removing small elements (minimal size = 18)
+17:52:29: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081883_00054
+--bAAyABaaay--bAA-ABcCaAcAAaaAAbaaAAdDABabAAAbAbCaAbayABaaAAbacC-yAcAAbAbDyabABcyaaB-cyB-aaa-aAyB-abAaaaa-CaaAbCaAy-dDy-bCay-dDy-a
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081883_00054 of length 130
+Elapsed time for processing 1 sequence(s): 0.001371 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 17:54:04+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081882_00043/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+17:54:05: Warning: Check if negative disabled
+17:54:05: Skew 1.37500
+17:54:06: Line width=3; Space beetween lines=21
+17:54:06: Normalization factor 0.980392
+17:54:06: Borders position 116 1788
+17:54:07: Brink (2 classes) binarization
+17:54:07: Binarization threshold: 163
+17:54:07: Removing small elements (minimal size = 18)
+17:54:11: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081882_00043
+BaCaabCaaAabBaazD-aabAAAAbAaz--Ca-cBa-aaa--DbAaaax-AAaaaCa-aA-dBbDdxCaaAbAyBAAAAaabAx-dDaaA-dAAAAAAbAx-CabAAabAaAaCa-CabAAa-aAAbAAabACaabCAAd-BcxCaabGaaaaA-dCAAaaaaAbGaAabBaabAbaDaAAa-a
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081882_00043 of length 185
+Elapsed time for processing 1 sequence(s): 0.001581 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 
+
+2019-11-20 17:57:36+00:00: Processing https://api.digitale-sammlungen.de/iiif/image/v2/bsb00081882_00120/full/full/0/default.jpg:
+Converted to tiff OK
+Reading page.tiff...
+17:57:37: Warning: Check if negative disabled
+17:57:37: Skew 0.31250
+17:57:38: Line width=4; Space beetween lines=20
+17:57:38: Normalization factor 0.961538
+17:57:38: Borders position 148 1792
+17:57:39: Brink (2 classes) binarization
+17:57:39: Binarization threshold: 157
+17:57:39: Cleaning by morphological opening (mean / stddev = 0.605536)
+17:57:39: Removing small elements (minimal size = 24)
+17:57:43: Recognition done
+Passed through Aruspix OK
+Extracted MEI OK
+Diat interval string (fasta): 
+>D-Mbs_bsb00081882_00120
+-dD-aaaAbAzAAAaAABcB-aabABaaaaAA-baBaaAbCaaax-A-dGaaaAaaAbAbAbAaazyAbAAaaAAAAaaaBAabAAAa--cAAbGa-Ag--B-baAA-Caaab-G-aAbacAEAgCA--Abbxxba-DczaB-a-AAAaa-A--AA-aeDcbBbHAaaaa--Caaa-aAAAAAbAAaAcAAAAAbc-A-aaC-Aaa-Ab-cBaaaA-ybAAbC--
+Page image extracted ... and saved to jpeg
+Processing 5'->3' strand of sequence D-Mbs_bsb00081882_00120 of length 225
+Elapsed time for processing 1 sequence(s): 0.001715 secs
+
+Saving 4grams; Saving 5grams; Saving 6grams; Saving 7grams; Saving 8grams; Saving 9grams; Saving 10grams; 

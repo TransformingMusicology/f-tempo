@@ -176,10 +176,12 @@ function show_results(json) {
                 + "' onclick='load_result_image(\""+target_id+"\","+q+","+(rank_factor*100).toFixed(1)+");'>"
 //                +"<td text-align='center' style='color:blue'><small>" +target_id+"</small></td>"
                 +"<td text-align='center' style='color:blue; font-size: 10px'>" +target_id+"</td>"
-                + "<td onclick='compare(\""+query_id+"\",\""+results[q].id+"\");'>"
+         //       + "<td onclick='compare(\""+query_id+"\",\""+results[q].id+"\");'>"
+                + "<td>"
                 + '<div class="progress">'
                 + '<div class="progress-bar" role="progressbar" style="width: ' + rank_percentage + '%;" aria-valuenow="' + rank_percentage + '" aria-valuemin="0" aria-valuemax="100">' + rank_percentage + '</div>'
                 + "</td>"
+                + "<td><img class='mag-glass' width='16' height='16' src='img/magnifying-glass.svg' onclick='compare(\""+query_id+"\",\""+results[q].id+"\")'/></td>";
             if (provide_judgements) {
                 table_html += "<td id='"+sim_choice_id+"'>"
                     + "<select  class='drop_downs'"
@@ -214,7 +216,7 @@ function show_results(json) {
 
 
 function compare(a,b) {
-    var url="compare?qid="+a+"&mid="+b;
+    var url="compare?qid="+a+"&mid="+b; 
     window.open(url, "Compare pages","comp_win");
 }
 
@@ -423,10 +425,14 @@ function checkKey(e) {
     } else if (e.keyCode == '39') {    // right arrow - Search next page/book
         (shiftDown)? find_book_id(true) : find_page_id(true);
         query_id = document.getElementById("query_id").value;
+    } else if (e.keyCode == '220') { // '\' for random query
+        document.getElementById("query_id").value = emo_ids[getRandomIntInclusive(0, emo_ids.length)];
+        query_id = document.getElementById("query_id").value;    
+        load_page_query(query_id);
     } else if (e.keyCode == '13') { // enter to search
         query_id = document.getElementById("query_id").value;
         search_by_active_query_id(true);
-    }
+    }    
 }
 
 // Unused??

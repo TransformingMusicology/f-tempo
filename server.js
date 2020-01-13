@@ -27,8 +27,10 @@ const EMO_IDS_DIAT_MELS = {};
 const MAWS_to_IDS = {}; // keys are maws, values are an array of all ids for which that maw appears
 const NGRAMS_to_IDS = {}; // keys are ngrams, values are a array of all ids for which that ngram appears
 const word_totals = []; // total words per id, used for normalization
+const ngr_len = 5;
 
 const app = express();
+
 
 /*******************************************************************************
  * Setup
@@ -61,6 +63,7 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
+
 app.get('/id_searches', function (req, res) {
     const data = { id_searches: true };
     res.render('index', data);
@@ -71,12 +74,7 @@ app.get('/code_searches', function (req, res) {
     res.render('index', data);
 });
 
-var q_mei_url;
-var q_diat_str;
-var q_diat_url;
-var working_path;
 app.get('/compare', function (req, res) {
-    // console.log(req.query.qid); console.log(req.query.mid);
 
     // q for 'query', m for 'match'
     const q_id = req.query.qid;
@@ -84,51 +82,196 @@ app.get('/compare', function (req, res) {
 
     if (!q_id || !m_id) { return res.status(400).send('q_id and m_id must be provided!'); }
 
-//    const base_img_url = 'http://doc.gold.ac.uk/~mas01tc/page_dir_50/';
+// Get page-images for query and match
     const base_img_url = 'http://doc.gold.ac.uk/~mas01tc/new_page_dir_50/';
     const img_ext = '.jpg';
-	const q_jpg_url = base_img_url + q_id + img_ext;
-	const m_jpg_url = base_img_url + m_id + img_ext;
+    const q_jpg_url = base_img_url + q_id + img_ext;
+    const m_jpg_url = base_img_url + m_id + img_ext;
 
-//    const base_mei_url = 'http://doc.gold.ac.uk/~mas01tc/EMO_search/mei_pages/';
+//    Get both MEI files
     const base_mei_url = 'http://doc.gold.ac.uk/~mas01tc/EMO_search/new_mei_pages/';
     const mei_ext = '.mei';
-	q_mei_url = base_mei_url + q_id + mei_ext;
-	const m_mei_url = base_mei_url + m_id + mei_ext;
-
+    var q_mei_url = base_mei_url + q_id + mei_ext;
+    var m_mei_url = base_mei_url + m_id + mei_ext;
 
     // id_diat_mel_lookup is a file of ids and codestrings
     // this finds the line of the query and result pages
 	q_diat_str = EMO_IDS_DIAT_MELS[q_id];
 	const m_diat_str = EMO_IDS_DIAT_MELS[m_id];
-
     if (!q_diat_str) { return res.status(400).send('Could not find melody string for this q_id'); }
     if (!m_diat_str) { return res.status(400).send('Could not find melody string for this m_id'); }
+    
+	function ngram_string(str, n) {
+	// Returns array of ngrams of length n
+		if(!str.length) return false;
+		ngrams = [];
+		if(str.length<n) {
+			ngrams.push(str + "%");
+		}
+		else if (str.length==n) {
+			ngrams.push(str);
+			}
+			else {  
+				for(i=0; i+n <= str.length; i++) {
+					ngrams.push(str.substr(i,n));
+				}
+			}
+		return ngrams;
+	}
+	function isInArray(value, array) {
+	  return array.indexOf(value) > -1;
+	}
+	function exists(search,arr ) {
+		return arr.some(row => row.includes(search));
+	}
+
+/*
+	function getAllIndexes(arr, val) {
+	    var indexes = [], v;
+	    for(v = 0; v < arr.length; v++)
+		   if (arr[v] === val)
+			  indexes.push(v);
+	    if(indexes.length) return indexes;
+	    else return false;
+	}
+*/
+	function allIndexOf(str, findThis) {
+		var indices = [];
+		for(var pos = str.indexOf(findThis); pos !== -1; pos = str.indexOf(findThis, pos + 1)) {
+			indices.push(pos);
+		}
+		return indices;
+	}
+
+	function ngrams_in_common(q_str,m_str,n,query) {
+	// Records all locations of each ngram common to query and match
+		let q_com_ng_loc = [];
+		let m_com_ng_loc = [];
+		let q_ngrams = ngram_string(q_str, n);
+		let m_ngrams = ngram_string(m_str, n);
+		let qcount = mcount = -1;
+		let mlocs = [];
+		let qlocs = [];
+		for(var i=0;i<=q_ngrams.length;i++) {
+	//		let loc = m_str.indexOf(q_ngrams[i]);
+//			if(typeof q_ngrams[i] === "undefined") continue;
+//			if(locs = getAllIndexes(q_ngrams[i], m_str)) {
+//			if(locs = m_str.match("/"+q_ngrams[i]+"/g")) {
+			qlocs = allIndexOf(m_str,q_ngrams[i]);
+			for(j=0;j<=qlocs.length;j++ ) {
+				if(qlocs[j]>=0) {
+					if(!exists(qlocs[j],q_com_ng_loc)) {
+//						qcount++;
+//						if(typeof q_com_ng_loc[qcount] === "undefined") {
+//							q_com_ng_loc[qcount]=[];
+						if(typeof q_com_ng_loc[i] === "undefined") {
+							q_com_ng_loc[i]=[];
+						}
+//						q_com_ng_loc[i].push(qlocs[j]+" "+q_ngrams[i]); //for testing
+						var entry = {};
+						entry.q_ind = i;
+						entry.m_ind = qlocs[j];
+						q_com_ng_loc[i].push(entry);
+					}
+				}
+			}
+		}
+		for( i=0;i<=m_ngrams.length;i++) {
+			mlocs = allIndexOf(q_str,m_ngrams[i]);
+			for(j=0;j<=mlocs.length;j++ ) {
+				if(mlocs[j]>=0) {
+					if(!exists(mlocs[j],m_com_ng_loc)) {
+//						mcount++;
+//						if(typeof m_com_ng_loc[mcount] === "undefined") {
+//							m_com_ng_loc[mcount]=[];
+						if(typeof m_com_ng_loc[i] === "undefined") {
+							m_com_ng_loc[i]=[];
+						}
+//						m_com_ng_loc[i].push(mlocs[j]+" "+m_ngrams[i]); //for testing
+						var entry = {};
+						entry.m_ind = i;
+						entry.q_ind = mlocs[j];
+						m_com_ng_loc[i].push(entry);
+					}
+				}
+			}
+		}
+
+/*
+						// Initialise if nothing there yet
+//						if((typeof q_com_ng_loc[qcount+1] === "undefined") && !isInArray(locs[j],q_com_ng_loc)) {
+						if((typeof q_com_ng_loc[qcount+1] === "undefined") && !isInArray(q_ngrams[i],q_com_ng_loc)) {
+							qcount++;
+							q_com_ng_loc[qcount]=[];
+						}
+						q_com_ng_loc[qcount].push(locs[j]);
+//						if(!m_com_ng_loc[mcount+1] && !isInArray(locs[j],m_com_ng_loc)) {
+//						if((typeof m_com_ng_loc[mcount+1] === "undefined") && !isInArray(q_ngrams[i],m_com_ng_loc)) {
+						if (!isInArray(q_ngrams[i],m_com_ng_loc)) {
+							if(typeof m_com_ng_loc[mcount+1] === "undefined") { 
+								mcount++;
+								m_com_ng_loc[mcount]=[];
+							}
+						}
+						m_com_ng_loc[mcount].push(i);
+					
+					
+					}
+				
+				}
+			}
+			else continue;
+*/		
+//		}
+		if(query) return q_com_ng_loc.filter(Boolean); //remove null entries
+		else return m_com_ng_loc.filter(Boolean); //remove null entries
+	}
+
+	var q_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,true);
+	var m_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,false);
+// return res.send("q_comm:<p>"+JSON.stringify(q_comm)+"<p>m_comm:<p>"+JSON.stringify(m_comm)); 
+
+	const sorted_q_comm = q_comm.sort(function(a, b){return a[0].q_ind - b[0].q_ind});
+	const sorted_m_comm = m_comm.sort(function(a, b){return a[0].m_ind - b[0].m_ind});
+//	return res.send("sorted_q_comm:<p>"+JSON.stringify(sorted_q_comm)+"<p>sorted_m_comm:<p>"+JSON.stringify(sorted_m_comm)); 
+
 
     // TODO(ra) probably expose this in the frontend like this...
-    // const show_top_ngrams = req.body.show_top_ngrams;
-    const show_top_ngrams = true;
+//	const show_top_ngrams = req.body.show_top_ngrams;
+//	const show_top_ngrams = true;
+    const show_top_ngrams = false;
     const [q_index_to_colour, m_index_to_colour] = generate_index_to_colour_maps(q_diat_str, m_diat_str, show_top_ngrams);
+
+//return res.send(q_id+"<p>"+JSON.stringify(q_index_to_colour)+"<p>"+m_id+"<p>"+JSON.stringify(m_index_to_colour));
 
     request(q_mei_url, function (error, response, q_mei) { if (!error && response.statusCode == 200) {
     request(m_mei_url, function (error, response, m_mei) { if (!error && response.statusCode == 200) {
-        // console.log(q_mei); console.log(m_mei);
-        const data = {
-            q_id,
-            m_id,
-            q_jpg_url,
-            m_jpg_url,
-            q_mei: q_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
-            m_mei: m_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
-            q_index_to_colour: JSON.stringify(q_index_to_colour),
-            m_index_to_colour: JSON.stringify(m_index_to_colour),
-        }
-        res.render('compare', data);
-    } else { return res.status(400).send('Could not find the MEI file for m_id'); }});
-    } else { return res.status(400).send('Could not find the MEI file for q_id'); }});
+	const  data = {
+		q_id,
+		m_id,
+		q_jpg_url,
+		m_jpg_url,
+		q_mei: q_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
+		m_mei: m_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
+		q_index_to_colour: JSON.stringify(q_index_to_colour),
+		m_index_to_colour: JSON.stringify(m_index_to_colour),
+//		qcomm: JSON.stringify(sorted_q_comm),
+//		mcomm: JSON.stringify(sorted_m_comm),
+//		qcomm: sorted_q_comm,
+//		mcomm: sorted_m_comm,
+		qcomm_str: JSON.stringify(sorted_q_comm),
+		mcomm_str: JSON.stringify(sorted_m_comm),
+		q_diat_str: JSON.stringify(q_diat_str),
+		m_diat_str: JSON.stringify(m_diat_str),
+	  }
+	res.render('compare', data);
+     } else { return res.status(400).send('Could not find the MEI file for m_id'+m_id); }});
+    } else { return res.status(400).send('Could not find the MEI file for q_id '+q_id); }});
 
 });
 
+var q_diat_str;
+var q_diat_url;
 
 // Returns the number of all emo ids
 app.get('/api/num_emo_ids', function (req, res) { res.send(EMO_IDS.length+" pages in database"); });
@@ -166,6 +309,7 @@ app.post('/api/query', function (req, res) {
     res.send(result);
 });
 
+var working_path;
 // Handle image uploads
 app.post('/api/image_query', function(req, res) {
     if (!req.files) { return res.status(400).send('No files were uploaded.'); }
@@ -812,8 +956,8 @@ function generate_index_to_colour_maps(q_diat_str, m_diat_str, show_top_ngrams) 
             return output_array;
         }
 
-        q_index_to_colour = create_colour_index(q_diat_str, q_common_ngram_locations, ngr_len, 'red', 'grey');
-        m_index_to_colour = create_colour_index(m_diat_str, m_common_ngram_locations, ngr_len, 'red', 'grey');
+        q_index_to_colour = create_colour_index(q_diat_str, q_common_ngram_locations, ngr_len, 'HotPink', 'Teal');
+        m_index_to_colour = create_colour_index(m_diat_str, m_common_ngram_locations, ngr_len, 'LightSalmon', 'Teal');
     }
 
     return [q_index_to_colour, m_index_to_colour];

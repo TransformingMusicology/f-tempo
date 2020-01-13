@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-model href="http://www.aruspix.net/mei-page-based-2013-11-05.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="2013">
+    <meiHead>
+        <fileDesc>
+            <titleStmt>
+                <title />
+            </titleStmt>
+            <pubStmt>
+                <date>Wed Nov 20 17:54:12 2019</date>
+            </pubStmt>
+        </fileDesc>
+        <encodingDesc>
+            <projectDesc>
+                <p>Encoded with Aruspix version command line</p>
+            </projectDesc>
+        </encodingDesc>
+    </meiHead>
+    <music>
+        <body>
+            <mdiv>
+                <pages type="transcription">
+                    <!--Coordinates in MEI axis direction-->
+                    <page xml:id="m-83ca8786-61fe-4924-b79f-5292bc7cb55f" page.width="1722" page.height="1402" page.leftmar="0" page.rightmar="0">
+                        <system xml:id="m-8f4eea76-f40e-4dc0-998f-8cde7b61c3bb" system.leftmar="30" system.rightmar="18" uly="1252">
+                            <staff xml:id="m-55aa3d90-765b-473a-8f57-62fdf78a06d5" label="mensural" uly="1252" n="1">
+                                <layer xml:id="m-e512440c-b2f5-459e-94d5-8272509f68ac" n="1">
+                                    <clef line="3" shape="C" xml:id="m-cdc5a29f-27d2-4d81-9eea-0003932c23a1" ulx="32" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-dff917bd-aa18-4247-90e7-88adb56bade8" ulx="62" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-50c2694b-b876-459a-8534-6d1b79afbe5e" ulx="96" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-1d4cb875-14d0-424c-b95b-dee9752d01bb" ulx="134" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-9eb24c29-1c8e-481b-a273-cccc232b75fd" ulx="172" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-fc540099-fd78-46ac-a49e-efbfa4254faf" ulx="198" />
+                                    <dot ploc="f" oloc="4" xml:id="m-6f4ef4c6-c732-4edd-8c9a-1686429c5679" ulx="228" />
+                                    <note pname="e" oct="4" dur="semiminima" xml:id="m-0e926e17-fd23-493c-aa51-93b6be8f843d" ulx="242" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-1ccfa805-1595-426a-a0d2-eed62fa26db7" ulx="276" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-e7018535-39d2-4008-9332-25fc65bb46b6" ulx="304" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-fefa5b82-c070-4ab5-8816-8d609ae9f75f" ulx="334" />
+                                    <dot ploc="f" oloc="4" xml:id="m-a3528acb-61ec-4803-a29b-9d6790089829" ulx="362" />
+                                    <note pname="d" oct="4" dur="semiminima" xml:id="m-a4dd15e3-c8f4-4ad2-ae33-b0360507fd5a" ulx="376" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-015e900a-409c-46bd-a5e9-5bc7030707bf" ulx="414" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-59e5c41f-79ac-4cf7-8880-f4d618dc5b71" ulx="440" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-f08daddc-fd3b-4306-a159-d3990d40b21b" ulx="478" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-3be5ce95-30ff-42ce-8e4e-5b2c3173d6a9" ulx="506" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-205a689f-abb9-41dc-9cb4-edda74b5b702" ulx="534" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-f633746d-4c4d-4c6f-a26c-fe2490a64c39" ulx="568" />
+                                    <note pname="a" oct="3" dur="brevis" xml:id="m-38929aaa-6ec5-4591-9139-9b61aaf03d39" ulx="604" />
+                                    <rest dur="semibrevis" ploc="a" oloc="3" xml:id="m-f1def1f4-d988-42dc-a03d-6b5b61b98fb5" ulx="648" />
+                                    <rest dur="minima" ploc="f" oloc="3" xml:id="m-504d43f8-dc20-4f2a-9878-05029c2e8741" ulx="670" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-f08355d6-5f52-4e0d-8308-169d63cf54ea" ulx="698" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-b8b20f1d-8d69-48d6-9f9c-a2a9c5e52565" ulx="742" />
+                                    <dot ploc="d" oloc="4" xml:id="m-fc42c9c0-7ff0-49e3-9997-a203154ad5ec" ulx="768" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-81096640-8f5c-4a08-ba51-46d7d406916f" ulx="794" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-e2dd8724-731d-42ae-90ab-82e04937d0e8" ulx="834" />
+                                    <dot ploc="b" oloc="3" xml:id="m-c1e80d42-d5ea-4998-8911-eca08eb6b5fc" ulx="862" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-936cc320-4c39-4c88-a830-723edb12600c" ulx="888" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-dfe975ec-65d7-4cc4-864e-f6037d14b08f" ulx="930" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-506eaa40-6640-42d9-b7af-a58e9fbf0f57" ulx="974" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-e3c5df97-8e40-4b7a-b03a-6851999b88d2" ulx="1022" />
+                                    <dot ploc="g" oloc="3" xml:id="m-96b05b0c-d3b1-45ea-adc3-b07da1f43f82" ulx="1048" />
+                                    <note pname="b" oct="3" dur="semiminima" xml:id="m-50bdca54-2c4b-4eb0-8b25-be9ba4b9830f" ulx="1070" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-98d95575-0fd2-4167-bf1a-6117bb721868" ulx="1110" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-7abc502c-20bd-43bb-80f8-65ca89648b75" ulx="1148" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-f63d21f7-d541-484e-90e8-3f83c0fae658" ulx="1184" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-93884aab-c5da-4462-b1d3-e7f88c7d6cbd" ulx="1220" />
+                                    <rest dur="minima" ploc="c" oloc="4" xml:id="m-d91ac37b-4f8c-45fe-998f-59041e95ecc2" ulx="1254" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-13409480-7d26-4e94-88a9-66a6c7f9431e" ulx="1282" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-011a2d68-ee84-4c3f-a9f4-449e99ce5f26" ulx="1326" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-1dd94ba6-522b-43fa-b220-d6f9bb9d8e3d" ulx="1370" />
+                                    <note pname="g" oct="4" dur="semibrevis" xml:id="m-efc6e05e-2cde-4f16-b815-fbd0946b350b" ulx="1408" />
+                                    <dot ploc="a" oloc="4" xml:id="m-7147928d-bf46-4f4e-bac5-8ced76e2e3f6" ulx="1436" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-f9e1b780-e163-4677-9e44-c776a8748fdf" ulx="1458" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-66910fdc-9d1b-46ee-9550-d329886a27db" ulx="1502" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-a7776b39-8e23-4754-848a-abdee38bbd80" ulx="1540" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-1a82c540-9557-4cb4-8cf4-0429d2d93a15" ulx="1578" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-43da2db3-d4ce-46a9-9ac2-92aaa906e38d" ulx="1614" />
+                                    <custos pname="f" oct="4" xml:id="m-bb9c45a7-c8a6-4e43-a733-9138015aea9e" ulx="1654" />
+                                </layer>
+                            </staff>
+                        </system>
+                        <system xml:id="m-263c284c-20c8-485e-8521-78eb88b897f5" system.leftmar="30" system.rightmar="18" uly="1044">
+                            <staff xml:id="m-02de01f5-3563-43ee-8016-118d61e67b66" label="mensural" uly="1044" n="1">
+                                <layer xml:id="m-7d47bd63-c1f6-43e0-868b-cc441fef76a6" n="1">
+                                    <clef line="3" shape="C" xml:id="m-9daee4b2-f43f-4c21-bff9-2bed58404545" ulx="32" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-cdd7c5c9-bceb-4e40-8dee-a9f1d1050d43" ulx="64" />
+                                    <rest dur="minima" ploc="e" oloc="4" xml:id="m-598f0586-cf8d-4632-a882-a46022c1b130" ulx="96" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-db318149-ac60-44ca-9c1d-006c950e1817" ulx="126" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-782abcaa-9057-488c-8c74-509bfa7f9b15" ulx="162" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-858a7095-8f43-4c4b-8a74-7241271d64f3" ulx="202" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-8b7fbfc8-7423-453c-892a-762a6fe752ce" ulx="234" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-6470f07c-0d12-4ef4-bc66-2b33c4776e04" ulx="272" />
+                                    <rest dur="brevis" ploc="a" oloc="3" xml:id="m-ecdd6a8e-61b3-465a-8384-27aee3256867" ulx="304" />
+                                    <rest dur="minima" ploc="f" oloc="3" xml:id="m-eb5d9d9e-013a-4870-a097-af207f8ba467" ulx="326" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-29d6aeb6-64c8-45cf-8d0e-762661208bec" ulx="348" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-ba9d721c-43ae-44ba-871c-8e017f8a50a6" ulx="392" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-e5460f32-bd26-41d5-887c-5f02178cfc3e" ulx="434" />
+                                    <note pname="c" oct="4" dur="brevis" xml:id="m-940f0d93-0907-4e51-b3ce-3036b3df5e8b" ulx="472" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-49632471-eead-4b0b-89ba-bdcf9c41c3e4" ulx="510" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-dc643359-2d50-47d8-bf34-62941ae97c9b" ulx="542" />
+                                    <dot ploc="b" oloc="3" xml:id="m-801b23d9-bf2b-41d9-913b-4601474c1943" ulx="572" />
+                                    <note pname="a" oct="3" dur="semiminima" xml:id="m-439fb322-70be-48c1-a1df-d4d47505b103" ulx="598" />
+                                    <note pname="g" oct="3" dur="semibrevis" xml:id="m-91d1448e-5b7c-46cc-bb7e-d6972d5a833d" ulx="632" />
+                                    <note pname="f" oct="3" dur="longa" xml:id="m-85632818-3c7b-4bfa-b8bc-0ca75d198b9b" ulx="662" />
+                                    <barLine xml:id="m-d0aa6b18-f833-43fe-b049-1edfbe7dfd68" ulx="704" />
+                                    <accid accid="f" ploc="g" oloc="3" xml:id="m-1370dcb8-0412-4d67-9a03-1aba5d5d33ba" ulx="732" />
+                                    <custos pname="b" oct="3" xml:id="m-dd98caa4-6338-4118-bc69-5b3d280c4f70" ulx="786" />
+                                    <clef line="3" shape="C" xml:id="m-1f66cd6e-18a2-40ab-b58e-4518dc891c27" ulx="816" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-708138e5-9126-480e-8c24-dc00da8a6114" ulx="850" />
+                                    <mensur sign="C" slash="1" xml:id="m-ad4b6fa6-f9eb-4cd9-bc8d-974f42ec488f" ulx="870" />
+                                    <dot ploc="b" oloc="3" xml:id="m-335588b9-a3f8-425a-aabb-1236f09e9a57" ulx="930" />
+                                    <rest dur="longa" ploc="f" oloc="3" xml:id="m-00b20a64-0bee-44c9-b96c-0e86987e6d96" ulx="948" />
+                                    <rest dur="longa" ploc="f" oloc="3" xml:id="m-c0b86910-bf23-42d0-bdda-ec49b28b47bd" ulx="968" />
+                                    <dot ploc="d" oloc="4" xml:id="m-d600ea11-5763-4271-b847-45c488040950" ulx="982" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-3e63391f-2028-4721-876e-1ae9882941d3" ulx="996" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-8766f916-675a-455f-a298-fdf44d07e27a" ulx="1042" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-8ee2c3a9-ea9f-40db-ab70-57ee5a0abf70" ulx="1082" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-31b21914-245d-466c-92b0-9310a7943ba3" ulx="1126" />
+                                    <dot ploc="d" oloc="4" xml:id="m-0d77711f-4012-4ac3-849a-b3bf4b65d646" ulx="1154" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-59b10b79-94d4-4109-af54-a49d896435a5" ulx="1176" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-1dc37b7f-189d-4a5c-8eb4-b1534d3750b0" ulx="1220" />
+                                    <note pname="g" oct="3" dur="semibrevis" xml:id="m-c9e51c2b-f9cb-476c-8c84-689f6ee0a311" ulx="1262" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-b155daf2-28c9-43f3-8b23-2b6d810a2f6b" ulx="1302" />
+                                    <dot ploc="d" oloc="4" xml:id="m-148a9e18-1aa7-4cca-b71e-0c5da3e737bb" ulx="1328" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-9c7ec4a8-7c6a-4fa5-a9c6-249f3a001df9" ulx="1350" />
+                                    <note pname="b" oct="3" dur="brevis" xml:id="m-9d1a184f-38f2-4098-a268-a85adb15f69c" ulx="1392" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-771604f1-ab3d-4e65-b628-0a819c0dac96" ulx="1434" />
+                                    <note pname="b" oct="3" dur="brevis" xml:id="m-ea3ea75b-425a-4c72-b9af-9bd39b4a5f3a" ulx="1468" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-93b16dad-64a2-4aa7-922f-e5ae073f2529" ulx="1512" />
+                                    <rest dur="longa" ploc="a" oloc="3" xml:id="m-abc06167-89bf-4cd8-baef-4c3e8c4e0008" ulx="1534" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-e9339629-c9cf-41b9-aa95-738281cb6107" ulx="1554" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-c1880e8f-cbbb-4570-a53b-680db7116378" ulx="1584" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-a49b7cc7-9557-419a-80c8-6aa4b9da9dde" ulx="1626" />
+                                    <custos pname="a" oct="3" xml:id="m-d1ced0e1-9259-4017-91c2-ee5f1d8a794e" ulx="1662" />
+                                </layer>
+                            </staff>
+                        </system>
+                        <system xml:id="m-ccf46636-ed3f-422e-a282-2ecd3d4dd6ec" system.leftmar="30" system.rightmar="21" uly="840">
+                            <staff xml:id="m-25e534a2-270d-4353-aa3b-cdfe6e72b284" label="mensural" uly="840" n="1">
+                                <layer xml:id="m-aef1526d-4048-4aa9-ad6c-759c511f77a3" n="1">
+                                    <clef line="3" shape="C" xml:id="m-e75a46cb-0302-46c6-af2d-3f192a90e698" ulx="32" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-927d2beb-4fff-4c51-aed5-cdeb14fbd6ef" ulx="62" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-67346455-07e0-4b47-bd29-866c0449017f" ulx="96" />
+                                    <mensur num="3" xml:id="m-78f91ca6-06b1-457d-9d62-80524cb98034" ulx="134" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-7e3a63b3-2d26-4ee3-b54f-7c460dc9ba37" ulx="190" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-1784ae30-0d8d-4725-a5a3-b63487b51bd1" ulx="234" />
+                                    <note pname="c" oct="4" dur="brevis" xml:id="m-9ad9ef78-1581-431e-9e21-3d6dea14ed01" ulx="276" />
+                                    <note pname="f" oct="3" dur="longa" xml:id="m-921beba3-05df-41e1-add4-49cdea56827e" ulx="316" />
+                                    <rest dur="semibrevis" ploc="a" oloc="3" xml:id="m-08f99dec-1b6f-4197-98a1-b3c5cce021f1" ulx="362" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-f4e8eabc-b156-4ce8-9b4e-340a90b4496b" ulx="382" />
+                                    <rest dur="semibrevis" ploc="a" oloc="3" xml:id="m-817b18e3-4085-4d35-88c8-d815c68b0c00" ulx="404" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-96f6e88c-a23e-453b-bba9-7abc3ae14858" ulx="432" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-e2fa20db-198c-43c0-b80e-ba1d30af055b" ulx="466" />
+                                    <dot ploc="b" oloc="3" xml:id="m-79fb7e9d-3a39-47d6-a67c-57a283d79c25" ulx="496" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-eca75b5a-f401-415f-a2c9-80ef663347ef" ulx="520" />
+                                    <note pname="g" oct="3" dur="semibrevis" xml:id="m-06db40ec-5fad-43b8-9c5f-78d40d12978f" ulx="554" />
+                                    <note pname="a" oct="3" dur="semibrevis" colored="true" xml:id="m-d9dcffef-ad5c-439d-bbeb-9eddb406e238" ulx="592" />
+                                    <note pname="f" oct="3" dur="brevis" xml:id="m-759c978d-5814-4bf7-b133-7badc06293a9" ulx="624" />
+                                    <note pname="g" oct="3" dur="brevis" xml:id="m-f39388d8-0eeb-4ad1-84c2-2670ba96ed98" ulx="660" />
+                                    <rest dur="semibrevis" ploc="a" oloc="3" xml:id="m-525b49bd-3019-4c60-b7cf-4f447cdf2fd8" ulx="704" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-63a7e845-1687-4490-85d2-619dd0abdce5" ulx="730" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-9ece78f0-eb0c-4b73-bee6-2c14f6156fbd" ulx="776" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-16be99e8-b3d4-4103-9abc-2ac2dede4ab3" ulx="818" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-b39b96ae-da99-484a-8355-02cc732aa090" ulx="864" />
+                                    <dot ploc="d" oloc="4" xml:id="m-59d31ffb-262c-432a-8568-159950fb9e5b" ulx="890" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-76a7f4d4-e618-449e-a28e-7d05514d243c" ulx="912" />
+                                    <note pname="e" oct="4" dur="semibrevis" xml:id="m-87f25bb5-a711-4d17-8c7a-6127a303932b" ulx="958" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-f7865052-144e-4181-a06a-b3d25675a519" ulx="998" />
+                                    <dot ploc="d" oloc="4" xml:id="m-d6becafa-beec-4550-9e43-c7dacb83cac1" ulx="1026" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-a53f3057-b5a5-4e38-91c0-4ae5314a4e7a" ulx="1052" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-64b91bc8-e706-4299-b192-f3016dddd033" ulx="1088" />
+                                    <note pname="b" oct="3" dur="semibrevis" colored="true" xml:id="m-e3bde828-43b2-447f-84c7-046d77f6c13a" ulx="1122" />
+                                    <rest dur="brevis" ploc="f" oloc="3" xml:id="m-530f2727-e5c2-4cdc-827f-2102d86538b3" ulx="1162" />
+                                    <note pname="f" oct="3" dur="brevis" xml:id="m-bdfa85b3-25cc-4485-a2ce-b6e3fa8098c5" ulx="1206" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-5f0831d7-4193-4450-a9d7-50072c5ab54b" ulx="1248" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-88fd44b4-967d-4747-99c2-1aaaee850c59" ulx="1280" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-2630462e-40e5-436f-bc2c-646d65da0471" ulx="1322" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-21ada969-b38c-4806-a0c0-6fa63dd2d11b" ulx="1356" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-e9d24da9-a1dd-48f7-baee-96419a2c4e22" ulx="1394" />
+                                    <note pname="e" oct="4" dur="semibrevis" xml:id="m-558e8f49-2c7a-4a97-b45c-f2b1d47db73a" ulx="1430" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-7d837ac6-9855-4557-a34f-d679bd886ff1" ulx="1464" />
+                                    <note pname="e" oct="4" dur="brevis" xml:id="m-5f843dab-df20-4b51-aa37-0597d8153822" ulx="1508" />
+                                    <rest dur="brevis" ploc="e" oloc="4" xml:id="m-09c29adc-df41-40ea-b759-7709075e2fad" ulx="1552" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-6092e477-e0c1-49e4-aeaf-b34096fce8ee" ulx="1578" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-f5ac4f10-acdc-466b-9c62-addb979ffc8c" ulx="1620" />
+                                    <custos pname="b" oct="3" xml:id="m-82553501-875c-4233-8568-61cde6cf4d8a" ulx="1660" />
+                                </layer>
+                            </staff>
+                        </system>
+                        <system xml:id="m-45b97a5b-6a21-49dc-b956-522ab2c45ef4" system.leftmar="30" system.rightmar="18" uly="632">
+                            <staff xml:id="m-8bd847d7-7529-49e4-86e3-ea1b5db38cad" label="mensural" uly="632" n="1">
+                                <layer xml:id="m-d5476596-d85c-4e44-bdf7-4a95055ac3df" n="1">
+                                    <clef line="3" shape="C" xml:id="m-64f19870-25f7-47c8-852a-5165027255e8" ulx="32" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-db292252-ca46-4caf-b2f0-aa404a60fa5f" ulx="62" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-e7ba328c-c4a3-4cab-abe7-1af1ab926761" ulx="94" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-6ee8b448-e6d5-4ebc-b927-f8b54c6a4ddf" ulx="132" />
+                                    <dot ploc="d" oloc="4" xml:id="m-ea5be212-1482-4feb-9b3e-efb3ea7d2fbb" ulx="160" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-aeaaefa1-969b-4f5c-bc5c-926d6d48367d" ulx="182" />
+                                    <note pname="e" oct="4" dur="semibrevis" xml:id="m-bfbac5b9-6bf6-4dfc-a4a1-4da508db8f5a" ulx="220" />
+                                    <accid accid="s" ploc="f" oloc="4" xml:id="m-de5fbea3-33bc-44b7-9588-96173c98669f" ulx="254" />
+                                    <rest dur="brevis" ploc="c" oloc="4" xml:id="m-7893464d-7e0d-4526-b213-ab3ef7ea1d43" ulx="290" />
+                                    <note pname="c" oct="4" dur="brevis" xml:id="m-cb51b282-c27a-4c1a-8f50-10fd5d9af2d7" ulx="336" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-75062059-e079-475c-b7c5-bfc978ea1908" ulx="378" />
+                                    <rest dur="brevis" ploc="a" oloc="3" xml:id="m-66a21fba-134c-48a5-90c8-49a1d72cf1cd" ulx="398" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-499dac1f-c049-4493-8690-68afc6f607c7" ulx="418" />
+                                    <rest dur="semibrevis" ploc="a" oloc="3" xml:id="m-54a62c89-e460-4405-b81a-87500d2c1ba7" ulx="440" />
+                                    <note pname="g" oct="3" dur="semibrevis" xml:id="m-64048228-1e28-4b02-9693-469034e7840f" ulx="460" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-048b274a-a29b-4d4c-ab30-caecf1629e2d" ulx="498" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-9d2f8b32-455f-4aff-96dd-dcc74f561750" ulx="532" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-f26d2adb-969b-433f-9432-c3eb00460013" ulx="572" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-7b37a6f0-07b3-45cf-a4b3-c39fae084c89" ulx="606" />
+                                    <note pname="b" oct="3" dur="semiminima" xml:id="m-bd7a36d0-da2c-4109-836b-1d37213d8b3e" ulx="640" />
+                                    <rest dur="brevis" ploc="f" oloc="3" xml:id="m-3e5a55dd-4be8-4198-bb78-9301f43717ab" ulx="676" />
+                                    <note pname="f" oct="3" dur="longa" xml:id="m-9b95b3de-ba54-4867-bbe8-51c242fc82f9" ulx="710" />
+                                    <custos pname="d" oct="4" xml:id="m-e97cb592-6f19-4850-8824-9194d8496206" ulx="782" />
+                                    <rest dur="semiminima" ploc="c" oloc="4" xml:id="m-e86275a0-9481-4819-bfb1-50a0e7aa0dc2" ulx="814" />
+                                    <rest dur="semiminima" ploc="c" oloc="4" xml:id="m-e1a17bf9-13ab-43ae-9480-cd7c44b11e9f" ulx="832" />
+                                    <dot ploc="g" oloc="3" xml:id="m-120a31e3-0a46-4b89-9d7e-d3c0609fa142" ulx="860" />
+                                    <custos pname="g" oct="3" xml:id="m-a73a0567-96d4-4720-bad5-9f802cf8dbc3" ulx="884" />
+                                    <custos pname="g" oct="3" xml:id="m-1d9f29bb-b192-4d92-bf1b-58a6aeb0084d" ulx="922" />
+                                    <custos pname="g" oct="3" xml:id="m-65a7b87a-dcfa-4644-b26c-04ae84a8ba5a" ulx="976" />
+                                    <custos pname="g" oct="3" xml:id="m-6ac4de8d-12c6-4d60-bd83-90e78e00b683" ulx="1008" />
+                                    <rest dur="semiminima" ploc="a" oloc="3" xml:id="m-368ef3bf-2426-4ea8-8fbe-32d1a7b59d9e" ulx="1050" />
+                                    <rest dur="minima" ploc="f" oloc="3" xml:id="m-fd28541c-4f09-4ecb-ac8a-99c29e369736" ulx="1068" />
+                                    <rest dur="semiminima" ploc="c" oloc="4" xml:id="m-bc5510bb-a81f-41a0-a601-24a8a96db24b" ulx="1094" />
+                                    <rest dur="semiminima" ploc="c" oloc="4" xml:id="m-7fbb3f9b-b6be-4d71-8a8d-86ddddb8a851" ulx="1122" />
+                                    <rest dur="minima" ploc="c" oloc="4" xml:id="m-973adf54-737e-407e-bd22-cfcbf673fa65" ulx="1148" />
+                                    <clef line="3" shape="C" xml:id="m-d4e677f0-b67a-41b4-8d5d-a2a99fb40ee7" ulx="1172" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-75346134-6869-40c8-9488-2520cb427682" ulx="1210" />
+                                    <mensur sign="C" slash="1" xml:id="m-5d3db1e7-3951-471f-a3bb-d27aa1b4fd48" ulx="1230" />
+                                    <rest dur="brevis" ploc="a" oloc="3" xml:id="m-f797dd6f-6963-4333-8677-3118ffabb7c0" ulx="1278" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-7f2cf2ec-ea23-49e8-9b3f-6fb912295947" ulx="1298" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-a5244e1d-9b4b-4865-ac2a-22eef27fbbda" ulx="1328" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-1525744a-e61a-46d8-aa57-fa3e839939c3" ulx="1370" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-96981d78-7e9f-4906-b2a9-00294449444c" ulx="1412" />
+                                    <dot ploc="a" oloc="4" xml:id="m-be5b3810-54c5-4652-868c-76f0fefc91c4" ulx="1436" />
+                                    <note pname="d" oct="4" dur="semiminima" xml:id="m-a8552eca-634a-4169-977c-322698ebb805" ulx="1450" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-afd4070c-1e80-4ade-b326-e7b2c8525249" ulx="1480" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-13b82027-1c30-46aa-8a3d-79715c9f36a4" ulx="1514" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-40b1b19a-5afa-4a8a-beeb-0e77e6435a8b" ulx="1554" />
+                                    <dot ploc="d" oloc="4" xml:id="m-3c71c4b1-737e-4c0d-b95c-1535100f8a72" ulx="1582" />
+                                    <note pname="c" oct="4" dur="semiminima" xml:id="m-265b9727-f627-4b38-b812-8961c1ab657a" ulx="1606" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-71842358-72a6-48d7-a3bb-bd91a1dfc22e" ulx="1634" />
+                                    <custos pname="b" oct="3" xml:id="m-77a734f5-3d47-46a5-af64-c44b1e5e8024" ulx="1658" />
+                                </layer>
+                            </staff>
+                        </system>
+                        <system xml:id="m-7d478f2a-ed8d-4b72-899d-4f2d6111b49c" system.leftmar="27" system.rightmar="15" uly="428">
+                            <staff xml:id="m-655c2e14-fd66-48b6-9e9d-8022b7479159" label="mensural" uly="428" n="1">
+                                <layer xml:id="m-70866c79-2dec-4505-86b0-0715f827123f" n="1">
+                                    <clef line="3" shape="C" xml:id="m-6f86e835-8965-415f-9cb5-5ceae0b8cc8c" ulx="29" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-f2a68157-e6b9-445b-a09b-567763aecf4f" ulx="61" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-54201663-2a4b-458a-88a6-d5de19a5172c" ulx="93" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-2c103979-0785-4f87-a4d3-aac9766cfd98" ulx="131" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-b4879634-6f5a-4161-96f7-f0254b61924d" ulx="165" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-d819760a-e481-4983-9f1c-6316e8e233f9" ulx="201" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-fcebddf1-c740-4c16-92b0-0c604cffc6fb" ulx="239" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-fb7f7c7b-1172-448d-9dbd-1d4fbc181210" ulx="277" />
+                                    <rest dur="brevis" ploc="a" oloc="3" xml:id="m-aba50514-7235-41c4-afb4-b128ef98a98b" ulx="315" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-75ff7b01-1c3e-4c4e-8549-bca694c2301e" ulx="343" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-5e79d6c9-a359-409f-9dea-01b1ce5c7ca4" ulx="385" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-b9e7dffe-72af-471c-926f-d79d4904ca85" ulx="417" />
+                                    <dot ploc="f" oloc="4" xml:id="m-1d12e052-4227-4566-ae18-f2c040509341" ulx="447" />
+                                    <note pname="d" oct="4" dur="semiminima" xml:id="m-8385b87c-7c4d-4d33-b79d-0ec1165f469b" ulx="461" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-2d16bab9-9bca-430f-8cc0-71055da103ed" ulx="495" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-00bcb146-5b89-4373-ae5c-b38b95caebde" ulx="535" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-24aa1f3f-f99b-4505-b2a6-b2cc802388b7" ulx="573" />
+                                    <dot ploc="d" oloc="4" xml:id="m-3388fb74-c95b-40e7-b1b6-629b627055cd" ulx="603" />
+                                    <note pname="c" oct="4" dur="fusa" xml:id="m-ec16f64b-dbf5-4e29-a88b-ee8bcbc55ecc" ulx="627" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-8d915be6-7a8c-4ae4-8cc9-888f6551532a" ulx="663" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-3a3cd7eb-819e-4df8-a7fb-743f8105f8b2" ulx="697" />
+                                    <note pname="c" oct="4" dur="brevis" xml:id="m-d2a2a4dc-dcce-4a55-841a-98d4de96055c" ulx="741" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-f52f9040-87b5-495f-aa86-d9b1b2cea22e" ulx="785" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-65d78e88-857f-4da9-8971-7b70149c358f" ulx="821" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-14edbb31-03d5-4bf9-8a3f-41aebe2545a0" ulx="859" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-127cd1a9-fbd3-4203-9c3c-764c70e4c50c" ulx="903" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-47eeb4a7-b70f-40ab-852d-4b013d135e32" ulx="941" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-36a11e41-187e-42d2-a980-3b451baf4ff6" ulx="977" />
+                                    <note pname="b" oct="3" dur="semibrevis" xml:id="m-dff3d9b7-de3c-4ed9-8b7a-f9db9a6a3988" ulx="1011" />
+                                    <rest dur="semibrevis" ploc="c" oloc="4" xml:id="m-40c23a70-827e-4103-a27b-2c0c1f632d0f" ulx="1055" />
+                                    <rest dur="minima" ploc="a" oloc="3" xml:id="m-2318bddd-1857-47a7-ac61-aaeca52212dd" ulx="1077" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-38f6a225-ec0b-4e5c-9b7e-7695ef3ff7d0" ulx="1103" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-e9cc72de-0274-4726-b956-c197439a8597" ulx="1141" />
+                                    <dot ploc="d" oloc="4" xml:id="m-71f37fef-f77b-4894-8aff-e9472593e855" ulx="1169" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-0975b869-13d8-4a6b-95cf-335c966ea674" ulx="1191" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-c195a182-d57a-4cb8-bbcb-a98e9e2e0b82" ulx="1229" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-f6fabdfd-ebf6-412a-b188-cdcbb34b2424" ulx="1265" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-ced6667e-e8a4-43f8-8ac1-5c7febf35a96" ulx="1297" />
+                                    <dot ploc="b" oloc="3" xml:id="m-49f99503-a4e2-422c-b8a8-db899f901474" ulx="1327" />
+                                    <note pname="c" oct="4" dur="semiminima" xml:id="m-9e6b0a4e-1188-40c5-9636-05ae3c2a331a" ulx="1353" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-d20b9017-885c-486a-b3fa-cb4786cf1301" ulx="1387" />
+                                    <dot ploc="d" oloc="4" xml:id="m-6228ea5f-b772-4c75-ba92-53d318f80791" ulx="1415" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-4e313dd2-a4fe-40e9-9219-c5fbcb561b69" ulx="1437" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-985ed3a4-a9ec-4418-850f-a2e831ad71d6" ulx="1481" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-9fac8282-1f13-4d87-a959-dab9179abc23" ulx="1517" />
+                                    <note pname="f" oct="3" dur="semibrevis" xml:id="m-243da1a9-58d2-4180-af7b-f00e2af956e2" ulx="1557" />
+                                    <rest dur="minima" ploc="f" oloc="3" xml:id="m-a8b22083-4e8c-4c4e-9b3b-521903cbe0a2" ulx="1599" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-266e40a0-eb10-4937-85f9-15688aa3e9b8" ulx="1627" />
+                                </layer>
+                            </staff>
+                        </system>
+                        <system xml:id="m-fe341499-4f2a-4cdb-b969-e3d8bae2c49b" system.leftmar="27" system.rightmar="6" uly="220">
+                            <staff xml:id="m-75209842-31b2-4b55-ab73-026766f4784d" label="mensural" uly="220" n="1">
+                                <layer xml:id="m-e682f1bc-edf0-4903-b4af-d1dcaae76637" n="1">
+                                    <clef line="3" shape="C" xml:id="m-a68258d5-117d-4e57-98f3-c100ee34dcb7" ulx="29" />
+                                    <accid accid="f" ploc="b" oloc="3" xml:id="m-0496be51-ffa6-4f55-812c-7af219807506" ulx="61" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-3eeaf9ed-d4b0-4f8f-98fe-168c2d0b06e2" ulx="97" />
+                                    <dot ploc="d" oloc="4" xml:id="m-547d73aa-36bb-4fa5-a4ea-189d628dfca3" ulx="121" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-6b6742fd-a2a9-484c-94b1-827c26a1bdc8" ulx="143" />
+                                    <note pname="a" oct="3" dur="semibrevis" xml:id="m-395c2fa6-e2aa-451e-87c2-ea3881601b24" ulx="181" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-9e3caadd-d575-4345-88ce-5eebc99d0acf" ulx="207" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-3119840e-df13-4915-9174-fa87e5aeb620" ulx="235" />
+                                    <dot ploc="f" oloc="4" xml:id="m-b6b769ee-19b3-4b5e-a024-52144061bb3d" ulx="267" />
+                                    <note pname="e" oct="4" dur="semiminima" xml:id="m-8dff20b6-8970-47b4-8641-9c379d988042" ulx="291" />
+                                    <note pname="d" oct="4" dur="semibrevis" xml:id="m-cb92093c-a144-4a5b-acf5-0957651f5d33" ulx="315" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-9dce57c2-f2f9-4f37-b70d-0405ece8f131" ulx="343" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-3d90ae09-1fd5-46c6-a6b3-84603505ae4a" ulx="369" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-01888e83-f4f8-4a94-bad7-7268f41941a2" ulx="399" />
+                                    <rest dur="minima" ploc="c" oloc="4" xml:id="m-9a6f3368-9484-4de4-8541-12bd33e21261" ulx="443" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-6811bea1-f63a-4528-bd2d-d4a1109e4b0e" ulx="471" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-b2989696-dd38-4823-a3f6-86f5677920e0" ulx="515" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-61ef6428-21fa-4e6d-9a81-21c9dbc9e344" ulx="551" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-1d7df090-bba5-4a9b-a79e-6588fe72f57d" ulx="589" />
+                                    <dot ploc="b" oloc="3" xml:id="m-408aeff8-b42f-4b30-ab6f-7b9458cc0090" ulx="619" />
+                                    <note pname="c" oct="4" dur="fusa" xml:id="m-d6c458ce-3617-43eb-84ce-3f84ddbd3d15" ulx="645" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-a915532b-a243-48f5-b7cd-83c47fb22e9d" ulx="679" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-44c36434-cbf6-422d-8ddd-5a2fc75612b8" ulx="717" />
+                                    <note pname="b" oct="3" dur="semiminima" xml:id="m-19aa023c-12cf-48f5-989f-257eb8ad2386" ulx="749" />
+                                    <note pname="a" oct="3" dur="semiminima" xml:id="m-516ff93d-e728-4916-9573-1c66423f78a1" ulx="779" />
+                                    <note pname="g" oct="3" dur="minima" xml:id="m-6cf5dad1-4532-4216-a207-a639d73b5233" ulx="805" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-13969a4d-8c82-46f9-9a8e-d8b8ec9bbe6d" ulx="843" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-8cf0d21b-5bbe-480b-a7d8-50b87c7a86b1" ulx="869" />
+                                    <note pname="f" oct="4" dur="semibrevis" xml:id="m-44b91984-582d-4b30-afa3-0f544c25f967" ulx="897" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-60274b4a-c928-4338-b251-7a6be7a45b50" ulx="939" />
+                                    <note pname="f" oct="4" dur="minima" xml:id="m-10b692e2-251e-47e9-90a6-b840d9c9bd74" ulx="973" />
+                                    <dot ploc="f" oloc="4" xml:id="m-b8d45f3a-ad6b-4a3b-84c8-49a899378ef8" ulx="1001" />
+                                    <note pname="e" oct="4" dur="semiminima" xml:id="m-d4766695-6256-43c2-8a23-49d0df617316" ulx="1029" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-7317047d-1bd6-4fa3-9d0f-b3b4b169ebbc" ulx="1053" />
+                                    <accid accid="f" ploc="e" oloc="4" xml:id="m-1ef6cc41-abdb-4376-a237-7c2393abec11" ulx="1081" />
+                                    <note pname="e" oct="4" dur="minima" xml:id="m-b6ca4931-a032-4c61-ba4b-b941f81b62fa" ulx="1101" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-2151a96c-e9cb-4b82-b421-707aebd34048" ulx="1133" />
+                                    <dot ploc="d" oloc="4" xml:id="m-49534698-2f58-4ab4-accd-022e31787438" ulx="1165" />
+                                    <note pname="c" oct="4" dur="semiminima" xml:id="m-6c840a2e-530c-4dcb-95fb-fb87914e3d1a" ulx="1187" />
+                                    <note pname="a" oct="3" dur="minima" xml:id="m-0c0525d8-d421-4357-9d97-e0ebd96ee04e" ulx="1215" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-fee6cf30-f4e0-4aaf-bf8b-d0dff39c1fd8" ulx="1249" />
+                                    <note pname="g" oct="3" dur="semibrevis" xml:id="m-cddc27ee-e3be-4453-a28c-ccf574241687" ulx="1287" />
+                                    <note pname="f" oct="3" dur="minima" xml:id="m-8238df63-9030-42b1-9a51-5f5413463c24" ulx="1325" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-45e8314f-d1b8-4a2f-9374-00892536e2a1" ulx="1351" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-682a7dfb-eae1-4fa3-8f96-027dd4911290" ulx="1385" />
+                                    <note pname="c" oct="4" dur="minima" xml:id="m-0248a9a5-34a6-4bca-974d-711e7b987036" ulx="1425" />
+                                    <note pname="d" oct="4" dur="minima" xml:id="m-1970bb6f-2f1e-49ff-995b-1c35eea80efb" ulx="1461" />
+                                    <dot ploc="b" oloc="3" xml:id="m-5dadc188-b071-4864-8cac-ee5283a0aac3" ulx="1491" />
+                                    <note pname="c" oct="4" dur="fusa" xml:id="m-5f3ba88e-d55d-4b24-800c-44c913563c97" ulx="1513" />
+                                    <note pname="c" oct="4" dur="semibrevis" xml:id="m-adead70a-eb0a-4c4c-a45e-bb821ba50e04" ulx="1557" />
+                                    <note pname="b" oct="3" dur="minima" xml:id="m-a6aa2c29-5082-48cd-a99a-c1f1367be698" ulx="1591" />
+                                    <mensur sign="C" xml:id="m-d8966053-7dbb-4174-8457-97cb231d195f" ulx="1629" />
+                                </layer>
+                            </staff>
+                        </system>
+                    </page>
+                </pages>
+            </mdiv>
+        </body>
+    </music>
+</mei>

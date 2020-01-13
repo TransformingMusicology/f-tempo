@@ -1,0 +1,16 @@
+In working directory: .
+Query code is: B-aaAAAaBa-aaaaAA-B-a--b-AbAAAcBAA-abAb-Aa-aAAbDbAaAaaaaAD-ac--CbBaBb--bAbaC--AA--AAbAa-aA--B-aabAAAabD--b-aCaaa-bA-A-B---aa-aaaAAC-abD-a-a--aAAAAAdA-baCa-bCAAb-aaaE
+Diat interval string (fasta): >code query: 
+B-aaAAAaBa-aaaaAA-B-a--b-AbAAAcBAA-abAb-Aa-aAAbDbAaAaaaaAD-ac--CbBaBb--bAbaC--AA--AAbAa-aA--B-aabAAAabD--b-aCaaa-bA-A-B---aa-aaaAAC-abD-a-a--aAAAAAdA-baCa-bCAAb-aaaE
+2019-11-22 15:21:38+00:00: Generating MAWs for code_query:
+Processing 5'->3' strand of sequence code query:  of length 165
+Elapsed time for processing 1 sequence(s): 0.001488 secs
+
+In working directory: .
+Query code is: B-aaAAAaBa-aaaaAA-B-a--b-AbAAAcBAA-abAb-Aa-aAAbDbAaAaaaaAD-ac--CbBaBb--bAbaC--AA--AAbAa-aA--B-aabAAAabD--b-aCaaa-bA-A-B---aa-aaaAAC-abD-a-a--aAAAAAdA-baCa-bCAAb-aaaE
+Diat interval string (fasta): >code query: 
+B-aaAAAaBa-aaaaAA-B-a--b-AbAAAcBAA-abAb-Aa-aAAbDbAaAaaaaAD-ac--CbBaBb--bAbaC--AA--AAbAa-aA--B-aabAAAabD--b-aCaaa-bA-A-B---aa-aaaAAC-abD-a-a--aAAAAAdA-baCa-bCAAb-aaaE
+2019-11-22 15:22:23+00:00: Generating MAWs for code_query:
+Processing 5'->3' strand of sequence code query:  of length 165
+Elapsed time for processing 1 sequence(s): 0.001332 secs
+

@@ -156,6 +156,10 @@ function highlight_system_box(sel_box,isquery) {
 	var q_sel_elements = [];
 	var m_sel_elements = [];
 
+// Clear globals:
+q_highlight_rects.length = m_highlight_rectslength = 0;
+
+
 	if(isquery) {
 		var match_notes_list = m_ngs_in_query[index];
 		if(match_notes_list.length>0) {
@@ -263,6 +267,7 @@ console.log("Match: "+ m_str);
 
 // clear global arrays q_ngs_in_match & m_ngs_in_query
 	q_ngs_in_match.length = m_ngs_in_query.length = 0;
+	
 	var ql=q_str.length; ml=m_str.length;
 	var q_ngrams = ngram_string(q_str,ngr_len); //cut last char
 	var m_ngrams = ngram_string(m_str,ngr_len);

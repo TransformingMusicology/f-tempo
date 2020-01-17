@@ -14,13 +14,8 @@ const request = require('request');
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
-// const MAWS_DB = './data/emo_ids_maws.txt';
-// const MAWS_DB = './data/big_emo_ids_maws.txt'; // includes Parangon & Petrucci_EMOs
-const MAWS_DB = './data/latest_maws'; // includes Parangon, Petrucci and IIIF EMOs
-// const MAWS_DB = './data/dev_emo_ids_maws.txt'; // for dev only! smaller dataset for quick startup
-// const DIAT_MEL_DB = './data/id_diat_mel_strs.txt';
-// const DIAT_MEL_DB = './data/big_id_diat_mel_strs.txt'; // includes Parangon & Petrucci_EMOs
-const DIAT_MEL_DB = './data/latest_diat_mel_strs'; // includes Parangon, Petrucci and IIIF EMOs
+const MAWS_DB = './data/latest_maws'; 
+const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
 const EMO_IDS_DIAT_MELS = {};

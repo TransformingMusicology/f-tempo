@@ -78,7 +78,7 @@ function svgToScreen(element) {
 
 var ngr_len = 5;
 
-// get index of obj.id in q_arr or m_arr depending on boolean val of q (is query)
+// get index of obj.id in query_notes or match_notes depending on boolean val of q (is query)
 function getIndexFromBoxArray(val,q) {
 	if(q) {
 	//	var index = q_sel_rects.indexOf(val);
@@ -107,10 +107,18 @@ function boundingBoxesForElements(elements) {
 	var parentBox = elements[0].closest('div').childNodes[0].getBoundingClientRect();
 	var offsetY = parentBox.top;
 	var offsetX = parentBox.left;
+	
+	// ** This loop goes through *all* the elements, even if they represent more than 
+	// one ngram are are not contiguous (in which case, there should be separate
+	// bounding boxes with a gap between them) and forms a *single* bounding box.
+	// What we need to do is to create new BBs every ngr_len+1 notes. I don't think
+	// getSystem can do this. ??
 	for(var i=0; i<elements.length; i++){
 	if(!elements[i]) continue;
 
-	// The childNodes here are the staff-lines themselves, but y is screen-relative (??), so we add offsetY; the last tweak (+- 8) is to get a reasonable 'margin' around the box
+	// The childNodes here are the top and bottom staff-lines themselves, 
+	// but y is screen-relative (??), so we add offsetY; 
+	// the last tweak (+- 8) is to get a reasonable 'margin' around the box
 	var elTop = convertCoords(elements[i].closest('.staff').childNodes[1]).y + offsetY - 8;
 	var elBot = convertCoords(elements[i].closest('.staff').childNodes[9]).y + offsetY + 8;
 
@@ -271,28 +279,28 @@ console.log("Match: "+ m_str);
 	var ql=q_str.length; ml=m_str.length;
 	var q_ngrams = ngram_string(q_str,ngr_len); //cut last char
 	var m_ngrams = ngram_string(m_str,ngr_len);
-	var last_q_ng_pos = q_str.length-ngr_len-1;
+	var last_q_ng_pos = q_str.length-ngr_len;
 	for(var i=0;i<last_q_ng_pos;i++) {
 		if(typeof m_ngs_in_query[i] === "undefined") m_ngs_in_query[i] = [];
-		if(i>=ngr_len) {
-			var found = findAllIndexes(m_str,q_ngrams[i]);
+//		if(i>=ngr_len) {
+			let found = findAllIndexes(m_str,q_ngrams[i]);
 			for(let n of found) {
 				if(n >= 0) m_ngs_in_query[i].push(n-1); 
 			}
-		}
+//		}
 	}
 	// fill up blank slots at end
 	for(var x=0;x<=ngr_len;x++) m_ngs_in_query[i+x]=[];
 
-	var last_m_ng_pos = m_str.length-ngr_len-1;
+	var last_m_ng_pos = m_str.length-ngr_len;
 	for(var i=0;i<last_m_ng_pos;i++) {
 		if(typeof q_ngs_in_match[i] === "undefined") q_ngs_in_match[i] = [];
-		if(i>=ngr_len) {
-			var found = findAllIndexes(q_str,m_ngrams[i]);
+//		if(i>=ngr_len) {
+			let found = findAllIndexes(q_str,m_ngrams[i]);
 			for(let n of found) {
 				if(n >= 0) q_ngs_in_match[i].push(n-1); 
 			}
-		}
+//		}
 	}
 	// fill up blank slots at end
 	for(var y=0;y<=ngr_len;y++) q_ngs_in_match[i+y]=[];
@@ -356,12 +364,14 @@ function hide_show_image(isquery) {
 	}
 }
 
-var q_arr = m_arr = false;
+//var q_arr = m_arr = false;
 var drawq = drawm = false; // drawing layer
 var query_notes = [];
 var match_notes = [];
+/*
 var query_colours = [];
 var match_colours = [];
+*/
 var q_sel_rects = [];
 var m_sel_rects = [];
 
@@ -379,10 +389,12 @@ function setup_page({
     m_jpg_url,
     q_mei,
     m_mei,
+/*
     q_index_to_colour,
     m_index_to_colour,
     qcomm_str,
     mcomm_str,
+*/
     q_diat_str,
     m_diat_str,
 }) {
@@ -396,10 +408,11 @@ function setup_page({
 	m_ngs_in_query = [];
 	q_ngs_in_match = [];	
 	getCommonNgrams(q_diat_str,m_diat_str);
-	
+
+/*	
 	query_colours = q_index_to_colour;
 	match_colours = m_index_to_colour;
-
+*/
 	// Setup Verovio toolkit
 	var vrvToolkit = new verovio.toolkit();
 	const query_image_height = document.getElementById("query_image").height;
@@ -429,7 +442,7 @@ function setup_page({
 	
 	buildSelectionBoxes();
 
-    q_arr = _.values(query_notes);
-    m_arr = _.values(match_notes);
+ //   q_arr = _.values(query_notes);
+ //   m_arr = _.values(match_notes);
 
 }

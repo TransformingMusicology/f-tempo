@@ -253,14 +253,12 @@ app.get('/compare', function (req, res) {
 		m_jpg_url,
 		q_mei: q_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
 		m_mei: m_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
+/*
 		q_index_to_colour: JSON.stringify(q_index_to_colour),
 		m_index_to_colour: JSON.stringify(m_index_to_colour),
-//		qcomm: JSON.stringify(sorted_q_comm),
-//		mcomm: JSON.stringify(sorted_m_comm),
-//		qcomm: sorted_q_comm,
-//		mcomm: sorted_m_comm,
 		qcomm_str: JSON.stringify(sorted_q_comm),
 		mcomm_str: JSON.stringify(sorted_m_comm),
+*/
 		q_diat_str: JSON.stringify(q_diat_str),
 		m_diat_str: JSON.stringify(m_diat_str),
 	  }

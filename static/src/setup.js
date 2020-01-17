@@ -151,7 +151,8 @@ function show_results(json) {
                 +"' onclick='load_result_image(\""+target_id+"\","+q+","+(rank_factor*100).toFixed(1)+");'>"
 //                +"<td text-align='center' style='color:blue'><small>" +target_id+"</small></td>"
                 +"<td text-align='center' style='color:blue; font-size: 10px'>" +target_id+"</td>"
-                + "<td onclick='compare(\""+query_id+"\",\""+results[q].id+"\");'>"
+          //      + "<td onclick='compare(\""+query_id+"\",\""+results[q].id+"\");'>"
+               + "<td>"
                 + '<div class="progress">'
                 + '<div class="progress-bar" role="progressbar" style="width: ' + rank_percentage + '%;" aria-valuenow="' + rank_percentage + '" aria-valuemin="0" aria-valuemax="100">' + rank_percentage + '</div>'
                 + "</td>";

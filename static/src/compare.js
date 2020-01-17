@@ -108,11 +108,6 @@ function boundingBoxesForElements(elements) {
 	var offsetY = parentBox.top;
 	var offsetX = parentBox.left;
 	
-	// ** This loop goes through *all* the elements, even if they represent more than 
-	// one ngram are are not contiguous (in which case, there should be separate
-	// bounding boxes with a gap between them) and forms a *single* bounding box.
-	// What we need to do is to create new BBs every ngr_len+1 notes. I don't think
-	// getSystem can do this. ??
 	for(var i=0; i<elements.length; i++){
 	if(!elements[i]) continue;
 
@@ -165,7 +160,7 @@ function highlight_system_box(sel_box,isquery) {
 	var m_sel_elements = [];
 
 // Clear globals:
-q_highlight_rects.length = m_highlight_rectslength = 0;
+q_highlight_rects.length = m_highlight_rects.length = 0;
 
 
 	if(isquery) {
@@ -178,7 +173,20 @@ q_highlight_rects.length = m_highlight_rectslength = 0;
 				if(offset>ngr_len) break; 
 				q_sel_elements.push(query_notes[index+offset]);
 			}
-//	build array of rect-dimensions in the 'other' pane as needed
+	// Build and highlight all the rects that need highlighting
+			q_highlight_rect_dims = boundingBoxesForElements(q_sel_elements); 
+			var q_hl_r_d_array = Object.values(q_highlight_rect_dims);
+			qsel_svg = drawq;
+			for(var r=0; r<q_hl_r_d_array.length;r++) {
+				q_highlight_rects[r] = qsel_svg.rect(q_hl_r_d_array[r].right - q_hl_r_d_array[r].left,q_hl_r_d_array[r].bottom - q_hl_r_d_array[r].top);
+				q_highlight_rects[r].move(q_hl_r_d_array[r].left,q_hl_r_d_array[r].top);
+				q_highlight_rects[r].addClass("highlight");
+				highlight_box(q_highlight_rects[r]);
+			}
+			q_sel_elements.length = 0;
+
+//	build array of rect-dimensions in the match pane as needed
+			m_sel_elements.length = 0;
 			document.getElementById("message").innerHTML += " match_notes:"
 			for(var t=0;t<match_notes_list.length;t++) {
 				if(typeof match_notes_list[t] === "undefined") continue;
@@ -187,6 +195,20 @@ q_highlight_rects.length = m_highlight_rectslength = 0;
 				for(offset=0;start+offset<m_sel_rects.length;offset++) {
 					if(offset>ngr_len) break;
 					m_sel_elements.push(match_notes[start+offset]);
+					
+					if(m_sel_elements.length == ngr_len + 1){				
+				// Build and highlight all the rects that need highlighting
+						m_highlight_rect_dims = boundingBoxesForElements(m_sel_elements);
+						var m_hl_r_d_array = Object.values(m_highlight_rect_dims);
+						msel_svg = drawm;
+						for(var n=0; n<m_hl_r_d_array.length;n++) {
+							m_highlight_rects[n] = msel_svg.rect(m_hl_r_d_array[n].right - m_hl_r_d_array[n].left,m_hl_r_d_array[n].bottom - m_hl_r_d_array[n].top);
+							m_highlight_rects[n].move(m_hl_r_d_array[n].left,m_hl_r_d_array[n].top);
+							m_highlight_rects[n].addClass("highlight");
+							highlight_box(m_highlight_rects[n]);
+						}
+						m_sel_elements.length = 0;
+					}
 				}
 			}
 		}
@@ -201,41 +223,54 @@ q_highlight_rects.length = m_highlight_rectslength = 0;
 				if(offset>ngr_len) break;
 				m_sel_elements.push(match_notes[index+offset]);
 			}
-//	build array of rect-dimensions in the 'other' pane as needed
+	// Build and highlight all the rects that need highlighting
+			m_highlight_rect_dims = boundingBoxesForElements(m_sel_elements);
+			var m_hl_r_d_array = Object.values(m_highlight_rect_dims);
+			msel_svg = drawm;
+			for(var n=0; n<m_hl_r_d_array.length;n++) {
+				m_highlight_rects[n] = msel_svg.rect(m_hl_r_d_array[n].right - m_hl_r_d_array[n].left,m_hl_r_d_array[n].bottom - m_hl_r_d_array[n].top);
+				m_highlight_rects[n].move(m_hl_r_d_array[n].left,m_hl_r_d_array[n].top);
+				m_highlight_rects[n].addClass("highlight");
+				highlight_box(m_highlight_rects[n]);
+			}
+			m_sel_elements.length = 0;
+
+//	build array of rect-dimensions in the query pane as needed
+			q_sel_elements.length = 0;
 			document.getElementById("message").innerHTML += " query_notes:"
 			for(var t=0;t<query_notes_list.length;t++) {
 				if(typeof query_notes_list[t] === "undefined") continue;
 				document.getElementById("message").innerHTML += " "+query_notes_list[t];
 				var start =query_notes_list[t]+1;
 				for(offset=0;start+offset<q_sel_rects.length;offset++) {
-					if(offset>ngr_len) break;
+		//			if(offset>ngr_len) break;
 					q_sel_elements.push(query_notes[start+offset]);	
+
+					if(q_sel_elements.length == ngr_len + 1){
+				// Build and highlight all the rects that need highlighting
+						q_highlight_rect_dims = boundingBoxesForElements(q_sel_elements); 
+						var q_hl_r_d_array = Object.values(q_highlight_rect_dims);
+						qsel_svg = drawq;
+						for(var r=0; r<q_hl_r_d_array.length;r++) {
+							q_highlight_rects[r] = qsel_svg.rect(q_hl_r_d_array[r].right - q_hl_r_d_array[r].left,q_hl_r_d_array[r].bottom - q_hl_r_d_array[r].top);
+							q_highlight_rects[r].move(q_hl_r_d_array[r].left,q_hl_r_d_array[r].top);
+							q_highlight_rects[r].addClass("highlight");
+							highlight_box(q_highlight_rects[r]);
+						}
+						q_sel_elements.length = 0;
+					}
 				}
 			}
 		}
 	}
-
-// Build and highlight all the rects that need highlighting
-	q_highlight_rect_dims = boundingBoxesForElements(q_sel_elements); 
-	var q_hl_r_d_array = Object.values(q_highlight_rect_dims);
-	qsel_svg = drawq;
-	for(var r=0; r<q_hl_r_d_array.length;r++) {
-		q_highlight_rects[r] = qsel_svg.rect(q_hl_r_d_array[r].right - q_hl_r_d_array[r].left,q_hl_r_d_array[r].bottom - q_hl_r_d_array[r].top);
-		q_highlight_rects[r].move(q_hl_r_d_array[r].left,q_hl_r_d_array[r].top);
-		highlight_box(q_highlight_rects[r]);
-	}
-	m_highlight_rect_dims = boundingBoxesForElements(m_sel_elements);
-	var m_hl_r_d_array = Object.values(m_highlight_rect_dims);
-	msel_svg = drawm;
-	for(var n=0; n<m_hl_r_d_array.length;n++) {
-		m_highlight_rects[n] = msel_svg.rect(m_hl_r_d_array[n].right - m_hl_r_d_array[n].left,m_hl_r_d_array[n].bottom - m_hl_r_d_array[n].top);
-		m_highlight_rects[n].move(m_hl_r_d_array[n].left,m_hl_r_d_array[n].top);
-		highlight_box(m_highlight_rects[n]);
-	}
 }
+
 function unhighlight_system_boxes() {
-	for(var r in q_highlight_rects) unhighlight_box(q_highlight_rects[r]);
-	for(var n in m_highlight_rects) unhighlight_box(m_highlight_rects[n]);
+//	for(var r in q_highlight_rects) unhighlight_box(q_highlight_rects[r]);
+//	for(var n in m_highlight_rects) unhighlight_box(m_highlight_rects[n]);
+
+	$("svg .highlight").remove();	
+	
 }
 
 function findAllIndexes(source, find) {

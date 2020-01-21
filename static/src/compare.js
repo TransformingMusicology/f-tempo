@@ -1,3 +1,62 @@
+//Cosine similarity code (from: 
+// https://medium.com/@sumn2u/string-similarity-comparision-in-js-with-examples-4bae35f13968)
+
+//(function () {
+    
+    function termFreqMap(str) {
+        var words = str.split(' ');
+        var termFreq = {};
+        words.forEach(function(w) {
+            termFreq[w] = (termFreq[w] || 0) + 1;
+        });
+        return termFreq;
+    }
+    function addKeysToDict(map, dict) {
+        for (var key in map) {
+            dict[key] = true;
+        }
+    }
+    function termFreqMapToVector(map, dict) {
+        var termFreqVector = [];
+        for (var term in dict) {
+            termFreqVector.push(map[term] || 0);
+        }
+        return termFreqVector;
+    }
+    function vecDotProduct(vecA, vecB) {
+        var product = 0;
+        for (var i = 0; i < vecA.length; i++) {
+            product += vecA[i] * vecB[i];
+        }
+        return product;
+    }
+    function vecMagnitude(vec) {
+        var sum = 0;
+        for (var i = 0; i < vec.length; i++) {
+            sum += vec[i] * vec[i];
+        }
+        return Math.sqrt(sum);
+    }
+    function cosineSimilarity(vecA, vecB) {
+        return vecDotProduct(vecA, vecB) / (vecMagnitude(vecA) * vecMagnitude(vecB));
+    }
+  //  Cosinesimilarity = 
+    function textCosineSimilarity(strA, strB) {
+        var termFreqA = termFreqMap(strA);
+        var termFreqB = termFreqMap(strB);
+
+        var dict = {};
+        addKeysToDict(termFreqA, dict);
+        addKeysToDict(termFreqB, dict);
+
+        var termFreqVecA = termFreqMapToVector(termFreqA, dict);
+        var termFreqVecB = termFreqMapToVector(termFreqB, dict);
+
+        return cosineSimilarity(termFreqVecA, termFreqVecB);
+    }
+//})();
+// End of cosine similarity code
+
 // Function to correct Verovio JSON bug:
 function resizeSVG(choice){
     let mySVG;
@@ -270,8 +329,9 @@ function unhighlight_system_boxes() {
 //	for(var r in q_highlight_rects) unhighlight_box(q_highlight_rects[r]);
 //	for(var n in m_highlight_rects) unhighlight_box(m_highlight_rects[n]);
 
-	$("svg .highlight").remove();	
-	
+	$("svg .highlight").fadeOut(200);
+//	$("svg .highlight").remove();
+		
 }
 
 function findAllIndexes(source, find) {
@@ -284,7 +344,7 @@ function findAllIndexes(source, find) {
   }
   return result;
 }
-function ngram_string(str, n) {
+function ngram_array(str, n) {
 // Returns array of all complete ngrams in str of length n
 	if(!str.length) return false;
 	ngrams = [];
@@ -313,8 +373,8 @@ console.log("Match: "+ m_str);
 	q_ngs_in_match.length = m_ngs_in_query.length = 0;
 	
 	var ql=q_str.length; ml=m_str.length;
-	var q_ngrams = ngram_string(q_str,ngr_len); //cut last char
-	var m_ngrams = ngram_string(m_str,ngr_len);
+	var q_ngrams = ngram_array(q_str,ngr_len); //cut last char
+	var m_ngrams = ngram_array(m_str,ngr_len);
 	var last_q_ng_pos = q_str.length-ngr_len;
 	for(var i=0;i<last_q_ng_pos;i++) {
 		if(typeof m_ngs_in_query[i] === "undefined") m_ngs_in_query[i] = [];
@@ -340,6 +400,8 @@ console.log("Match: "+ m_str);
 	}
 	// fill up blank slots at end
 	for(var y=0;y<=ngr_len;y++) q_ngs_in_match[i+y]=[];
+	
+	console.log("Cosine similarity = "+textCosineSimilarity(ngram_array(q_str,ngr_len).join(' '), ngram_array(m_str,ngr_len).join(' ')));
 }
 
 function buildSelectionBoxes () {
@@ -355,7 +417,7 @@ function buildSelectionBoxes () {
 	q_sel_rects[i].attr('note_id',query_notes[i].id);
 
 	q_sel_rects[i].mouseover(function() {  highlight_system_box(this,true); });
-	q_sel_rects[i].mouseout(function() {  unhighlight_system_boxes() });	
+	q_sel_rects[i].mouseleave(function() {  unhighlight_system_boxes() });	
     }
 	drawq.attr("id" , "q_draw_area");
   
@@ -369,7 +431,7 @@ function buildSelectionBoxes () {
 	m_sel_rects[i].attr('fill','transparent');
 	m_sel_rects[i].attr('note_id',match_notes[i].id);
 	m_sel_rects[i].mouseover(function() {  highlight_system_box(this,false); });
-	m_sel_rects[i].mouseout(function() {  unhighlight_system_boxes() });	
+	m_sel_rects[i].mouseleave(function() {  unhighlight_system_boxes() });	
     }
     drawm.attr("id" , "m_draw_area");
 }

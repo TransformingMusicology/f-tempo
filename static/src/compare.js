@@ -1,3 +1,4 @@
+/*
 //Cosine similarity code (from: 
 // https://medium.com/@sumn2u/string-similarity-comparision-in-js-with-examples-4bae35f13968)
 
@@ -56,6 +57,7 @@
     }
 //})();
 // End of cosine similarity code
+*/
 
 // Function to correct Verovio JSON bug:
 function resizeSVG(choice){
@@ -334,6 +336,7 @@ function unhighlight_system_boxes() {
 		
 }
 
+/*
 function findAllIndexes(source, find) {
   var result = [];
   for (i = 0; i < source.length-find.length; ++i) {
@@ -361,6 +364,7 @@ function ngram_array(str, n) {
 		}
 	return ngrams;
 }
+*/
 
 var q_ngs_in_match = [];
 var m_ngs_in_query = [];

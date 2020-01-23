@@ -574,6 +574,7 @@ function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard) {
             result.id = id;
             result.num = num;
             result.num_words = num_words;
+            result.codestring = EMO_IDS_DIAT_MELS[id];
 
             result.jaccard = 1 - (num / (num_words + wds_in_q - num));
             scores_pruned.push(result);

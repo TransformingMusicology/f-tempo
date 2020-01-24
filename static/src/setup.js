@@ -138,7 +138,7 @@ function display_cosine_sim_line(json) {
 		document.getElementById(progID).parentNode.appendChild(canv);
 //		document.getElementById(progID).parentNode.insertBefore(canv,document.getElementById(progID).nextSibling);
 		canv.style.position="absolute";
-		canv.style.zIndex="4";
+		canv.style.zIndex="2";
 		canv.width=canWidth;
 //		canv.height=canHeight;
 		canv.height="5";

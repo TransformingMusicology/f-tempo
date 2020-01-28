@@ -41,7 +41,7 @@
         return vecDotProduct(vecA, vecB) / (vecMagnitude(vecA) * vecMagnitude(vecB));
     }
   //  Cosinesimilarity = 
-    function textCosineSimilarity(strA, strB) {
+	  function textCosineSimilarity(strA, strB) {
         var termFreqA = termFreqMap(strA);
         var termFreqB = termFreqMap(strB);
 
@@ -56,7 +56,7 @@
     }
 //})();
 // End of cosine similarity code
-
+exports.textCosineSimilarity = textCosineSimilarity;
 
 function findAllIndexes(source, find) {
   var result = [];
@@ -68,6 +68,8 @@ function findAllIndexes(source, find) {
   }
   return result;
 }
+exports.findAllIndexes = findAllIndexes;
+
 function ngram_array(str, n) {
 // Returns array of all complete ngrams in str of length n
 	if(!str.length) return false;
@@ -85,3 +87,4 @@ function ngram_array(str, n) {
 		}
 	return ngrams;
 }
+exports.ngram_array = ngram_array;

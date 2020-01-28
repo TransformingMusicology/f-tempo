@@ -142,7 +142,7 @@ function display_cosine_sim_line(json) {
 		canv.width=canWidth;
 //		canv.height=canHeight;
 		canv.height="5";
-		canv.top=canTop-canHeight;
+		canv.top=(canTop-canHeight)+"px";
 		canv.left=canLeft;
 		m_str = results[q].codestring;
 		var cos_sim = textCosineSimilarity(ngram_array(q_str,ngr_len).join(' '), ngram_array(m_str,ngr_len).join(' '));

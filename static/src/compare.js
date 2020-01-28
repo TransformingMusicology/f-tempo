@@ -346,6 +346,7 @@ function findAllIndexes(source, find) {
   }
   return result;
 }
+/*
 function ngram_array(str, n) {
 // Returns array of all complete ngrams in str of length n
 	if(!str.length) return false;
@@ -363,7 +364,7 @@ function ngram_array(str, n) {
 		}
 	return ngrams;
 }
-
+*/
 
 var q_ngs_in_match = [];
 var m_ngs_in_query = [];

@@ -11,6 +11,8 @@ const mustacheExpress = require('mustache-express');
 const path_app = require('path');
 const request = require('request');
 
+const utils = require('./static/src/utils.js');
+
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
@@ -25,7 +27,6 @@ const word_totals = []; // total words per id, used for normalization
 const ngr_len = 5;
 
 const app = express();
-
 
 /*******************************************************************************
  * Setup
@@ -625,7 +626,7 @@ function gate_scores_by_threshold(scores_pruned, threshold, jaccard, num_results
  ******************************************************************************/
 
 function load_maws() { load_file(MAWS_DB, parse_maws_db); }
-function load_diat_mels() { load_file(DIAT_MEL_DB, parse_diat_mels_db); }
+function load_diat_mels() { load_file(DIAT_MEL_DB, parse_diat_mels_db);}
 
 function parse_maws_db(data_str) {
     const lines = data_str.split("\n");
@@ -678,6 +679,9 @@ function parse_diat_mels_db(data_str) {
         }
     }
     console.log("Diatonic melody strings loaded!");
+    var sample = Object.keys(EMO_IDS_DIAT_MELS)[15];
+    console.log(EMO_IDS_DIAT_MELS[sample]); 
+    console.log(utils.ngram_array(EMO_IDS_DIAT_MELS[sample],5));
 }
 
 function load_file(file, data_callback) {

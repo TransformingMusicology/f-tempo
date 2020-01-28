@@ -251,7 +251,8 @@ q_sel_elements.length = m_sel_elements.length = 0;
 			for(var t=0;t<match_notes_list.length;t++) {
 				if(typeof match_notes_list[t] === "undefined") continue;
 				document.getElementById("message").innerHTML += " "+match_notes_list[t];
-				var start = match_notes_list[t]+1;
+//				var start = match_notes_list[t]+1;
+				var start = match_notes_list[t];
 				for(offset=0;start+offset<m_sel_rects.length;offset++) {
 					if(offset>ngr_len) break;
 					m_sel_elements.push(match_notes[start+offset]);
@@ -302,7 +303,8 @@ q_sel_elements.length = m_sel_elements.length = 0;
 			for(var t=0;t<query_notes_list.length;t++) {
 				if(typeof query_notes_list[t] === "undefined") continue;
 				document.getElementById("message").innerHTML += " "+query_notes_list[t];
-				var start = query_notes_list[t]+1;
+//				var start = query_notes_list[t]+1;
+				var start = query_notes_list[t];
 				for(offset=0;start+offset<q_sel_rects.length;offset++) {
 					if(offset>ngr_len) break;
 					q_sel_elements.push(query_notes[start+offset]);
@@ -385,7 +387,7 @@ console.log("Match: "+ m_str);
 //		if(i>=ngr_len) {
 			let found = findAllIndexes(m_str,q_ngrams[i]);
 			for(let n of found) {
-				if(n >= 0) m_ngs_in_query[i].push(n-1); 
+				if(n >= 0) m_ngs_in_query[i].push(n); 
 			}
 //		}
 	}
@@ -398,7 +400,7 @@ console.log("Match: "+ m_str);
 //		if(i>=ngr_len) {
 			let found = findAllIndexes(q_str,m_ngrams[i]);
 			for(let n of found) {
-				if(n >= 0) q_ngs_in_match[i].push(n-1); 
+				if(n >= 0) q_ngs_in_match[i].push(n); 
 			}
 //		}
 	}

@@ -482,7 +482,9 @@ function trim_str(str) {
 	return str;
 }
 var q_diat_str = "";
+var q_diat_str_init = "";
 var m_diat_str = "";
+var m_diat_str_init = "";
 function setup_page({
     q_id,
     m_id,
@@ -502,7 +504,10 @@ function setup_page({
 // Trim strings:
 	q_diat_str = trim_str(q_diat_str);
 	m_diat_str = trim_str(m_diat_str);
-
+	// Something is wiping [q|m]_diat_str, so I'm copying it here rather than debugging
+	q_diat_str_init = q_diat_str;
+	m_diat_str_init = m_diat_str;
+	
 	ngr_len = parseInt(document.getElementById("ngr_len_change").value);
 	console.log("Ngram length: "+ngr_len);
 
@@ -546,4 +551,18 @@ function setup_page({
  //   q_arr = _.values(query_notes);
  //   m_arr = _.values(match_notes);
 
+}
+function wipeSelectionBoxes(){
+	$(".q_selRect, .m_selRect").remove();
+}
+function redrawPage(){
+	// Used when ngram size is changed
+	m_ngs_in_query = [];
+	q_ngs_in_match = [];	
+	ngr_len = parseInt(document.getElementById("ngr_len_change").value);
+	// Remove existing boxes
+	wipeSelectionBoxes();
+	// Rerun ngram matching
+	getCommonNgrams(q_diat_str_init,m_diat_str_init);
+	buildSelectionBoxes();
 }

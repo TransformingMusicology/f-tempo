@@ -565,5 +565,7 @@ function redrawPage(){
 	wipeSelectionBoxes();
 	// Rerun ngram matching
 	getCommonNgrams(q_diat_str_init,m_diat_str_init);
+	newcolour_notes(query_notes, true);
+	newcolour_notes(match_notes, false);
 	buildSelectionBoxes();
 }

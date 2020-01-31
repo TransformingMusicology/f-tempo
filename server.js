@@ -21,6 +21,7 @@ const DIAT_MEL_DB = './data/latest_diat_mel_strs';
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
 const EMO_IDS_DIAT_MELS = {};
+const EMO_IDS_NGRAMS = {};
 const MAWS_to_IDS = {}; // keys are maws, values are an array of all ids for which that maw appears
 const NGRAMS_to_IDS = {}; // keys are ngrams, values are a array of all ids for which that ngram appears
 const word_totals = []; // total words per id, used for normalization
@@ -678,10 +679,21 @@ function parse_diat_mels_db(data_str) {
             EMO_IDS_DIAT_MELS[id] = diat_mels_str;
         }
     }
-    console.log("Diatonic melody strings loaded!");
-    var sample = Object.keys(EMO_IDS_DIAT_MELS)[15];
-    console.log(EMO_IDS_DIAT_MELS[sample]); 
-    console.log(utils.ngram_array(EMO_IDS_DIAT_MELS[sample],5));
+    console.log(Object.keys(EMO_IDS_DIAT_MELS).length+" Diatonic melody strings loaded!");
+
+	console.time('load_ngrams_from_diat_mels');
+	load_ngrams_from_diat_mels(5);
+	console.timeEnd('load_ngrams_from_diat_mels');
+	
+}
+
+function load_ngrams_from_diat_mels (ng_len) {
+	for(let id in EMO_IDS_DIAT_MELS) {
+		if((typeof EMO_IDS_DIAT_MELS[id] != "undefined")&&(EMO_IDS_DIAT_MELS[id].length > ng_len)) {
+			EMO_IDS_NGRAMS[id] = utils.ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
+		}
+	}
+	console.log("Generated "+ng_len+"-grams for "+Object.keys(EMO_IDS_NGRAMS).length+" IDs.");
 }
 
 function load_file(file, data_callback) {

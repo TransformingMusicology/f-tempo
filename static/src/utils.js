@@ -1,3 +1,6 @@
+if(typeof exports === "undefined") {
+	var exports = {};
+}
 //Cosine similarity code (from: 
 // https://medium.com/@sumn2u/string-similarity-comparision-in-js-with-examples-4bae35f13968)
 

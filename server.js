@@ -32,6 +32,7 @@ const app = express();
 /*******************************************************************************
  * Setup
  ******************************************************************************/
+console.log("\nF-TEMPO server started at "+Date());
 
 load_maws(); // load the MAWS
 load_diat_mels(); // load the diatonic melodies

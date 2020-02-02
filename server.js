@@ -19,11 +19,11 @@ const utils = require('./static/src/utils.js');
 const MAWS_DB = './data/latest_maws'; 
 const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
 const EMO_IDS = []; // all ids in the system
+const EMO_IDS_DIAT_MELS = {}; // keys are ids, values are the diat_int_code for that id
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
-const EMO_IDS_DIAT_MELS = {};
-const EMO_IDS_NGRAMS = {};
 const MAWS_to_IDS = {}; // keys are maws, values are an array of all ids for which that maw appears
-const NGRAMS_to_IDS = {}; // keys are ngrams, values are a array of all ids for which that ngram appears
+const EMO_IDS_NGRAMS = {}; // keys are ids, values are an array of ngrams for that id
+const NGRAMS_to_IDS = {}; // keys are ngrams, values are a array of all ids in whose diat_int_code that ngram appears
 const word_totals = []; // total words per id, used for normalization
 const ngr_len = 5;
 
@@ -151,21 +151,13 @@ app.get('/compare', function (req, res) {
 		let mlocs = [];
 		let qlocs = [];
 		for(var i=0;i<=q_ngrams.length;i++) {
-	//		let loc = m_str.indexOf(q_ngrams[i]);
-//			if(typeof q_ngrams[i] === "undefined") continue;
-//			if(locs = getAllIndexes(q_ngrams[i], m_str)) {
-//			if(locs = m_str.match("/"+q_ngrams[i]+"/g")) {
 			qlocs = allIndexOf(m_str,q_ngrams[i]);
 			for(j=0;j<=qlocs.length;j++ ) {
 				if(qlocs[j]>=0) {
 					if(!exists(qlocs[j],q_com_ng_loc)) {
-//						qcount++;
-//						if(typeof q_com_ng_loc[qcount] === "undefined") {
-//							q_com_ng_loc[qcount]=[];
 						if(typeof q_com_ng_loc[i] === "undefined") {
 							q_com_ng_loc[i]=[];
 						}
-//						q_com_ng_loc[i].push(qlocs[j]+" "+q_ngrams[i]); //for testing
 						var entry = {};
 						entry.q_ind = i;
 						entry.m_ind = qlocs[j];
@@ -179,13 +171,9 @@ app.get('/compare', function (req, res) {
 			for(j=0;j<=mlocs.length;j++ ) {
 				if(mlocs[j]>=0) {
 					if(!exists(mlocs[j],m_com_ng_loc)) {
-//						mcount++;
-//						if(typeof m_com_ng_loc[mcount] === "undefined") {
-//							m_com_ng_loc[mcount]=[];
 						if(typeof m_com_ng_loc[i] === "undefined") {
 							m_com_ng_loc[i]=[];
 						}
-//						m_com_ng_loc[i].push(mlocs[j]+" "+m_ngrams[i]); //for testing
 						var entry = {};
 						entry.m_ind = i;
 						entry.q_ind = mlocs[j];
@@ -195,52 +183,21 @@ app.get('/compare', function (req, res) {
 			}
 		}
 
-/*
-						// Initialise if nothing there yet
-//						if((typeof q_com_ng_loc[qcount+1] === "undefined") && !isInArray(locs[j],q_com_ng_loc)) {
-						if((typeof q_com_ng_loc[qcount+1] === "undefined") && !isInArray(q_ngrams[i],q_com_ng_loc)) {
-							qcount++;
-							q_com_ng_loc[qcount]=[];
-						}
-						q_com_ng_loc[qcount].push(locs[j]);
-//						if(!m_com_ng_loc[mcount+1] && !isInArray(locs[j],m_com_ng_loc)) {
-//						if((typeof m_com_ng_loc[mcount+1] === "undefined") && !isInArray(q_ngrams[i],m_com_ng_loc)) {
-						if (!isInArray(q_ngrams[i],m_com_ng_loc)) {
-							if(typeof m_com_ng_loc[mcount+1] === "undefined") { 
-								mcount++;
-								m_com_ng_loc[mcount]=[];
-							}
-						}
-						m_com_ng_loc[mcount].push(i);
-					
-					
-					}
-				
-				}
-			}
-			else continue;
-*/		
-//		}
 		if(query) return q_com_ng_loc.filter(Boolean); //remove null entries
 		else return m_com_ng_loc.filter(Boolean); //remove null entries
 	}
 
 	var q_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,true);
 	var m_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,false);
-// return res.send("q_comm:<p>"+JSON.stringify(q_comm)+"<p>m_comm:<p>"+JSON.stringify(m_comm)); 
 
 	const sorted_q_comm = q_comm.sort(function(a, b){return a[0].q_ind - b[0].q_ind});
 	const sorted_m_comm = m_comm.sort(function(a, b){return a[0].m_ind - b[0].m_ind});
-//	return res.send("sorted_q_comm:<p>"+JSON.stringify(sorted_q_comm)+"<p>sorted_m_comm:<p>"+JSON.stringify(sorted_m_comm)); 
-
 
     // TODO(ra) probably expose this in the frontend like this...
 //	const show_top_ngrams = req.body.show_top_ngrams;
 //	const show_top_ngrams = true;
     const show_top_ngrams = false;
     const [q_index_to_colour, m_index_to_colour] = generate_index_to_colour_maps(q_diat_str, m_diat_str, show_top_ngrams);
-
-//return res.send(q_id+"<p>"+JSON.stringify(q_index_to_colour)+"<p>"+m_id+"<p>"+JSON.stringify(m_index_to_colour));
 
     request(q_mei_url, function (error, response, q_mei) { if (!error && response.statusCode == 200) {
     request(m_mei_url, function (error, response, m_mei) { if (!error && response.statusCode == 200) {
@@ -251,12 +208,6 @@ app.get('/compare', function (req, res) {
 		m_jpg_url,
 		q_mei: q_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
 		m_mei: m_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
-/*
-		q_index_to_colour: JSON.stringify(q_index_to_colour),
-		m_index_to_colour: JSON.stringify(m_index_to_colour),
-		qcomm_str: JSON.stringify(sorted_q_comm),
-		mcomm_str: JSON.stringify(sorted_m_comm),
-*/
 		q_diat_str: JSON.stringify(q_diat_str),
 		m_diat_str: JSON.stringify(m_diat_str),
 	  }
@@ -281,20 +232,22 @@ app.post('/api/query', function (req, res) {
     let num_results = 20;
     let jaccard = true;
     let threshold = false;
+    let ngram = false;
 
     // Set values if given in query
     if (req.body.jaccard !== undefined) { jaccard = req.body.jaccard; }
     if (req.body.num_results !== undefined) { num_results = req.body.num_results; }
     if (req.body.threshold !== undefined) { threshold = req.body.threshold; }
-
+    if (req.body.ngram !== undefined) { ngram = req.body.ngram; }
     let result;
     if(req.body.qstring) {
         // console.log('Querying by string...');
         const query = req.body.qstring;
         result = search('words', query, jaccard, num_results, threshold);
     } else if(req.body.id) {
-        // console.log('Querying by id...');
-        result = search('id', req.body.id, jaccard, num_results, threshold);
+//         console.log('Querying by id... '+ngram);
+        if(ngram) result = search('id', req.body.id, jaccard, num_results, threshold, ngram);
+        else result = search('id', req.body.id, jaccard, num_results, threshold);
 
     } else if(req.body.diat_int_code) {
         // console.log('q diat_int_code');
@@ -353,52 +306,6 @@ app.post('/api/image_query', function(req, res) {
     });
 });
 
-/*
-// Handle file uploads (MEI, MusicXML or MIDI file as query)
-app.post('/api/image_query', function(req, res) {
-    if (!req.files) { return res.status(400).send('No files were uploaded.'); }
-
-    // this needs to stay in sync with the name given to the FormData object in the front end
-    let user_file = req.files.user_image_file; // same mechanism as image upload
-    const user_id = req.body.user_id;
-    const new_filename = user_file.name.replace(/ /g, '_');
-
-    // TODO: this probably breaks silently if the user uploads two files with the
-    // same name -- they'll end up in the working directory, which may cause
-    // problems for Aruspix
-    
-    let next_working_dir;
-    const user_path = './run/' + user_id + '/';
-    if (fs.existsSync(user_path)){
-        dirs = fs.readdirSync(user_path);
-
-        // dirs is an array of strings, which we want to sort as ints
-        dirs.sort((a, b) => parseInt(a) - parseInt(b));
-        last_dir = parseInt(dirs[dirs.length - 1]);
-        next_working_dir = last_dir + 1;
-    } else {
-        fs.mkdirSync(user_path);
-        next_working_dir = 0;
-    }
-
-//    const working_path = user_path + next_working_dir + '/';
-    working_path = user_path + next_working_dir + '/';
-    fs.mkdirSync(working_path);
-
-    // Use the mv() method to save the file there
-    user_image.mv(working_path + new_filename, (err) => {
-        if (err) { return res.status(500).send(err); }
-        else {
-            // console.log("Uploaded file saved as " + working_path + new_filename);
-            const ngram_search = false; // TODO(ra): make this work!
-            const result = run_file_query(user_id, new_filename, working_path, ngram_search);
-            if (result) { res.send(result); }
-            else { return res.status(422).send('Could not process this file.'); }
-        }
-    });
-});
-*/
-
 app.post('/api/log', function(req, res) {
     const log_entry = req.body.log_entry;
     const log = req.body.log;
@@ -432,11 +339,14 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
 
     let words;
     if (method === 'id') {
+//if(ngram) console.log("** Ngram search for "+query)
         if (!(query in EMO_IDS_MAWS)) { // TODO: need to report to frontend
-            // console.log("ID " + query + " not found in " + MAWS_DB);
+ console.log("ID " + query + " not found in " + MAWS_DB);
             return;
         }
-        words = EMO_IDS_MAWS[query];
+ 
+        words = ngram? EMO_IDS_NGRAMS[query] : EMO_IDS_MAWS[query];
+//console.log("words: "+words)
     } else if (method === 'words') {
         parsed_line = parse_id_maws_line(query);
         words = parsed_line.words;
@@ -695,8 +605,21 @@ function load_ngrams_from_diat_mels (ng_len) {
 		}
 	}
 	console.log("Generated "+ng_len+"-grams for "+Object.keys(EMO_IDS_NGRAMS).length+" IDs.");
+	
+	for(id in Object.keys(EMO_IDS_NGRAMS)) {
+//		console.log(id+": "+Object.values(EMO_IDS_NGRAMS)[id])
+		var ngrams = Object.values(EMO_IDS_NGRAMS)[id];
+//	console.log(Object.keys(EMO_IDS_NGRAMS)[id]+": "+ngrams)
+		for (var ngram in ngrams) {
+//	console.log(Object.keys(EMO_IDS_NGRAMS)[id]+" : "+ngrams[ngram])
+			if(!NGRAMS_to_IDS[ngrams[ngram]]) { NGRAMS_to_IDS[ngrams[ngram]] = [];}
+			NGRAMS_to_IDS[ngrams[ngram]].push(Object.keys(EMO_IDS_NGRAMS)[id]);
+		}
+	}
+//	for(var theid in Object.keys(NGRAMS_to_IDS)) console.log(Object.keys(NGRAMS_to_IDS)[theid] + " : " + Object.values(NGRAMS_to_IDS)[theid]);
+	console.log("There are "+Object.keys(NGRAMS_to_IDS).length+" unique "+ng_len+"-grams")
 }
-
+	
 function load_file(file, data_callback) {
     // The 'db' is a text file, where each line is an EMO page ID,
     // followed by the MAWs for that page.

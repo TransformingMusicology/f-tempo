@@ -606,6 +606,7 @@ function load_ngrams_from_diat_mels (ng_len) {
 	}
 	console.log("Generated "+ng_len+"-grams for "+Object.keys(EMO_IDS_NGRAMS).length+" IDs.");
 	
+var 	count;
 	for(id in Object.keys(EMO_IDS_NGRAMS)) {
 //		console.log(id+": "+Object.values(EMO_IDS_NGRAMS)[id])
 		var ngrams = Object.values(EMO_IDS_NGRAMS)[id];
@@ -615,6 +616,7 @@ function load_ngrams_from_diat_mels (ng_len) {
 			if(!NGRAMS_to_IDS[ngrams[ngram]]) { NGRAMS_to_IDS[ngrams[ngram]] = [];}
 			NGRAMS_to_IDS[ngrams[ngram]].push(Object.keys(EMO_IDS_NGRAMS)[id]);
 		}
+		if(count%1000==0) console.log(Object.keys(NGRAMS_to_IDS).length+" ids in array")
 	}
 //	for(var theid in Object.keys(NGRAMS_to_IDS)) console.log(Object.keys(NGRAMS_to_IDS)[theid] + " : " + Object.values(NGRAMS_to_IDS)[theid]);
 	console.log("There are "+Object.keys(NGRAMS_to_IDS).length+" unique "+ng_len+"-grams")

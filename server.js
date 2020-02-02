@@ -592,10 +592,11 @@ function parse_diat_mels_db(data_str) {
     }
     console.log(Object.keys(EMO_IDS_DIAT_MELS).length+" Diatonic melody strings loaded!");
 
+/* TAKES TOO LONG ON REAL DATABASE!
 	console.time('load_ngrams_from_diat_mels');
 	load_ngrams_from_diat_mels(5);
 	console.timeEnd('load_ngrams_from_diat_mels');
-	
+*/	
 }
 
 function load_ngrams_from_diat_mels (ng_len) {

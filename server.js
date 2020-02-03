@@ -16,15 +16,22 @@ const utils = require('./static/src/utils.js');
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
-const MAWS_DB = './data/latest_maws'; 
-const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
+//const MAWS_DB = './data/latest_maws'; 
+const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
+//const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
+const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_DIAT_MELS = {}; // keys are ids, values are the diat_int_code for that id
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
 const MAWS_to_IDS = {}; // keys are maws, values are an array of all ids for which that maw appears
 const EMO_IDS_NGRAMS = {}; // keys are ids, values are an array of ngrams for that id
 const NGRAMS_to_IDS = {}; // keys are ngrams, values are a array of all ids in whose diat_int_code that ngram appears
+
+const NGRAM_ID_BASE = "./data/ngram_id_dict_";
+const ID_NGRAM_BASE = "./data/id_ngram_dict_";
+
 const word_totals = []; // total words per id, used for normalization
+const word_ngram_totals = []; // total words per id, used for normalization
 const ngr_len = 5;
 
 const app = express();
@@ -339,7 +346,7 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
 
     let words;
     if (method === 'id') {
-//if(ngram) console.log("** Ngram search for "+query)
+
         if (!(query in EMO_IDS_MAWS)) { // TODO: need to report to frontend
  console.log("ID " + query + " not found in " + MAWS_DB);
             return;
@@ -356,7 +363,7 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
     if (ngram) { signature_to_ids_dict = NGRAMS_to_IDS; }
     else { signature_to_ids_dict = MAWS_to_IDS; }
 
-    return get_result_from_words(words, signature_to_ids_dict, jaccard, num_results, threshold);
+    return get_result_from_words(words, signature_to_ids_dict, jaccard, num_results, threshold, ngram);
 }
 
 
@@ -409,59 +416,28 @@ function run_image_query(user_id, user_image_filename, the_working_path, ngram_s
     return result;
 }
 
-/*
-function run_file_query(user_id, user_filename, working_path, ngram_search) {
-    const jaccard = true; // TODO(ra) should probably get this setting through the POST request, too...
-    const num_results = 20; // TODO(ra) should probably get this setting through the POST request, too...
-    const threshold = false; // TODO(ra) should probably get this setting through the POST request, too...
-
-    let codestring_data;
-    let query_data;
-    let query;
-    let result;
-    if(!ngram_search) {
-        try {
-//            query_data = cp.execSync('./shell_scripts/image_to_maws.sh ' // script takes 2 command line params
-//                                     + user_image_filename + ' ' + working_path);
-            codestring_data = cp.execSync('./shell_scripts/midi2codestring.sh ' // script takes 1 command line param
-                                     + user_filename );
-            query_data = cp.execSync('./shell_scripts/codestring_to_maws.sh ' // script takes 2 command line params
-                                     + codestring_data + ' ' + working_path);            
-            query = String(query_data); // a string of maws, preceded with an id
-        } catch (err) { return; } // something broke in the shell script...
-        result = search('words', query, jaccard, num_results, threshold);
-    }
-    else {
-        try {
-            query_data = cp.execSync('./shell_scripts/image_to_ngrams.sh ' + user_image_filename + ' ' + working_path + ' ' + '9');
-            query = String(query_data);
-        } catch (err) { return; } // something broke in the shell script...
-        if (query) { result = search('words', query, jaccard, num_results, threshold, true); }
-    }
-
-    return result;
-}
-*/
-
-function get_result_from_words(words, signature_to_ids_dict, jaccard, num_results, threshold) {
+function get_result_from_words(words, signature_to_ids_dict, jaccard, num_results, threshold, ngram) {
     if (words.length < 6) { // TODO: Need to report to frontend
         // console.log("Not enough words in query.");
         return [];
     }
-    const scores = get_scores(words, signature_to_ids_dict);
-    const scores_pruned = get_pruned_and_sorted_scores(scores, words.length, jaccard);
+    
+    const uniq_words = Array.from(new Set(words));
+if(words.length != uniq_words.length) console.log("words and uniq_words don't match.")
+//    const scores = get_scores(words, signature_to_ids_dict, ngram);
+//    const scores_pruned = get_pruned_and_sorted_scores(scores, words.length, jaccard);
+    const scores = get_scores(uniq_words, signature_to_ids_dict, ngram);
+    const scores_pruned = get_pruned_and_sorted_scores(scores, uniq_words.length, jaccard,ngram);
     const result = gate_scores_by_threshold(scores_pruned, threshold, jaccard, num_results);
     return result;
 }
 
-function get_scores(words, signature_to_ids_dict) {
+function get_scores(words, signature_to_ids_dict, ngram) {
     var res = false;
     var scores = {};
-
     for (const word of words) {
         const ids = signature_to_ids_dict[word]
         if (!ids) { continue; }
-
         for(const id of ids) {
             if (!scores[id]) { scores[id] = 0; }
             scores[id]++;
@@ -472,7 +448,7 @@ function get_scores(words, signature_to_ids_dict) {
 
 
 
-function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard) {
+function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard, ngram) {
     var scores_pruned = [];
 
     // Prune
@@ -482,14 +458,14 @@ function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard) {
         if(num > 1) {
             result = {};
 
-            const num_words = word_totals[id];
-
+            const num_words = ngram? word_ngram_totals[id] : word_totals[id];
             result.id = id;
             result.num = num;
             result.num_words = num_words;
             result.codestring = EMO_IDS_DIAT_MELS[id];
 
             result.jaccard = 1 - (num / (num_words + wds_in_q - num));
+if((result.jaccard < 0)&&(num > num_words)) console.log("num: "+num+" : num_words: "+num_words+" : jaccard: "+result.jaccard)
             scores_pruned.push(result);
         }
     }
@@ -592,35 +568,53 @@ function parse_diat_mels_db(data_str) {
     }
     console.log(Object.keys(EMO_IDS_DIAT_MELS).length+" Diatonic melody strings loaded!");
 
-/* TAKES TOO LONG ON REAL DATABASE!
 	console.time('load_ngrams_from_diat_mels');
 	load_ngrams_from_diat_mels(5);
 	console.timeEnd('load_ngrams_from_diat_mels');
-*/	
+	
 }
 
 function load_ngrams_from_diat_mels (ng_len) {
 	for(let id in EMO_IDS_DIAT_MELS) {
 		if((typeof EMO_IDS_DIAT_MELS[id] != "undefined")&&(EMO_IDS_DIAT_MELS[id].length > ng_len)) {
-			EMO_IDS_NGRAMS[id] = utils.ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
+	//		EMO_IDS_NGRAMS[id] = utils.ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
+			EMO_IDS_NGRAMS[id] = utils.ngram_array_as_set(EMO_IDS_DIAT_MELS[id],ng_len);
+	//		EMO_IDS_NGRAMS[id] = utils.small_ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
 		}
 	}
 	console.log("Generated "+ng_len+"-grams for "+Object.keys(EMO_IDS_NGRAMS).length+" IDs.");
 	
-var 	count=0;
-	for(id in Object.keys(EMO_IDS_NGRAMS)) {
-//		console.log(id+": "+Object.values(EMO_IDS_NGRAMS)[id])
-		count++;
-		var ngrams = Object.values(EMO_IDS_NGRAMS)[id];
-//	console.log(Object.keys(EMO_IDS_NGRAMS)[id]+": "+ngrams)
+	var id_keys = Object.keys(EMO_IDS_NGRAMS);
+	var ngram_array = Object.values(EMO_IDS_NGRAMS);
+	for(id in id_keys) {
+		var ngrams = ngram_array[id];
+		word_ngram_totals[id_keys[id]] = ngrams.length;
+		
 		for (var ngram in ngrams) {
-//	console.log(Object.keys(EMO_IDS_NGRAMS)[id]+" : "+ngrams[ngram])
-			if(!NGRAMS_to_IDS[ngrams[ngram]]) { NGRAMS_to_IDS[ngrams[ngram]] = [];}
-			NGRAMS_to_IDS[ngrams[ngram]].push(Object.keys(EMO_IDS_NGRAMS)[id]);
+			if(!NGRAMS_to_IDS[ngrams[ngram]]) { 
+				NGRAMS_to_IDS[ngrams[ngram]] = [];
+			}
+			NGRAMS_to_IDS[ngrams[ngram]].push(id_keys[id]);
 		}
-		if(!(count%1000)) console.log("ID "+ count +": " + Object.keys(NGRAMS_to_IDS).length+" ngrams in array")
 	}
-	console.log("There are "+Object.keys(NGRAMS_to_IDS).length+" unique "+ng_len+"-grams")
+	console.log("There are "+Object.keys(NGRAMS_to_IDS).length+" unique "+ng_len+"-grams");
+	
+	// Write out the two arrays to disk
+	fs.writeFile(NGRAM_ID_BASE+ng_len+".json",
+		JSON.stringify(NGRAMS_to_IDS),
+		(err) => {
+		  if (err) throw err;
+		  console.log('The ngram_id_dict has been saved!');
+		}
+	);
+	fs.writeFile(ID_NGRAM_BASE+ng_len+".json",
+		JSON.stringify(EMO_IDS_NGRAMS),
+		(err) => {
+		  if (err) throw err;
+		  console.log('The id_ngram_dict has been saved!');
+		}
+	);
+	
 }
 	
 function load_file(file, data_callback) {

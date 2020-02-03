@@ -16,10 +16,10 @@ const utils = require('./static/src/utils.js');
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
-//const MAWS_DB = './data/latest_maws'; 
-const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
-//const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
-const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
+const MAWS_DB = './data/latest_maws'; 
+//const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
+const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
+//const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_DIAT_MELS = {}; // keys are ids, values are the diat_int_code for that id
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
@@ -43,7 +43,6 @@ console.log("\nF-TEMPO server started at "+Date());
 
 load_maws(); // load the MAWS
 load_diat_mels(); // load the diatonic melodies
-// load_ngram_database(9);   // Just a magic number that seems to work
 
 const port = 8000;
 app.listen(
@@ -130,16 +129,6 @@ app.get('/compare', function (req, res) {
 		return arr.some(row => row.includes(search));
 	}
 
-/*
-	function getAllIndexes(arr, val) {
-	    var indexes = [], v;
-	    for(v = 0; v < arr.length; v++)
-		   if (arr[v] === val)
-			  indexes.push(v);
-	    if(indexes.length) return indexes;
-	    else return false;
-	}
-*/
 	function allIndexOf(str, findThis) {
 		var indices = [];
 		for(var pos = str.indexOf(findThis); pos !== -1; pos = str.indexOf(findThis, pos + 1)) {
@@ -353,7 +342,6 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
         }
  
         words = ngram? EMO_IDS_NGRAMS[query] : EMO_IDS_MAWS[query];
-//console.log("words: "+words)
     } else if (method === 'words') {
         parsed_line = parse_id_maws_line(query);
         words = parsed_line.words;
@@ -366,7 +354,7 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
     return get_result_from_words(words, signature_to_ids_dict, jaccard, num_results, threshold, ngram);
 }
 
-
+// ** TODO NB: this only supports MAW-based searches at present
 function search_with_code(diat_int_code, jaccard, num_results, threshold) {
     const codestring_path = './run/codestring_queries/';
     let next_working_dir;
@@ -388,7 +376,7 @@ function search_with_code(diat_int_code, jaccard, num_results, threshold) {
     return result;
 }
 
-
+// ** TODO NB: this only supports MAW-based searches at present
 function run_image_query(user_id, user_image_filename, the_working_path, ngram_search) {
     const jaccard = true; // TODO(ra) should probably get this setting through the POST request, too...
     const num_results = 20; // TODO(ra) should probably get this setting through the POST request, too...
@@ -421,11 +409,10 @@ function get_result_from_words(words, signature_to_ids_dict, jaccard, num_result
         // console.log("Not enough words in query.");
         return [];
     }
-    
+
+// Safety check that the words are all unique:    
     const uniq_words = Array.from(new Set(words));
-if(words.length != uniq_words.length) console.log("words and uniq_words don't match.")
-//    const scores = get_scores(words, signature_to_ids_dict, ngram);
-//    const scores_pruned = get_pruned_and_sorted_scores(scores, words.length, jaccard);
+//if(words.length != uniq_words.length) console.log("words and uniq_words don't match.")
     const scores = get_scores(uniq_words, signature_to_ids_dict, ngram);
     const scores_pruned = get_pruned_and_sorted_scores(scores, uniq_words.length, jaccard,ngram);
     const result = gate_scores_by_threshold(scores_pruned, threshold, jaccard, num_results);
@@ -445,8 +432,6 @@ function get_scores(words, signature_to_ids_dict, ngram) {
     }
     return scores;
 }
-
-
 
 function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard, ngram) {
     var scores_pruned = [];
@@ -577,9 +562,7 @@ function parse_diat_mels_db(data_str) {
 function load_ngrams_from_diat_mels (ng_len) {
 	for(let id in EMO_IDS_DIAT_MELS) {
 		if((typeof EMO_IDS_DIAT_MELS[id] != "undefined")&&(EMO_IDS_DIAT_MELS[id].length > ng_len)) {
-	//		EMO_IDS_NGRAMS[id] = utils.ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
 			EMO_IDS_NGRAMS[id] = utils.ngram_array_as_set(EMO_IDS_DIAT_MELS[id],ng_len);
-	//		EMO_IDS_NGRAMS[id] = utils.small_ngram_array(EMO_IDS_DIAT_MELS[id],ng_len);
 		}
 	}
 	console.log("Generated "+ng_len+"-grams for "+Object.keys(EMO_IDS_NGRAMS).length+" IDs.");
@@ -893,63 +876,4 @@ function generate_index_to_colour_maps(q_diat_str, m_diat_str, show_top_ngrams) 
 
     return [q_index_to_colour, m_index_to_colour];
 }
-
-
-
-
-
-
-
-
-
-/*******************************************************************************
- * ngram stuff, unused but leaving here for now...
- ******************************************************************************/
-// var ng_lines = [];
-//
-//
-// function load_ngram_database(n) {
-//  var ng_len = n;
-//      if((ng_len>2)&&(ng_len<16)) {
-//      db_name ="./data/emo_data/databases/ngrams/emo_"+ng_len+"grams.txt";
-//      console.log("Trying to load "+db_name);
-//      get_and_load_ngram_database(db_name);
-//  }
-//  else alert("Loading ngram database failed!");
-//}
-// function get_and_load_ngram_database(db_name) {
-//      console.log("Actually loading "+db_name);
-//  fs.readFile(db_name,'utf8',(err,data) => {
-//      if (err) {
-//          throw err;
-//      }
-//      if(!data.length) console.log("No data!!");
-//      else {
-//          console.log("Loading "+data.length+" of ngram data")
-//          load_ngram_data(data);
-//      }
-//  })
-// }
-
-// function load_ngram_data(data) {
-//  ng_lines = data.split("\n");
-//     console.log(ng_lines.length+" lines of ngrams to read");
-//  for(i in ng_lines) {
-//      bits = ng_lines[i].split(/[ ,]+/).filter(Boolean);
-//      if (typeof bits[0] !== 'undefined') {
-//          var id = "";
-//          // chop initial ">" from fasta format
-//          if(bits[0].charAt(0)==">") id = bits[0].substring(1);
-//          else id = bits[0];
-//          word_totals[id] = bits.length - 1;
-//          for(j=1;j<bits.length;j++) {
-//              ng_trie.id_add(bits[j],id);
-//          }
-//      }
-//      else {
-//          console.log("End of ngram data")
-//      }
-//  }
-//  console.log(i+" lines of ngram data loaded!");
-//  console.log("Ngrams initialised");
-// }
+ 

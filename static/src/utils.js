@@ -75,12 +75,14 @@ exports.findAllIndexes = findAllIndexes;
 
 function ngram_array(str, n) {
 // Returns array of all complete ngrams in str of length n
-	if(!str.length) return false;
+//	if(!str.length) return false;
+	if(str.length<n) return "";
 	ngrams = [];
-	if(str.length<n) {
-		ngrams.push(str + "%");
-	}
-	else if (str.length==n) {
+//	if(str.length<n) {
+//		ngrams.push(str + "%");
+//	}
+//	else if (str.length==n) {
+	if (str.length==n) {
 		ngrams.push(str);
 		}
 		else {  
@@ -91,3 +93,40 @@ function ngram_array(str, n) {
 	return ngrams;
 }
 exports.ngram_array = ngram_array;
+
+function ngram_array_as_set(str, n) {
+// Returns array of all complete ngrams in str of length n
+//	if(!str.length) return false;
+	if(str.length<n) return "";
+	ngrams = [];
+//	if(str.length<n) {
+//		ngrams.push(str + "%");
+//	}
+//	else if (str.length==n) {
+	if (str.length==n) {
+		ngrams.push(str);
+		}
+		else {  
+			for(i=0; i+n <= str.length; i++) {
+				ngrams.push(str.substr(i,n));
+			}
+		}
+	return Array.from(new Set(ngrams));
+}
+exports.ngram_array_as_set = ngram_array_as_set;
+
+function small_ngram_array(str, n) {
+// Returns array of all complete and unique ngrams in str of length n
+	if(str.length<n) return "";
+	ngrams = {};
+	if (str.length==n) {
+		ngrams[str]=1;
+		}
+		else {  
+			for(i=0; i+n <= str.length; i++) {
+				if(!str.substr(i,n) in ngrams) ngrams[str.substr(i,n)]=1;
+			}
+		}
+	return Object.keys(ngrams);
+}
+exports.small_ngram_array = small_ngram_array;

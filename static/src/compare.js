@@ -514,13 +514,19 @@ function setup_page({
 	m_diat_str_init = m_diat_str;
 console.log("ng_len is "+ng_len)
 	if(ng_len) {
-		document.getElementById("ngr_len_change").value=ng_len;
-		console.log("ng_len set to "+ng_len+" in URL")
+		if((parseInt(ng_len)>12)||(parseInt(ng_len)<3)) {
+			console.log("ng_len set to "+ng_len+" in URL")
+			console.log("Cannot set ngram length to "+ng_len+"! Resetting to "+ngr_len);
+		}
+		else {
+			ngr_len=parseInt(ng_len);
+			document.getElementById("ngr_len_change").value=ngr_len.toString();
+		}
 	}
 	else {
-		ng_len = parseInt(document.getElementById("ngr_len_change").value);
+		ngr_len = parseInt(document.getElementById("ngr_len_change").value);
 	}
-	ngr_len=parseInt(ng_len);
+	
 	console.log("Ngram length: "+ngr_len);
 
 	m_ngs_in_query = [];

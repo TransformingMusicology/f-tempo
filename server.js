@@ -16,10 +16,10 @@ const utils = require('./static/src/utils.js');
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
-const MAWS_DB = './data/latest_maws'; 
-//const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
-const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
-//const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
+//const MAWS_DB = './data/latest_maws'; 
+const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
+//const DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
+const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_DIAT_MELS = {}; // keys are ids, values are the diat_int_code for that id
 const EMO_IDS_MAWS = {}; // keys are ids, values are an array of maws for that id
@@ -83,6 +83,9 @@ app.get('/compare', function (req, res) {
     // q for 'query', m for 'match'
     const q_id = req.query.qid;
     const m_id = req.query.mid;
+    
+    if(req.query.ng_len) var ngram_length = req.query.ng_len;
+    else var ngram_length = ngr_len;
 
     if (!q_id || !m_id) { return res.status(400).send('q_id and m_id must be provided!'); }
 
@@ -183,8 +186,8 @@ app.get('/compare', function (req, res) {
 		else return m_com_ng_loc.filter(Boolean); //remove null entries
 	}
 
-	var q_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,true);
-	var m_comm = ngrams_in_common(q_diat_str,m_diat_str,ngr_len,false);
+	var q_comm = ngrams_in_common(q_diat_str,m_diat_str,ngram_length,true);
+	var m_comm = ngrams_in_common(q_diat_str,m_diat_str,ngram_length,false);
 
 	const sorted_q_comm = q_comm.sort(function(a, b){return a[0].q_ind - b[0].q_ind});
 	const sorted_m_comm = m_comm.sort(function(a, b){return a[0].m_ind - b[0].m_ind});
@@ -206,6 +209,7 @@ app.get('/compare', function (req, res) {
 		m_mei: m_mei.replace(/(\r\n|\n|\r)/gm,''), // strip newlines
 		q_diat_str: JSON.stringify(q_diat_str),
 		m_diat_str: JSON.stringify(m_diat_str),
+		ng_len: ngram_length,
 	  }
 	res.render('compare', data);
      } else { return res.status(400).send('Could not find the MEI file for m_id'+m_id); }});

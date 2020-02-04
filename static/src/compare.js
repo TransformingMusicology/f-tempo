@@ -407,7 +407,7 @@ console.log("Match: "+ m_str);
 	// fill up blank slots at end
 	for(var y=0;y<=ngr_len;y++) q_ngs_in_match[i+y]=[];
 	
-	console.log("Cosine similarity = "+textCosineSimilarity(ngram_array(q_str,ngr_len).join(' '), ngram_array(m_str,ngr_len).join(' ')));
+	console.log("Ngram length: "+ngr_len+" - Cosine similarity = "+textCosineSimilarity(ngram_array(q_str,ngr_len).join(' '), ngram_array(m_str,ngr_len).join(' ')));
 }
 
 function buildSelectionBoxes () {
@@ -503,6 +503,8 @@ function setup_page({
 */
     q_diat_str,
     m_diat_str,
+    
+    ng_len,
 }) {
 // Trim strings:
 	q_diat_str = trim_str(q_diat_str);
@@ -510,8 +512,15 @@ function setup_page({
 	// Something is wiping [q|m]_diat_str, so I'm copying it here rather than debugging
 	q_diat_str_init = q_diat_str;
 	m_diat_str_init = m_diat_str;
-	
-	ngr_len = parseInt(document.getElementById("ngr_len_change").value);
+console.log("ng_len is "+ng_len)
+	if(ng_len) {
+		document.getElementById("ngr_len_change").value=ng_len;
+		console.log("ng_len set to "+ng_len+" in URL")
+	}
+	else {
+		ng_len = parseInt(document.getElementById("ngr_len_change").value);
+	}
+	ngr_len=parseInt(ng_len);
 	console.log("Ngram length: "+ngr_len);
 
 	m_ngs_in_query = [];

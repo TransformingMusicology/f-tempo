@@ -238,23 +238,21 @@ app.post('/api/query', function (req, res) {
     if (req.body.jaccard !== undefined) { jaccard = req.body.jaccard; }
     if (req.body.num_results !== undefined) { num_results = req.body.num_results; }
     if (req.body.threshold !== undefined) { threshold = req.body.threshold; }
-    if (req.body.ngram !== undefined) { ngram = req.body.ngram; }
+    if (req.body.ngram_search !== undefined) { ngram = req.body.ngram_search; }
     let result;
     if(req.body.qstring) {
         // console.log('Querying by string...');
         const query = req.body.qstring;
         result = search('words', query, jaccard, num_results, threshold);
     } else if(req.body.id) {
-//         console.log('Querying by id... '+ngram);
+      //   console.log('Querying by id... '+ngram);
         if(ngram) result = search('id', req.body.id, jaccard, num_results, threshold, ngram);
         else result = search('id', req.body.id, jaccard, num_results, threshold);
 
     } else if(req.body.diat_int_code) {
-        // console.log('q diat_int_code');
         result = search_with_code(req.body.diat_int_code, jaccard, num_results, threshold);
     }
 
-    // console.log(result)
     res.send(result);
 });
 
@@ -331,6 +329,7 @@ to log ${log}.`
 // query is a string, either holding the id a id+maws line
 function search(method, query, jaccard, num_results, threshold, ngram) {
     if (ngram === undefined) { ngram = false; }
+//    if(ngram_search == true) {ngram = true};
 
     if(!query) { // Need to report this back to browser/user
         console.log("No query provided!");
@@ -339,7 +338,6 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
 
     let words;
     if (method === 'id') {
-
         if (!(query in EMO_IDS_MAWS)) { // TODO: need to report to frontend
  console.log("ID " + query + " not found in " + MAWS_DB);
             return;
@@ -351,6 +349,7 @@ function search(method, query, jaccard, num_results, threshold, ngram) {
         words = parsed_line.words;
     }
 
+//console.log(ngram? "NGRAM search: " : "MAW search: "+words);
     let signature_to_ids_dict;
     if (ngram) { signature_to_ids_dict = NGRAMS_to_IDS; }
     else { signature_to_ids_dict = MAWS_to_IDS; }

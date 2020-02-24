@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Query/Match comparison</title>
+
+	<script type="text/javascript" src="ext/jquery.min.js" ></script>
+    <script type="text/javascript" src="ext/verovio-toolkit.js"></script>
+	<script type="text/javascript" src="ext/underscore-min.js"></script>
+
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css"/>
+
+	<style type="text/css">
+		#q_svg_output {
+			z-index:1;
+			position:absolute;
+			opacity:5;
+	/*		transform:  translate(5px, 24px); */
+			order: 1;
+		}
+		#m_svg_output {
+			z-index:1;
+			position:absolute;
+			opacity:5;
+	/*		transform:  translate(-164px, 0px); */
+			order: 2;
+		}
+		
+		div {padding:0;}
+
+		 .image_container {
+		 	position: relative;
+			left: 0px;
+		 }
+		.display_row {
+		  display: flex;
+		}
+		.page_display {
+		  flex: 50%;
+		  padding: 5px;
+		  flex-direction: row;
+		}
+		.page_image {
+	/*   	border: 2px solid blue; */
+		}
+		.label {
+			color: green;
+		}
+	
+	</style>
+
+	<script type="text/javascript" src="src/compare.js" ></script>
+</head>
+
+<body>
+
+
+<div class="display_row">
+	<div left="0px" width="1050px" id="query_container" class="page_display">
+        <div id="query_page_display">
+            Query:
+            <span id="query_label" class="label">
+                {{ q_id }}
+            </span>
+        </div>
+		<div><div id="q_svg_output"></div>
+		<img id="query_image" class="page_image" width="500" src="
+            {{ q_jpg_url }}
+        "></div>
+	</div>
+	<div left="0px" width="1050px" id="match_container" class="page_display">	
+		<div id="match_page_display">Match:	<span id="query_label" class="label">
+            {{ m_id }}
+        </span></div>
+		<div><div  id="m_svg_output"></div>
+		<img id="match_image" class="page_image" width="500" src="
+            {{ m_jpg_url }}
+        "></div>
+	</div>
+</div>
+
+
+
+<script>
+setup_page({
+    q_id: '{{ q_id }}',
+    m_id: '{{ m_id }}',
+	qmei_txt: '{{& q_mei }}',
+	mmei_txt: '{{& m_mei }}',
+    q_index_to_colour: {{& q_index_to_colour }},
+    m_index_to_colour: {{& m_index_to_colour }},
+});
+</script>
+
+</body>
+</html>

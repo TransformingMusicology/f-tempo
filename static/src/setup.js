@@ -70,6 +70,8 @@ let emo_ids; // Array of page IDs loaded from database on initialisatiom
 let user_id; // for identifying user to logs, etc.
 let can_store_user_id = false;
 
+//let ngram_search = false;
+
 function get_or_set_user_id() {
     if (storageAvailable('localStorage')) {
         // console.log("Local Storage available!")
@@ -152,8 +154,9 @@ function display_cosine_sim_line(json) {
 }
 
 // Basic remote search function.
-function search(id, jaccard, num_results) {
-    search_data = JSON.stringify({ id, jaccard, num_results, threshold });
+function search(id, jaccard, num_results, ngram_search) {
+    search_data = JSON.stringify({ id, jaccard, num_results, threshold, ngram_search});
+//console.log(search_data)
     $.ajax({
         url: 'api/query',
         method: 'POST',
@@ -175,12 +178,12 @@ function code_search(diat_int_code, jaccard, num_results) {
 }
 
 
-function search_by_active_query_id(load_query_image=false) {
+function search_by_active_query_id(load_query_image=false, ngram_search) {
     query_id = document.getElementById("query_id").value;
     if (load_query_image) {
         load_page_query(query_id);
     }
-    search(query_id, jaccard, num_results);
+    search(query_id, jaccard, num_results, ngram_search);
 }
 
 
@@ -535,7 +538,8 @@ function checkKey(e) {
         load_page_query(query_id);
     } else if (e.keyCode == '13') { // enter to search
         query_id = document.getElementById("query_id").value;
-        search_by_active_query_id(true);
+        ngram_search = change_search_method();
+        search_by_active_query_id(true, ngram_search);
 
     }    
 }
@@ -764,6 +768,16 @@ function change_num_res() {
     if (!$('#results_table').is(':empty')) { search_by_active_query_id(); }
 }
 
+function change_search_method() {
+    const search_select = document.getElementById('search_select');
+    const v = search_select.options[search_select.selectedIndex].value;
+    if (v == 1) { ngram_search = true; }
+    else { ngram_search = false; }
+
+//    if (!$('#results_table').is(':empty')) { search_by_active_query_id(); ngram_search}
+	return ngram_search;
+}
+
 function change_ranking_method() {
     const ranking_select = document.getElementById('ranking_select');
     const v = ranking_select.options[ranking_select.selectedIndex].value;
@@ -858,6 +872,7 @@ function add_examples_list() {
 }
 
 $(document).ready(() => {
+    
     get_or_set_user_id();
     get_emo_ids();
     add_examples_list();
@@ -870,13 +885,14 @@ $(document).ready(() => {
     $('#search_button').click(() => {
         query_id = document.getElementById("query_id").value;
         load_page_query(query_id);
-        search(query_id,jaccard,num_results);       
+        search(query_id,jaccard,num_results, change_search_methods);       
     });
 
     $('#search_by_id_button').click(() => {
         query_id = document.getElementById("query_id").value;
         load_page_query(query_id);
-        search(query_id,jaccard,num_results);
+   //     search(query_id,jaccard,num_results, ngram_search);
+        search(query_id,jaccard,num_results, change_search_method());
     });
 
     $('#search_by_code_button').click(() => {

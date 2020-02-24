@@ -1,8 +1,5 @@
 //Cosine similarity code (from: 
-// https://medium.com/@sumn2u/string-similarity-comparision-in-js-with-examples-4bae35f13968)
-
-//(function () {
-    
+// https://medium.com/@sumn2u/string-similarity-comparision-in-js-with-examples-4bae35f13968)    
     function termFreqMap(str) {
         var words = str.split(' ');
         var termFreq = {};
@@ -40,7 +37,6 @@
     function cosineSimilarity(vecA, vecB) {
         return vecDotProduct(vecA, vecB) / (vecMagnitude(vecA) * vecMagnitude(vecB));
     }
-  //  Cosinesimilarity = 
     function textCosineSimilarity(strA, strB) {
         var termFreqA = termFreqMap(strA);
         var termFreqB = termFreqMap(strB);
@@ -54,9 +50,24 @@
 
         return cosineSimilarity(termFreqVecA, termFreqVecB);
     }
-//})();
 // End of cosine similarity code
 
+// Global variables:
+var ngr_len = 5;
+var q_highlight_rects = [];
+var m_highlight_rects = [];
+var q_ngs_in_match = [];
+var m_ngs_in_query = [];
+var drawq = drawm = false; // drawing layer
+var query_notes = [];
+var match_notes = [];
+var q_sel_rects = [];
+var m_sel_rects = [];
+var q_diat_str = "";
+var q_diat_str_init = "";
+var m_diat_str = "";
+var m_diat_str_init = "";
+/**************************/
 
 // Function to correct Verovio JSON bug:
 function resizeSVG(choice){
@@ -136,8 +147,6 @@ function svgToScreen(element) {
   return {x: rect.left, y: rect.top, width: rect.width, height: rect.height};
 }
 
-var ngr_len = 5;
-
 // get index of obj.id in query_notes or match_notes depending on boolean val of q (is query)
 function getIndexFromBoxArray(val,q) {
 	if(q) {
@@ -209,9 +218,10 @@ function unhighlight_box(box) {
 	box.hide();
 }
 
-var q_highlight_rects = [];
-var m_highlight_rects = [];
 function highlight_system_box(sel_box,isquery) {
+
+//Clear arrays
+
 	var note_id = sel_box.attr("note_id")
 	var index = getIndexFromBoxArray(note_id,isquery);
 	var m_highlight_rect_dims = [];
@@ -220,8 +230,8 @@ function highlight_system_box(sel_box,isquery) {
 	var m_sel_elements = [];
 
 // Clear arrays:
-q_highlight_rects.length = m_highlight_rects.length = 0;
-q_sel_elements.length = m_sel_elements.length = 0;
+	q_highlight_rects.length = m_highlight_rects.length = 0;
+	q_sel_elements.length = m_sel_elements.length = 0;
 
 	if(isquery) {
 		var match_notes_list = m_ngs_in_query[index];
@@ -337,7 +347,6 @@ function unhighlight_system_boxes() {
 		
 }
 
-
 function findAllIndexes(source, find) {
   var result = [];
   for (i = 0; i < source.length-find.length; ++i) {
@@ -348,64 +357,43 @@ function findAllIndexes(source, find) {
   }
   return result;
 }
-/*
-function ngram_array(str, n) {
-// Returns array of all complete ngrams in str of length n
-	if(!str.length) return false;
-	ngrams = [];
-	if(str.length<n) {
-		ngrams.push(str + "%");
-	}
-	else if (str.length==n) {
-		ngrams.push(str);
-		}
-		else {  
-			for(i=0; i+n <= str.length; i++) {
-				ngrams.push(str.substr(i,n));
-			}
-		}
-	return ngrams;
-}
-*/
-
-var q_ngs_in_match = [];
-var m_ngs_in_query = [];
 
 function getCommonNgrams(q_str,m_str) {
-console.log("Query: "+ q_str);
-console.log("Match: "+ m_str);
-
 // clear global arrays q_ngs_in_match & m_ngs_in_query
 	q_ngs_in_match.length = m_ngs_in_query.length = 0;
 	
 	var ql=q_str.length; ml=m_str.length;
 	var q_ngrams = ngram_array(q_str,ngr_len); //cut last char
 	var m_ngrams = ngram_array(m_str,ngr_len);
-	var last_q_ng_pos = q_str.length-ngr_len;
-	for(var i=0;i<last_q_ng_pos;i++) {
+//	var last_q_ng_pos = q_str.length-ngr_len;
+	var last_q_ng_pos = q_str.length;
+	for(var i=0;i<=last_q_ng_pos;i++) {
 		if(typeof m_ngs_in_query[i] === "undefined") m_ngs_in_query[i] = [];
 //		if(i>=ngr_len) {
+		if(q_ngrams[i]) {
 			let found = findAllIndexes(m_str,q_ngrams[i]);
 			for(let n of found) {
 				if(n >= 0) m_ngs_in_query[i].push(n); 
 			}
-//		}
+		}
 	}
 	// fill up blank slots at end
-	for(var x=0;x<=ngr_len;x++) m_ngs_in_query[i+x]=[];
+//	for(var x=0;x<=ngr_len;x++) m_ngs_in_query[i+x]=[];
 
 	var last_m_ng_pos = m_str.length-ngr_len;
-	for(var i=0;i<last_m_ng_pos;i++) {
+	var last_m_ng_pos = m_str.length;
+	for(var i=0;i<=last_m_ng_pos;i++) {
 		if(typeof q_ngs_in_match[i] === "undefined") q_ngs_in_match[i] = [];
 //		if(i>=ngr_len) {
+		if(m_ngrams[i]) {
 			let found = findAllIndexes(q_str,m_ngrams[i]);
 			for(let n of found) {
 				if(n >= 0) q_ngs_in_match[i].push(n); 
 			}
-//		}
+		}
 	}
 	// fill up blank slots at end
-	for(var y=0;y<=ngr_len;y++) q_ngs_in_match[i+y]=[];
+//	for(var y=0;y<=ngr_len;y++) q_ngs_in_match[i+y]=[];
 	
 	console.log("Ngram length: "+ngr_len+" - Cosine similarity = "+textCosineSimilarity(ngram_array(q_str,ngr_len).join(' '), ngram_array(m_str,ngr_len).join(' ')));
 }
@@ -468,26 +456,12 @@ function hide_show_image(isquery) {
 	}
 }
 
-//var q_arr = m_arr = false;
-var drawq = drawm = false; // drawing layer
-var query_notes = [];
-var match_notes = [];
-/*
-var query_colours = [];
-var match_colours = [];
-*/
-var q_sel_rects = [];
-var m_sel_rects = [];
 
 function trim_str(str) {
 	if(str.startsWith("\"")) str=str.substr(1);
 	if(str.endsWith("\"")) str=str.substr(0,str.length-2);
 	return str;
 }
-var q_diat_str = "";
-var q_diat_str_init = "";
-var m_diat_str = "";
-var m_diat_str_init = "";
 function setup_page({
     q_id,
     m_id,
@@ -495,24 +469,20 @@ function setup_page({
     m_jpg_url,
     q_mei,
     m_mei,
-/*
-    q_index_to_colour,
-    m_index_to_colour,
-    qcomm_str,
-    mcomm_str,
-*/
     q_diat_str,
     m_diat_str,
-    
     ng_len,
 }) {
 // Trim strings:
 	q_diat_str = trim_str(q_diat_str);
 	m_diat_str = trim_str(m_diat_str);
-	// Something is wiping [q|m]_diat_str, so I'm copying it here rather than debugging
 	q_diat_str_init = q_diat_str;
 	m_diat_str_init = m_diat_str;
-console.log("ng_len is "+ng_len)
+	
+	console.log("Query: "+ q_diat_str_init);
+	console.log("Match: "+ m_diat_str_init);
+	console.log("Initial ng_len is "+ng_len)
+
 	if(ng_len) {
 		if((parseInt(ng_len)>12)||(parseInt(ng_len)<3)) {
 			console.log("ng_len set to "+ng_len+" in URL")
@@ -531,12 +501,9 @@ console.log("ng_len is "+ng_len)
 
 	m_ngs_in_query = [];
 	q_ngs_in_match = [];	
-	getCommonNgrams(q_diat_str,m_diat_str);
+//	getCommonNgrams(q_diat_str,m_diat_str);
+	getCommonNgrams(q_diat_str_init,m_diat_str_init);
 
-/*	
-	query_colours = q_index_to_colour;
-	match_colours = m_index_to_colour;
-*/
 	// Setup Verovio toolkit
 	var vrvToolkit = new verovio.toolkit();
 	const query_image_height = document.getElementById("query_image").height;
@@ -549,7 +516,6 @@ console.log("ng_len is "+ng_len)
 	drawq = SVG().addTo('#q_svg_output svg');
 	query_notes = $("#q_svg_output g.note");
 	
-// TODO - since we now have m_ngs_in_query we don't need q_index_to_colour as a POST variable, and we should colour notes consistently anyway.
 	newcolour_notes(query_notes, true);
 	
 	const match_image_height = document.getElementById("match_image").height;
@@ -565,9 +531,6 @@ console.log("ng_len is "+ng_len)
 	newcolour_notes(match_notes, false);
 	
 	buildSelectionBoxes();
-
- //   q_arr = _.values(query_notes);
- //   m_arr = _.values(match_notes);
 
 }
 function wipeSelectionBoxes(){

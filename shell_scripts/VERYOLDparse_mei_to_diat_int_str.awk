@@ -15,6 +15,7 @@ function findAttribute(str) {
 	error_str ="!!ERROR: Attribute "str" NOT FOUND on line "line_num
 	return error_str"\n";
 }
+
 function note2midi(name, octave) {
 	interval["a"]=0; interval["b"]=2; interval["c"]=3; interval["d"]=5; interval["e"]=7; interval["f"]=8; interval["g"]=10;
 # A4 is midi 69
@@ -39,9 +40,9 @@ function get_accid(accid) {
 }
 function clean(str) {
 # remove ending "/>" if present
-	if(index(str, "/>")) return substr(str, 1, index(str, "/>")-1);
-	if(index(str, ">")) return substr(str, 1, index(str, ">")-1);
-	else return str;
+if(index(str, "/>")) return substr(str, 1, index(str, "/>")-1);
+if(index(str, ">")) return substr(str, 1, index(str, ">")-1);
+else return str;
 }
 function reset_maxmin_pitch() {
 	max_pitch = 0;
@@ -52,6 +53,7 @@ function accid2str(acc) {
 	if(accid == -1) return "b";
 	else return;
 }
+	
 function clef_transpos(str) {
 	clef = substr(str,1,1);
 	line = substr(str,2,1);
@@ -63,6 +65,7 @@ function clef_transpos(str) {
 	k -=  2 * (line-1);
 	return diatonic_pitch[k] - 60;
 }
+
 function clef_corr_pitch(nn, str) {
 	if(str=="") return nn;
 	clef = substr(str,1,1);
@@ -86,19 +89,23 @@ function midi2pname(nn) {
 	for(z=0;diatonic_pitch[z]<nn;z++);
 	return toupper(l[z%7]);
 }
+
 function pname2diat(pname, octave) {
 	# subtract 3 to base it on C
 	if(index(alphabet,pname)>=3) value = (7 * octave) + index(alphabet,pname) - 3;
 	else value = (7 * octave) + index(alphabet,pname) + 4;
+if(debug) print "index is "index(alphabet,pname)"; "pname octave" is "value;
 	return value;
 }
 
 BEGIN {
-	if(debug) {
-		if(outlog=="") outlog = "log";
-	}
 	alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+if(debug) {
+	if(outlog=="") outlog = "log";
+}
 	diatonic = 1;
+		
 	durnames[0] = "semifusa";
 	durnames[1] = "fusa";
 	durnames[2] = "semiminima";
@@ -167,6 +174,7 @@ BEGIN {
 		thisfile = FILENAME;
 		if(debug) {
 			printf("\n*************\nDetails for: ") >> outlog;
+#			system("basename "thisfile" >> "outlog);
 			print "" >> outlog;
 		}
 	}
@@ -186,9 +194,32 @@ BEGIN {
 	switch( $1 ) {
 		
 		case "<page":
-		break; 
+		
+if(debug==2) print "PAGE: id: "findAttribute("xml:id")" width "findAttribute("page.width")" height "findAttribute("page.height") >> outlog;
+		
+			pagewidth = findAttribute("page.width");
+			pageheight = findAttribute("page.height");
+if(debug==1) 	print "MEI line  "NR": PAGE width: "findAttribute("page.width")" height: " findAttribute("page.height")" page lmargin: "findAttribute("page.leftmar")" page rmargin: "findAttribute("page.rightmar") >> outlog;
+			break;
+			
 		case "<system":
-		break; 		
+if(debug==2) print "SYSTEM: id: "findAttribute("xml:id")" left margin "findAttribute("system.leftmar")" right margin "findAttribute("system.rightmar")" uly "findAttribute("uly") >> outlog;
+
+
+			system_num++;
+			no_notes = 0;
+			v_offset = pageheight - findAttribute("uly");
+if(debug==1) 	print "MEI line  "NR": SYSTEM "system_num": leftend "findAttribute("system.leftmar")" rightend: "pagewidth - findAttribute("system.rightmar")" top_offset: "v_offset >> outlog;
+			page_system[system_num,"leftend"] = findAttribute("system.leftmar");
+			page_system[system_num,"rightend"] = pagewidth - findAttribute("system.rightmar");
+			page_system[system_num,"top"] = v_offset;
+			page_system[system_num,"id"] = findAttribute("xml:id");
+			curr_system = system_num;
+			break;
+			items[findAttribute("system"),"system"] = system_num;
+			items[findAttribute("system"),"offset"] = findAttribute("system.leftmar");
+			break;
+		
 		case "<clef":
 
 if(debug==1) print "MEI line "NR":  CLEF line: "findAttribute("line")" shape: "findAttribute("shape")" ulx: "findAttribute("ulx") >> outlog;
@@ -197,7 +228,6 @@ if(debug==1) print "MEI line "NR":  CLEF line: "findAttribute("line")" shape: "f
 	# certainly they should not change the system-clef, so we only do that with an initial clef
 			glyph_num++;
 			
-			glyphs[glyph_num,"MEI_line"] =  NR;
  			glyphs[glyph_num,"id"] = findAttribute("xml:id");
  			glyphs[glyph_num,"system"] =  system_num;
 # 			glyphs[glyph_num,"top"] = page_system[glyphs[glyph_num,"system"],"top"];
@@ -219,14 +249,55 @@ if(debug==1) print "MEI line "NR":  CLEF line: "findAttribute("line")" shape: "f
  	}
  				}
  			}
-  			break;
+ 
+ 			break;
 			
+		case "</layer":
+			break;
+		case "<layer":
+			break;
+			
+		case "<mensur":
+if(debug==1) print "MEI line "NR":  MENSUR sign: "findAttribute("sign")" slash: "findAttribute("slash")" ulx: "findAttribute("ulx") >> outlog;
+			glyph_num++;
+			glyphs[glyph_num,"id"] = findAttribute("xml:id");
+			glyphs[glyph_num,"system"] =  system_num;
+			glyphs[glyph_num,"type"] = "mensur";
+			if(substr($2,1,4)=="sign") {
+				glyphs[glyph_num,"graph_type"] = "sign";
+				glyphs[glyph_num,"sign"] = findAttribute("sign");
+				glyphs[glyph_num,"slash"] = findAttribute("slash");
+			}
+			else if(substr($2,1,3)=="num") {
+				glyphs[glyph_num,"graph_type"] = "num";
+				glyphs[glyph_num,"num"] = findAttribute("num");
+				glyphs[glyph_num,"numbase"] = findAttribute("numbase");
+			}
+			break;
+			
+		case "<barLine":
+if(debug==1) print "MEI line "NR":  BARLINE ulx: "findAttribute("ulx") >> outlog;
+
+			previous_tag = $1;
+			if(curr_system != system_num) {
+				missing_clef_transpos = 0;
+				missing_clef = "";
+			}
+			glyph_num++;
+			glyphs[glyph_num,"id"] = findAttribute("xml:id");
+			glyphs[glyph_num,"system"] =  system_num;
+			glyphs[glyph_num,"type"] = "barLine";
+
+			curr_system = system_num;
+			next;
+
 		case "<note":
 			if(curr_system != system_num) {
 				missing_clef_transpos = 0;
 				missing_clef = "";
 			}
 
+#if(debug==1) print "MEI line "NR": NOTE: pname: "getFieldValue($2)" oct: "getFieldValue($3)" dur: "getFieldValue($4)>> outlog;
 if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "findAttribute("oct")" dur: "findAttribute("dur")" ulx: "findAttribute("ulx")>> outlog;
 
 # Problem where notes appear before a clef in the system (usually because clef isn't recognised.
@@ -241,6 +312,7 @@ if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "f
 				}
 				missing_clef_transpos = clef_transpos(substr(page_system[items[findAttribute("pname"),"system"], "clef"],2,2));
 				missing_clef = substr(page_system[items[findAttribute("pname"),"system"], "clef"],2,2);
+#print "System " items[findAttribute("pname"),"system"] ": Missing clef change, using "missing_clef >> outlog;  
 			}
 
 			pname = findAttribute("pname");
@@ -261,7 +333,6 @@ if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "f
 						
 			glyph_num++;
 			no_notes++;
-			glyphs[glyph_num,"MEI_line"] =  NR;
 			glyphs[glyph_num,"note_num"] =  no_notes;
 			glyphs[glyph_num,"system"] =  system_num;
 			glyphs[glyph_num,"type"] = "note";
@@ -353,6 +424,7 @@ if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "f
 			}
 			
 			curr_system = system_num;
+
 			previous_tag = $1;
 				
 			# special case of "long/breve" ligature - if this is a semibrevis with lig="recta", then the following brevis must be halved in duration (or something):
@@ -362,22 +434,88 @@ if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "f
 				}
 				else glyphs[glyph_num,"id"] = findAttribute("xml:id");
 
-			break;
+			next;
 		
-		case "</layer":
-			break;
-		case "<layer":
-			break;			
-		case "<mensur":
-			break; 			
-		case "<barLine":
-			break; 
 		case "<rest":
-			break; 
+if(debug==1) print "MEI line "NR": REST: dur: "findAttribute("dur")" ploc: "findAttribute("ploc")" oloc: "findAttribute("oloc")>> outlog;
+
+			dur = findAttribute("dur");
+			duration = get_duration(dur);
+	if(debug==1) if((started)&&(!resting))
+			if((started)&&(!resting)) {
+			}
+	if(debug==1) print "\tduration '"dur"' ("duration")" >> outlog;
+			curr_time += duration;
+			started = 1;
+			resting = 1;
+			
+	if(debug==1) if(previous_accid) print "Rest cancels accid "previous_accid" on "previous_accid_note >> outlog;
+			previous_accid = 0; 
+			previous_accid_note = "";
+			accid_in_force = 0;
+			accid_note_in_force = "";
+	# or should accidentals last through rests???
+	
+			glyph_num++;
+			glyphs[glyph_num,"id"] = findAttribute("xml:id");
+			glyphs[glyph_num,"system"] =  system_num;
+			glyphs[glyph_num,"type"] = "rest";
+			glyphs[glyph_num,"dur"] = dur;
+			glyphs[glyph_num,"duration"] = duration;
+			glyphs[glyph_num,"ploc"] = findAttribute("ploc");
+			glyphs[glyph_num,"oloc"] = findAttribute("oloc");
+	
+			curr_system = system_num;
+			previous_tag = $1;
+			next;
+	
 		case "<dot":
-			break; 			
+
+if(debug==1) print "MEI line "NR": DOT: ploc: "findAttribute("ploc")" oloc: "findAttribute("oloc")" ulx: "findAttribute("ulx")>> outlog;
+
+			curr_time += duration/2;
+	
+			glyph_num++;
+			glyphs[glyph_num,"id"] = findAttribute("xml:id");
+			glyphs[glyph_num,"system"] =  system_num;
+			glyphs[glyph_num,"type"] = "dot";
+			glyphs[glyph_num-1,"duration"] += glyphs[glyph_num-1,"duration"] / 2;
+			glyphs[glyph_num,"ploc"] = findAttribute("ploc");
+			glyphs[glyph_num,"oloc"] = findAttribute("oloc");
+	
+			curr_system = system_num;
+			previous_tag = $1;
+			next;
+			
 		case "<accid":
-			break; 		
+if(debug==1) print "MEI line "NR": ACCID: accid: "findAttribute("accid")" ploc: "findAttribute("ploc")" oloc: "findAttribute("oloc")>> outlog;
+			accid = findAttribute("accid");
+			accid_note = findAttribute("ploc");
+			if(previous_tag == "<clef") {
+		# it's a key-signature
+	if(debug==1) print "\t"accid" in key-sig" >> outlog;
+			# just assume the key-sig is a B flat for now (!!)	
+				keysig_accid = get_accid(accid);
+				keysig_accid_note = accid_note;
+			}
+			else {
+	if(debug==1) print accid" on next "accid_note >> outlog;
+				accid_in_force = get_accid(accid);
+				accid_note_in_force = accid_note;
+			}
+	
+			glyph_num++;
+			glyphs[glyph_num,"id"] = findAttribute("xml:id");
+			glyphs[glyph_num,"system"] =  system_num;
+			glyphs[glyph_num,"type"] = "accid";
+			glyphs[glyph_num,"accid"] = findAttribute("accid");
+			glyphs[glyph_num,"ploc"] = findAttribute("ploc");
+			glyphs[glyph_num,"oloc"] = findAttribute("oloc");
+	
+			curr_system = system_num;
+			previous_tag = $1;
+			next;
+		
 		default:
 			next;
 		}
@@ -385,8 +523,6 @@ if(debug==1) print "MEI line "NR": NOTE: pname: "findAttribute("pname")" oct: "f
 		previous_tag = $1;
 		
 }
-
-# Functions for the END block
 
 function prev_note(p) {
 	for(;p-1>0; p--) {
@@ -399,9 +535,7 @@ function next_note(id) {
 	for(;p<=glyph_num-1; ) {
 		p++;
 		if(glyphs[p,"type"]=="note") return p;
-		else {
-			next_note(p);
-		}
+		if(glyphs[p,"type"]=="rest") return 0;
 		
 	}
 	return 0;
@@ -428,48 +562,46 @@ function get_next_notes(i,n) {
 	}
 	return length(nextlist);
 }
+
 function basename(file) {
     sub(".*/", "", file)
     return file
-}
+  }
 
 END {
 # output string of encoded relative melodic intervals to:
 	diat_outfile="page.txt"; 
+	if(debug==1) print "Writing diatonic melodic interval string to "diat_outfile;
 	if(debug==1) print glyph_num" glyphs to process";
-	if(debug==1) print "diatonic";
+	if(debug==1) print "diatonic is "diatonic;
 
 	last_system = 0;
-	intcount=0;
 	for(i=0;i<=glyph_num;i++) {
 		switch(glyphs[i,"type"]) { 	
 			case "note":
-				this_glyph = i;
-				pitch_int = 0;
-					if (diatonic){
-						pitch_int = glyphs[next_note(this_glyph),"diat_pitch"] - glyphs[this_glyph,"diat_pitch"];
-					}
-					else {
-						pitch_int = glyphs[next_note(this_glyph),"midipitch"] - glyphs[this_glyph,"midipitch"];
-					}
-					if(pitch_int==0) int_symbol = "-";
-					else if(pitch_int > 0) {
-						int_symbol = toupper(substr(alphabet,pitch_int,1));
-					}
-					else {
-						int_symbol = substr(alphabet,(pitch_int*-1),1)
-					}
-					
-					if(debug==1) {
-						intcount++;
-						print "interval "intcount" line "glyphs[this_glyph,"MEI_line"] " (second "glyphs[next_note(this_glyph),"type"]" "glyphs[next_note(this_glyph),"pname"]") : pitch_int: "glyphs[next_note(this_glyph),"diat_pitch"] " - " glyphs[this_glyph,"diat_pitch"] " = " glyphs[next_note(this_glyph),"diat_pitch"] - glyphs[this_glyph,"diat_pitch"] " : " int_symbol;
-					}
-					else {
+				
+				if(get_next_notes(i,ngr)==ngr) {
+					this_glyph = i;
+					pitch_int = 0;
+						if (diatonic){
+							pitch_int = glyphs[next_note(this_glyph),"diat_pitch"] - glyphs[this_glyph,"diat_pitch"];
+						}
+						else {
+							pitch_int = glyphs[next_note(this_glyph),"midipitch"] - glyphs[this_glyph,"midipitch"];
+						}
+						if(pitch_int==0) int_symbol = "-";
+						else if(pitch_int > 0) {
+							int_symbol = toupper(substr(alphabet,pitch_int,1));
+						}
+						else {
+							int_symbol = substr(alphabet,(pitch_int*-1),1)
+						}
+						
 						printf("%s",int_symbol) #>> diat_outfile;
-					}
-					int_symbol = "";
-					if(next_note(this_glyph)) this_glyph = next_note(this_glyph);
-					else break;
+						int_symbol = "";
+						if(next_note(this_glyph)) this_glyph = next_note(this_glyph);
+						else break;
+				}
 				break;
 		}
 		last_system = glyphs[i,"system"];

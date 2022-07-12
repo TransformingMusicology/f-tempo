@@ -7,6 +7,7 @@ import {
     search,
     search_by_codestring,
     search_by_id,
+    search_ngram,
     search_subsequence,
     get_metadata,
     SearchResponse,
@@ -145,6 +146,38 @@ router.post('/api/query_subsequence', async function (req, res, next) {
             return res.json({status: "ok", "data": {match_type, results: response}});
         } else {
             return res.status(400).json({status: "error", error: "No subsequences set"})
+        }
+    } catch (e) {
+        return next(e);
+    }
+});
+
+
+/**
+ * Perform an ngram search
+ * POST a json document with content-type application/json with the following structure
+ * {ngrams: a list of ngrams to search}
+ */
+router.post('/api/ngram', async function (req, res, next) {
+    if (req.body === undefined) {
+        return res.status(400).send({error: "Body value required"});
+    }
+    try {
+        const num_results = req.body.num_results || 20;
+        const threshold = parseInt(req.body.threshold || "0", 10);
+        const interval = req.body.interval === "true" || false;
+
+        const ngrams = req.body.ngrams;
+        if (ngrams === undefined) {
+            return res.status(400).json({status: "error", error: "'ngrams' field required"})
+        }
+
+        // Convert ngrams from a space separated string to an array
+        if (ngrams && ngrams.trim().length) {
+            const response = await search_ngram(ngrams, num_results, threshold, interval);
+            return res.json({status: "ok", "data": response});
+        } else {
+            return res.status(400).json({status: "error", error: "No ngrams set"})
         }
     } catch (e) {
         return next(e);

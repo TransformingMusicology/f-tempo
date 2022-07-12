@@ -156,6 +156,55 @@ async function search_subsequences_solr(subsequence: string, collections_to_sear
     return [];
 }
 
+export async function search_ngram(query_ngrams: string, num_results: number, threshold: number, interval: boolean) {
+    const query_ngrams_arr = query_ngrams.split(" ");
+    const result = await search_ngrams_solr(query_ngrams, [], num_results, interval);
+    const response = result.map((item: any) => {
+        // Find the start position(s) of the search term in the results
+        const positions: number[] = [];
+        // console.debug(`len note ngrams: ${item.note_ngrams.split(" ").length}`)
+        const note_ngrams_arr = interval ? item.intervals.split(" ") : item.notes.split(" ");
+        let position = findSubarray(note_ngrams_arr, query_ngrams_arr, 0)
+        while (position !== -1) {
+            positions.push(position);
+            position = findSubarray(note_ngrams_arr, query_ngrams_arr, position + query_ngrams_arr.length);
+        }
+        // console.debug(`positions: ${positions}`);
+        const pageDocument: any = JSON.parse(item.page_data);
+        // Unwind the page/systems/notes structure to a flat array so that we can apply the above positions
+        const notes: any[] = [];
+        for (const system of pageDocument.systems) {
+            for (const note of system.notes) {
+                notes.push({note: `${note.p}${note.o}`, id: note.id, system: system.id})
+            }
+        }
+        // console.debug(`len unwound notes: ${notes.length}`)
+        const responseNotes = positions.map((start) => {
+            // If it's an interval search select 1 more note because we're working with gaps instead of notes
+            const len = query_ngrams_arr.length + (interval ? 1 : 0);
+            return notes.slice(start, start + len);
+        });
+        return {match_id: item.siglum, notes: responseNotes};
+    });
+    return response;
+}
+
+
+async function search_ngrams_solr(ngrams: string, collections_to_search: string[], num_results: number, interval: boolean): Promise<any> {
+    collections_to_search = collections_to_search.map(quote)
+    const client = solr.createClient(nconf.get('search'));
+    const qob = interval ? {intervals: quote(ngrams)} : {notes: quote(ngrams)}
+    let query = client.query().q(qob).rows(num_results);
+    if (collections_to_search.length) {
+        query = query.matchFilter("library", "(" + collections_to_search.join(" OR ") + ")")
+    }
+    const results = await client.search(query);
+    if (results.response.numFound >= 1) {
+        return results.response.docs;
+    }
+    return [];
+}
+
 async function search_random_id(timestamp: string) {
     const key = `random_${timestamp}`;
     const client = solr.createClient(nconf.get('search'));

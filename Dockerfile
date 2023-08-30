@@ -1,4 +1,4 @@
-FROM node:16.3-buster
+FROM node:20.5-bookworm
 
 RUN apt-get update \
     && apt-get install -y \

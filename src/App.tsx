@@ -1,7 +1,7 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 import './App.css';
 import Navigation from './Navigation';
-import { Container } from 'react-bootstrap';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import FTempoRouter from './FTempoRouter';
 import React from "react";
@@ -30,14 +30,9 @@ function ApiWrapper({children} : {children?: React.ReactNode}) {
 
 function App() {
     return (
-        <Router>
-            <ApiWrapper>
-                <Navigation/>
-                <Container fluid={true}>
-                    <FTempoRouter />
-                </Container>
-            </ApiWrapper>
-        </Router>
+        <ApiWrapper>
+            <RouterProvider router={FTempoRouter} />
+        </ApiWrapper>
     );
 }
 

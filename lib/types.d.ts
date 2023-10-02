@@ -25,3 +25,8 @@ type Page = {
     height?: string
     systems: System[]
 }
+
+type MarcRecord = {
+    id: string
+    value: string
+}

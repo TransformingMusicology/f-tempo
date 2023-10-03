@@ -13,6 +13,56 @@ export default class ApiClient {
         console.log('api client constructor');
     }
 
+    async getLibraries(): Promise<string[]> {
+        return await fetch("/api/metadata/get_libraries").then(r => {
+            if (r.status === 200) {
+                return r.json();
+            } else {
+                throw new ApiError();
+            }
+        }).then(data => {
+            return data;
+        });
+    }
+
+    async getNames(): Promise<string[]> {
+        return await fetch("/api/metadata/get_names").then(r => {
+            if (r.status === 200) {
+                return r.json();
+            } else {
+                throw new ApiError();
+            }
+        }).then(data => {
+            return data;
+        });
+    }
+
+    async getBooksForPerson(person: string): Promise<string[]> {
+        const params = new URLSearchParams({person});
+        return await fetch(`/api/metadata/books?${params}`).then(r => {
+            if (r.status === 200) {
+                return r.json();
+            } else {
+                throw new ApiError();
+            }
+        }).then(data => {
+            return data;
+        });
+    }
+
+    async getBook(bookId: string): Promise<any> {
+        const params = new URLSearchParams({book: bookId});
+        return await fetch(`/api/metadata/book?${params}`).then(r => {
+            if (r.status === 200) {
+                return r.json();
+            } else {
+                throw new ApiError();
+            }
+        }).then(data => {
+            return data;
+        });
+    }
+
     async changeBook(direction: 'next'|'prev', library: string, book: string): Promise<CurrentPageData> {
         return await fetch(`/api/next_id?direction=${direction}&library=${library}&book=${book}`).then(r => {
             if (r.status === 200) {

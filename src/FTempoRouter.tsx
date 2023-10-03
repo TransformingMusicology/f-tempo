@@ -1,3 +1,4 @@
+import { React } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import ResourceLoader from "./ResourceLoader";
 import RootLayout from "./RootLayout";
@@ -7,6 +8,10 @@ import ExampleLoader from "./ExampleLoader";
 import SearchLoader from "./SearchLoader";
 import BrowseLoader from "./BrowseLoader";
 import ExternalLoader from "./ExternalLoader";
+import BrowseLibrary from "./browse/BrowseLibrary";
+import BrowseBook from "./browse/BrowseBook";
+import BrowsePeople from "./browse/BrowseProple";
+import BrowsePerson from "./browse/BrowsePerson";
 
 
 const FTempoRouter = createBrowserRouter([
@@ -32,6 +37,22 @@ const FTempoRouter = createBrowserRouter([
             {
                 path: "browse",
                 element: <BrowseLoader />,
+            },
+            {
+                path: "browse/library/:library",
+                element: <BrowseLibrary />,
+            },
+            {
+                path: "browse/library/:library/:book",
+                element: <BrowseBook />,
+            },
+            {
+                path: "browse/people",
+                element: <BrowsePeople />,
+            },
+            {
+                path: "browse/people/:person",
+                element: <BrowsePerson />,
             },
             {
                 path: "external",

@@ -1,3 +1,4 @@
+import {React} from "react";
 import {Container, Nav, Navbar} from "react-bootstrap";
 import {Link} from "react-router-dom";
 
@@ -13,9 +14,9 @@ export default function Navigation() {
                     <Nav>
                         <Nav.Link as={Link} to="/search">Manual search</Nav.Link>
                     </Nav>
-                    {/*<Nav>*/}
-                    {/*    <Nav.Link as={Link} to="/browse">Browse corpus</Nav.Link>*/}
-                    {/*</Nav>*/}
+                    <Nav>
+                        <Nav.Link as={Link} to="/browse">Browse corpus</Nav.Link>
+                    </Nav>
                     {/*<Nav>*/}
                     {/*    <Nav.Link as={Link} to="/external">Upload</Nav.Link>*/}
                     {/*</Nav>*/}

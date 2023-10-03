@@ -177,6 +177,63 @@ export async function get_metadata(id: string) {
     return {};
 }
 
+export async function get_libraries() {
+    const client = solr.createClient(nconf.get('search'));
+    const query = client.query().q(`*:*`).start(0).rows(0).facet({field: 'library', pivot: {fields: []}});
+    const result: any = await client.search(query);
+    const libraries = result.facet_counts.facet_fields.library;
+    return libraries.reduce(function(result: any, value: any, index: number, array: any) {
+        if (index % 2 === 0)
+          result.push(array.slice(index, index + 2));
+        return result;
+      }, []);
+}
+
+export async function get_books_for_library(library: string) {
+    // TODO: This only gets 10 items - offset/count?
+    // TODO: Only get some fields
+    const client = solr.createClient(nconf.get('search'));
+    const query = client.query().q(`library:${quote(library)}`);
+    const result: any = await client.search(query);
+    return result.response.docs;
+}
+
+export async function get_book(bookId: string) {
+    // TODO: This only gets 10 items - offset/count?
+    // TODO: Only get some fields
+    const client = solr.createClient(nconf.get('search'));
+    const query = client.query().q(`id:${quote(bookId)}`);
+    const result: any = await client.search(query);
+    return result.response.docs;
+}
+
+export async function query_book(query: string) {
+    const client = solr.createClient(nconf.get('search'));
+    const query = client.query().q(query).dismax();
+    const result: any = await client.search(query);
+    return result.response.docs;
+}
+
+export async function get_names(library?: string) {
+    const client = solr.createClient(nconf.get('search'));
+    const q = library ? `library:${quote(library)}` : "*:*";
+    const query = client.query().q(q).facet({field: 'names', pivot: {fields: []}});
+    const result: any = await client.search(query);
+    const names = result.facet_counts.facet_fields.names;
+    return names.reduce(function(result: any, value: any, index: number, array: any) {
+        if (index % 2 === 0)
+          result.push(array.slice(index, index + 2));
+        return result;
+      }, []);
+}
+
+export async function get_books_for_person(person: string) {
+    const client = solr.createClient(nconf.get('search'));
+    const query = client.query().q(`names:${quote(person)}`);
+    const result: any = await client.search(query);
+    return result.response.docs;
+}
+
 export async function get_random_id() {
     const now = new Date().getTime();
     const id = await search_random_id(now.toString());

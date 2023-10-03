@@ -10,7 +10,13 @@ import {
     search_subsequence,
     get_metadata,
     SearchResponse,
-    get_mei
+    get_mei,
+    get_libraries,
+    get_books_for_library,
+    get_names,
+    get_books_for_person,
+    get_book,
+    query_book
 } from "../services/search.js";
 import {db} from "../server.js"
 import fileUpload from "express-fileupload";
@@ -111,6 +117,55 @@ router.get('/api/get_mei', async function (req, res) {
         res.send(searchResult);
     } else {
         res.status(404).json({status: "error", error: "Codestrings not found"})
+    }
+});
+
+
+router.get('/api/metadata/get_libraries', async function (req, res) {
+    const libraries = await get_libraries()
+    res.json(libraries)
+});
+
+router.get('/api/metadata/get_names', async function (req, res) {
+    const library = req.query.library as string;
+    const people = await get_names(library);
+    res.json(people);
+});
+
+router.get('/api/metadata/books/', async function (req, res) {
+    const library = req.query.library as string;
+    const person = req.query.person as string;
+    if (library !== undefined) {
+        const books = await get_books_for_library(library);
+        res.json(books);
+    } else if (person !== undefined) {
+        const books = await get_books_for_person(person);
+        res.json(books);
+    } else {
+        return res.status(400).json({status: "error", error: "'library' or 'person' parameter required"});
+    }
+});
+
+router.get('/api/metadata/book/', async function (req, res) {
+    const bookId = req.query.book as string;
+    if (bookId !== undefined) {
+        const book = await get_book(bookId);
+        if (book.length === 0) {
+            return res.status(404).json({status: "error", error: "Book not found"});
+        }
+        res.json(book[0]);
+    } else {
+        return res.status(400).json({status: "error", error: "'book' parameter required"});
+    }
+});
+
+router.get('/api/metadata/search/', async function (req, res) {
+    const query = req.query.query as string;
+    if (query !== undefined) {
+        const books = await query_book(query);
+        res.json(books);
+    } else {
+        return res.status(400).json({status: "error", error: "'query' parameter required"});
     }
 });
 

@@ -207,9 +207,9 @@ export async function get_book(bookId: string) {
     return result.response.docs;
 }
 
-export async function query_book(query: string) {
+export async function query_book(queryString: string) {
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q(query).dismax();
+    const query = client.query().q(queryString).dismax();
     const result: any = await client.search(query);
     return result.response.docs;
 }

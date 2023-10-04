@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import {Col, Form, Row} from "react-bootstrap";
+import {Button, Col, Form, Row} from "react-bootstrap";
 import { useApiClient } from './App';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function BrowseLoader() {
     const apiClient = useApiClient();
     const [libraries, setLibraries] = useState<string[]>([]);
     const [names, setNames] = useState<string[]>([]);
+    const [query, setQuery] = useState<string>("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         let ignore = false;
@@ -33,6 +35,21 @@ function BrowseLoader() {
     }, []);
 
     return <><Row>
+        <Col sm={2} />
+        <Col>
+            <h3>Search</h3>
+            <Form onSubmit={(e) => {
+                e.preventDefault();
+                navigate(`/browse/search?query=${query}`);
+            }}>
+                <Form.Control type="text" value={query} onChange={(e: any) => {
+                    setQuery(e.target.value);
+                }} />
+                <Button type="submit">Search</Button>
+            </Form>
+        </Col>
+    </Row>
+    <Row>
         <Col sm={2} />
         <Col>
             <h3>Browse the F-Tempo corpus by library</h3>

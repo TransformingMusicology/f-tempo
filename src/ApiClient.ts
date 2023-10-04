@@ -63,6 +63,19 @@ export default class ApiClient {
         });
     }
 
+    async searchBook(query: string): Promise<any> {
+        const params = new URLSearchParams({query});
+        return await fetch(`/api/metadata/search?${params}`).then(r => {
+            if (r.status === 200) {
+                return r.json();
+            } else {
+                throw new ApiError();
+            }
+        }).then(data => {
+            return data;
+        });
+    }
+
     async changeBook(direction: 'next'|'prev', library: string, book: string): Promise<CurrentPageData> {
         return await fetch(`/api/next_id?direction=${direction}&library=${library}&book=${book}`).then(r => {
             if (r.status === 200) {

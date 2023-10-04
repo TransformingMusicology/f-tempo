@@ -8,6 +8,7 @@ type Book = {
     title?: string;
     library?: string;
     author?: string;
+    person?: string[];
     shelfmark?: string;
     rism?: string;
     thumbnail?: string;
@@ -50,6 +51,10 @@ function BrowseBook() {
                         <td><Link to={`/browse/people/${book.author}`}>{book.author}</Link></td>
                     </tr>
                     <tr>
+                        <th>Other names</th>
+                        <td>{book.person?.join(", ")}</td>
+                    </tr>
+                    <tr>
                         <th>Library</th>
                         <td>{book.library}</td>
                     </tr>
@@ -70,6 +75,7 @@ function BrowseBook() {
             </table>
             <img src={book.thumbnail} alt={`Thumbnail image of ${book.title}`} width="600px" />
         </Col>
+        <Col sm={2} />
     </Row>
     </>;
 }

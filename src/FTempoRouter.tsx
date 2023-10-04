@@ -12,6 +12,7 @@ import BrowseLibrary from "./browse/BrowseLibrary";
 import BrowseBook from "./browse/BrowseBook";
 import BrowsePeople from "./browse/BrowseProple";
 import BrowsePerson from "./browse/BrowsePerson";
+import BrowseSearch from "./browse/BrowseSearch";
 
 
 const FTempoRouter = createBrowserRouter([
@@ -53,6 +54,10 @@ const FTempoRouter = createBrowserRouter([
             {
                 path: "browse/people/:person",
                 element: <BrowsePerson />,
+            },
+            {
+                path: "browse/search",
+                element: <BrowseSearch />,
             },
             {
                 path: "external",

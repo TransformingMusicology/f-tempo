@@ -23,19 +23,19 @@ import webinterface from "./routes/interface.js";
 if (process.env.FTEMPO_CONFIG) {
     console.log("`FTEMPO_CONFIG` environment variable set");
     if (fs.existsSync(process.env.FTEMPO_CONFIG)) {
-        console.log(`Loading config from "${process.env.FTEMPO_CONFIG}"`)
-        nconf.argv().file({file: process.env.FTEMPO_CONFIG})
+        console.log(`Loading config from "${process.env.FTEMPO_CONFIG}"`);
+        nconf.argv().file({file: process.env.FTEMPO_CONFIG});
     } else {
-        throw new Error(`Cannot find config file ${process.env.FTEMPO_CONFIG}`)
+        throw new Error(`Cannot find config file ${process.env.FTEMPO_CONFIG}`);
     }
     console.log("Config");
-    console.log(nconf.get())
+    console.log(nconf.get());
 } else {
     console.log("Loading default config");
-    nconf.argv().file({file: './config/default_config.json'})
+    nconf.argv().file({file: './config/default_config.json'});
     if (process.env.NODE_ENV === "production") {
         console.log("NODE_ENV=production, Loading production config");
-        nconf.file('./config/production_config.json')
+        nconf.file('./config/production_config.json');
     }
 }
 
@@ -60,13 +60,13 @@ if (hasSentry) {
     app.use(Sentry.Handlers.requestHandler());
 }
 
-const databases = nconf.get('databases')
+const databases = nconf.get('databases');
 console.log(`Databases = ${databases}`);
 
 export const BASE_IMG_URL = nconf.get('config:base_image_url');
 export const BASE_MEI_URL = nconf.get('config:base_mei_url');
 
-let base_route =  nconf.get('config:base_route')
+let base_route =  nconf.get('config:base_route');
 if (base_route === undefined) {
     base_route = "";
 }
@@ -88,9 +88,9 @@ for (const key of databases) {
         continue;
     }
     const filename = db_paths[key];
-    const full_path = path.join(storage_location, filename as string)
+    const full_path = path.join(storage_location, filename as string);
     try {
-        fs.accessSync(full_path, fs.constants.R_OK)
+        fs.accessSync(full_path, fs.constants.R_OK);
         const data = fs.readFileSync(full_path);
         db[key] = JSON.parse(data.toString());
     } catch (err) {
@@ -130,14 +130,14 @@ app.use(errorMiddleware);
 app.listen(
     nconf.get('server:port'),
     nconf.get('server:host'),
-    () => console.log('EMO app listening on port 8000!')
+    () => console.log(`EMO app listening on port ${nconf.get('server:port')}!`);
 );
 
 function errorMiddleware(error: Error, request: Request, response: Response, next: NextFunction) {
-    console.log("in the error middlewore")
-    console.log(error)
+    console.log("in the error middleware");
+    console.log(error);
     if (response.headersSent) {
-        return next(error)
+        return next(error);
     }
-    return response.status(500).json({status: 'error', error: 'Unexpected error'})
+    return response.status(500).json({status: 'error', error: 'Unexpected error'});
 }

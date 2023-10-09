@@ -10,7 +10,7 @@
     "build-fe": "react-scripts build"
   },
   "proxy": "http://alastairpc:8000",
-  "homepage": "https://solrdev.f-tempo.org/ftempo",
+  "homepage": "https://solrdev.f-tempo.org",
   "author": "Tim Crawford",
   "contributors": [
     {

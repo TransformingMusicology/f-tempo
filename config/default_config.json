@@ -6,7 +6,7 @@
   },
   "server": {
     "host": "0.0.0.0",
-    "port": 8000
+    "port": 8001
   },
   "databases": ["D-Mbs", "D-Bsb", "F-Pn", "GB-Lbl", "PL-Wn", "cpdl"],
   "database_files": {
@@ -22,9 +22,9 @@
     "import": {
       "threads": 4
     },
-    "storage": "./storage/ftempo/",
+    "storage": "../storage/ftempo/",
     "base_image_url": "https://search.f-tempo.org/img/jpg/",
-    "base_mei_url": "./storage/scores/",
+    "base_mei_url": "../storage/scores/",
     "maw_path": "./src/maw"
   }
 }

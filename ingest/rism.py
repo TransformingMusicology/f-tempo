@@ -71,9 +71,12 @@ def download_source(source_url):
         "User-Agent": "F-Tempo/Alastair"
     }
     r = requests.get(source_url, headers=headers, timeout=10)
-    r.raise_for_status()
-    data = r.json()
-    return data
+    try:
+        r.raise_for_status()
+        return r.json()
+    except requests.exceptions.HTTPError as e:
+        print(f"Error downloading {source_url}")
+        return None
 
 
 def get_mbs():

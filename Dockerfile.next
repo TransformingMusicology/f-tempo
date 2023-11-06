@@ -1,4 +1,23 @@
-FROM node:20.5-bookworm
+FROM node:20.5-bookworm as base
+
+FROM base as builder
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+RUN ls -la
+
+RUN ls -la .next
+
+# Production image, copy all the files and run next
+FROM base AS runner
 
 RUN apt-get update \
     && apt-get install -y \
@@ -12,6 +31,7 @@ RUN apt-get update \
       vim \
     && rm -rf /var/lib/apt/lists/*
 
+
 # Aruspix
 # setup instructions from https://github.com/DDMAL/aruspix/wiki/03-%E2%80%93-Aruspix-Command-line
 
@@ -21,7 +41,7 @@ WORKDIR /tmp/aruspix
 RUN wget -q https://netcologne.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2
 RUN tar xfj wxWidgets-3.0.2.tar.bz2
 WORKDIR /tmp/aruspix/wxWidgets-3.0.2
-RUN ./configure --disable-unicode --disable-shared --disable-gui && make && make install && ldconfig
+RUN ./configure --disable-unicode --disable-shared --disable-gui && make -j 4 && make install && ldconfig
 
 WORKDIR /tmp/aruspix
 RUN git clone https://github.com/alastair/aruspix.git
@@ -40,11 +60,11 @@ RUN tar xfj /tmp/aruspix/aruspix/doc/torch/Torch3.tar.gz
 WORKDIR /tmp/aruspix/Torch3
 RUN find . -name "._*" | xargs rm
 RUN cp /tmp/aruspix/aruspix/doc/torch/Makefile_options_SAMPLE Makefile_options_Linux
-RUN make depend && make
+RUN make depend && make -j 4
 
 WORKDIR /tmp/aruspix/aruspix/cmd-line
 RUN cmake . -DimDir=../../im -DtorchDir=../../Torch3
-RUN make
+RUN make -j 4
 RUN make install
 
 WORKDIR /tmp/aruspix/
@@ -53,14 +73,31 @@ RUN git clone https://github.com/alastair/maw.git
 WORKDIR /tmp/aruspix/maw
 RUN git checkout $MAW_COMMIT
 RUN ./pre-install.sh
-RUN make -f Makefile.64-bit.gcc && mv maw /usr/local/bin
+RUN make -f Makefile.64-bit.gcc -j 4 && mv maw /usr/local/bin
 
-RUN mkdir /app
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY . ./
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-EXPOSE 8000
+# COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]

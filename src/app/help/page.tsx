@@ -40,12 +40,12 @@ const HelpPage = () => {
             </p>
             <p>
                 To perform a search, simply hit the Enter or Return key, or click on the Search button. (The button
-                called 'Repeat last Search' does what it says, but not in an intelligent way - we intend to improve this
+                called &quot;Repeat last Search&quot; does what it says, but not in an intelligent way - we intend to improve this
                 in future.)
             </p>
             <h2> Random Search</h2>
             <p>
-                This simply chooses a page at random from the entire collection. You can use the backslash ('\') as
+                This simply chooses a page at random from the entire collection. You can use the backslash (&quot;\&quot;) as
                 a keyboard shortcut. Be warned, if this leads to a page that contains little or no music (as is
                 often the case - again, we intend to improve this) a search will not result in any meaningful
                 results!
@@ -62,11 +62,11 @@ const HelpPage = () => {
                 the &ldquo;Provide judgements&rdquo; menus we assume you are giving your consent. There is no way we
                 can trace back the information saved by us to you.</p><p>
             The first result should always be the query itself (unless you have uploaded an image for searching -
-            see below under 'Uploading an image'), but this may be a page which doesn't contain any music (e.g. a
-            title-page, or just text, or an image) - in which case, choose 'Not music!'. For all other results, do
-            the same if the page does not contain music. Otherwise, choose from the categories 'Duplicate page'
-            (where it is an extra copy of the same page), 'Same music' (from a different book or edition) or
-            'Related music' (which might be from a different voice-part, or a different section of a work). Use your
+            see below under &quot;Uploading an image&quot;), but this may be a page which doesn&apos;t contain any music (e.g. a
+            title-page, or just text, or an image) - in which case, choose &quot;Not music!&quot;. For all other results, do
+            the same if the page does not contain music. Otherwise, choose from the categories &quot;Duplicate page&quot;
+            (where it is an extra copy of the same page), &quot;Same music&quot; (from a different book or edition) or
+            &quot;Related music&quot; (which might be from a different voice-part, or a different section of a work). Use your
             own judgement about these decisions, as it is difficult to establish hard and fast rules for the last
             case in particular.
         </p>
@@ -76,22 +76,22 @@ const HelpPage = () => {
             </p>
             <h2> Result ranking</h2>
             <p>
-                Basically, matches are made by finding the pages with the maximum 'overlap' with the query. However,
+                Basically, matches are made by finding the pages with the maximum &quot;overlap&quot; with the query. However,
                 this means that pages containing a lot of notes are more likely to contain such overlaps by
                 accident.
             </p>
             <p>
-                There are two 'modes' for ranking results. The 'Basic' mode takes no account of the number of notes on a
-                page, which can lead to false matches with long pages. The default 'Jaccard' mode, however, uses the
+                There are two &quot;modes&quot; for ranking results. The &quot;Basic&quot; mode takes no account of the number of notes on a
+                page, which can lead to false matches with long pages. The default &quot;Jaccard&quot; mode, however, uses the
                 <a href="https://www.statisticshowto.com/jaccard-index" rel="noreferrer" target="_blank">Jaccard distance</a> measure
                 instead, which tends on the whole to give better results.</p><p>
             When you change this setting by choosing from the &ldquo;Result Ranking&rdquo; menu your search will be
             re-run.
-            (NB At present this choice is disabled, and only the 'Jaccard' mode is available.)
+            (NB At present this choice is disabled, and only the &quot;Jaccard&quot; mode is available.)
         </p>
             <h2> Results to display</h2>
             <p>
-                You can choose a number of results to display, or 'Best matches', which simply shows our estimate of
+                You can choose a number of results to display, or &quot;Best matches&quot;, which simply shows our estimate of
                 the best results to be found. Caveat: Very occasionally an interesting match can be found below this
                 threshold (e.g. when the music is only fleetingly similar), but it is hard to predict when this
                 might occur, so you might find it interesting to explore these options.
@@ -99,8 +99,8 @@ const HelpPage = () => {
             <p>
                 When you change this setting by choosing from the &ldquo;Result Ranking&rdquo; menu your search will be
                 re-run.
-                (NB At present this choice is disabled, and the 'Best matches' option is unavailable. We intend to
-                restore this option soon. Be aware that there are many ways to filter the 'best' matches, so the above
+                (NB At present this choice is disabled, and the &quot;Best matches&quot; option is unavailable. We intend to
+                restore this option soon. Be aware that there are many ways to filter the &quot;best&quot; matches, so the above
                 caveat will continue to apply)
             </p>
             <h2> Uploading an image</h2>
@@ -127,7 +127,7 @@ const HelpPage = () => {
             <p>
                 In order to gain some feeling for the quality of the recognition, and the nature and extent of a
                 match, you can see a visualisation of the matched sequences of notes superimposed on the original
-                image. Simply click on the 'magnifying glass' displayed on the right of the result-list. This will
+                image. Simply click on the &quot;magnifying glass&quot; displayed on the right of the result-list. This will
                 bring up a new window displaying the two pages side-by-side; this will take a few extra seconds to
                 display, since it uses a different mechanism to verify the match. Sometimes, one or other of the
                 pages lacks the necessary data for the comparison, in which case an error message is shown.</p><p>
@@ -136,9 +136,9 @@ const HelpPage = () => {
         </p>
             <h2> Book title-pages</h2>
             <p>
-                Where the system has a stored 'thumbnail' image of a book's title-page (as is the case for all the
-                books from the Munich collection) you can view it by clicking on the 'open-book' button to the left
-                of a result. NB Some books do not have title-pages in a library's copy; in this case, the first page
+                Where the system has a stored &quot;thumbnail&quot; image of a book&apos;s title-page (as is the case for all the
+                books from the Munich collection) you can view it by clicking on the &quot;open-book&quot; button to the left
+                of a result. NB Some books do not have title-pages in a library&apos;s copy; in this case, the first page
                 of music is usually displayed.
             </p>
             <p>

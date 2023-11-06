@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import yargs, { parse } from 'yargs'
+import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers';
 
 import { pageToContourList, parseMeiData } from '../lib/mei.js';
@@ -23,7 +23,7 @@ function omrFile(argv: any) {
 
         const data = perform_omr_image(tmpDir, basename);
 
-        const page = parseMeiData(data);
+        const page = parseMeiData(data, argv.file);
         const intervals = pageToContourList(page)
         console.log(`File: ${basename}`);
         console.log(intervals.join(""));

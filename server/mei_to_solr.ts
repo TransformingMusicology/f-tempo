@@ -98,7 +98,7 @@ async function importSolr(argv: any) {
     if (argv.library) {
         await processLibrary(argv.library, argv.saveCache, argv.readCache);
     } else {
-        yargs.showHelp();
+        argv.showHelp();
     }
 }
 
@@ -110,7 +110,7 @@ async function importSolr(argv: any) {
     if (argv.library) {
         await processMeiLibrary(argv.library);
     } else {
-        yargs.showHelp();
+        argv.showHelp();
     }
 }
 

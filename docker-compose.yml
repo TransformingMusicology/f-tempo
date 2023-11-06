@@ -9,6 +9,7 @@ services:
     command: npm run watch
     volumes:
       - ${FTEMPO_STORAGE_DIR}:/storage
+      - ../data-download:/data
       - .:/app
       - /app/node_modules
     ports:

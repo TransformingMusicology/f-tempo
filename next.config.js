@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  output: 'standalone',
+}
 
 import { withSentryConfig } from "@sentry/nextjs";
 

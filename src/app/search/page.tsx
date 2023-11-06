@@ -18,8 +18,14 @@ export default async function BrowseSearch({searchParams}: {
 }) {
 
     const queryParam = searchParams.q;
+    let queryParamString = '';
+    if (Array.isArray(queryParam)) {
+        queryParamString = queryParam[0];
+    } else {
+        queryParamString = queryParam || '';
+    }
 
-    const books = await queryBook(queryParam!);
+    const books = await queryBook(queryParamString);
 
     return <><Row>
         <Col sm={2} />

@@ -48,7 +48,7 @@ async function importIiif(argv: any) {
     if (argv.file && argv.data && argv.library) {
         await processIiifManifest(argv.file, argv.library, argv.data);
     } else {
-        yargs.showHelp();
+        argv.showHelp();
     }
 }
 
@@ -60,7 +60,7 @@ async function listIiif(argv: any) {
     if (argv.file) {
         //await listIiifManifest(argv.file);
     } else {
-        yargs.showHelp();
+        argv.showHelp();
     }
 }
 

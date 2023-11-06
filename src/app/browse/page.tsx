@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: 'F-TEMPO: Browse catalogue',
 }
 
-export const revalidate = 1;
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
     const libraries = await getLibraries();

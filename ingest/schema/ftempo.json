@@ -1,0 +1,157 @@
+{
+    "fieldTypes": [{
+        "name": "text_ws_boolean",
+        "class": "solr.TextField",
+        "positionIncrementGap": "100",
+        "analyzer" : {
+            "tokenizer": {
+                "name":"whitespace"
+            }
+        },
+        "similarity": {
+            "class": "solr.BooleanSimilarityFactory"
+        }
+    },
+    {
+        "name": "text_min_hash",
+        "class": "solr.TextField",
+        "positionIncrementGap": "100",
+        "analyzer" : {
+            "tokenizer": {
+                "name":"whitespace"
+            },
+            "filter": {
+                "class": "org.apache.lucene.analysis.minhash.MinHashFilterFactory",
+                "hashSetSize": "5"
+            }
+        }
+    }],
+    "fields": [
+        {
+          "name": "book",
+          "type": "string",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "part_number",
+          "type": "string",
+          "indexed": false,
+          "stored": true
+        },
+        {
+          "name": "part_name",
+          "type": "string",
+          "indexed": false,
+          "stored": true
+        },
+        {
+          "name": "mei_path",
+          "type": "string",
+          "indexed": false,
+          "stored": true
+        },
+        {
+          "name": "intervals",
+          "type": "text_ws",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "library",
+          "type": "string",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "maws",
+          "type": "text_ws",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "nummaws",
+          "type": "pint",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "maws_boolean",
+          "type": "text_ws_boolean",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": false
+        },
+        {
+          "name": "maws_minhash",
+          "type": "text_min_hash",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": false
+        },
+        {
+          "name": "notes",
+          "type": "text_ws",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "notes_boolean",
+          "type": "text_ws_boolean",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": false
+        },
+        {
+          "name": "notes_minhash",
+          "type": "text_min_hash",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": false
+        },
+        {
+          "name": "page_data",
+          "type": "text_ws",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "page_number",
+          "type": "string",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "siglum",
+          "type": "string",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "notmusic",
+          "type": "boolean",
+          "uninvertible": true,
+          "indexed": true,
+          "stored": true
+        },
+        {
+          "name": "titlepage",
+          "type": "string",
+          "indexed": false,
+          "stored": true
+        }
+    ],
+    "copyFields": [
+        {"source": "maws", "dest": ["maws_boolean", "maws_minhash"]},
+        {"source": "notes", "dest": ["notes_boolean", "notes_minhash"]}
+    ]
+}

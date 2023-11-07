@@ -1,0 +1,17 @@
+{
+    "fieldTypes": [],
+    "fields": [
+        {
+            "name": "type",
+            "type": "string",
+            "indexed": false,
+            "stored": true
+        },
+        {
+            "name": "indexed",
+            "type": "pdate",
+            "indexed": false,
+            "stored": true
+        }
+    ]
+}

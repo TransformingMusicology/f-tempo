@@ -54,8 +54,12 @@ export default async function BrowseBook({ params }: { params: { library: string
                     <td><Link href={`https://rism.online/sources/${book.rism_source_s}`}>Source {book.rism_source_s}</Link></td>
                 </tr>
                 <tr>
-                    <th>External</th>
-                    <td><a href={book.external}>{book.external}</a></td>
+                    <th>Catalogue record</th>
+                    <td><a href={book.catalogue_record_s}>{book.catalogue_record_s}</a></td>
+                </tr>
+                <tr>
+                    <th>IIIF Manifest</th>
+                    <td><a href={book.manifest_s}>{book.manifest_s}</a> <a href={`https://rism.online/viewer.html#?manifest=${book.manifest_s}`}>(rism viewer)</a></td>
                 </tr>
 
                 </tbody>

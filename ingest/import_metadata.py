@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 import pprint
+import re
 
 import pysolr
 
@@ -25,6 +26,8 @@ def main(library, library_directory, solr_core):
             all_books.append(bk)
             all_people.extend(people)
 
+    print(f"Adding {len(all_books)} books")
+    print(f"Adding {len(all_people)} people")
     add_documents_to_index(solr_core, all_books)
     add_documents_to_index(solr_core, all_people)
 
@@ -63,6 +66,25 @@ def get_relationship_from_record(relationships, relationship_id):
     return ret
 
 
+def get_composers_from_source(source):
+    primary_composer = []
+    if "creator" in source:
+        primary_composer = get_relationship_from_record([source["creator"]], "relators:cre")
+    relationships = source.get("relationships", {}).get("items", [])
+    composers = get_relationship_from_record(relationships, "relators:cmp")
+    if primary_composer:
+        composers.append(primary_composer[0])
+
+    if "sourceItems" in source:
+        for item in source["sourceItems"].get("items", []):
+            if "creator" in item:
+                primary_composer = get_relationship_from_record([item["creator"]], "relators:cre")
+                if primary_composer:
+                    composers.append(primary_composer[0])
+            relationships = item.get("relationships", {}).get("items", [])
+            composers.extend(get_relationship_from_record(relationships, "relators:cmp"))
+    return composers
+
 
 def get_metadata_from_source(rism_source):
     contents = rism_source["contents"]
@@ -71,9 +93,8 @@ def get_metadata_from_source(rism_source):
     source_title = get_value_from_record(summary, "Title on source")
     source_url = rism_source["id"]
     source_id = source_url.split("/")[-1]
-
     relationships = rism_source.get("relationships", {}).get("items", [])
-    composers = get_relationship_from_record(relationships, "relators:cmp")
+    composers = get_composers_from_source(rism_source)
     composer_ids = [c["id"].split("/")[-1] for c in composers]
     publishers = get_relationship_from_record(relationships, "relators:pbl")
     # if publisher and publisher["type"] != "rism:Institution":
@@ -106,8 +127,8 @@ def get_metadata_from_source(rism_source):
 
 
 def get_composer_persons_from_source(rism_source):
-    relationships = rism_source.get("relationships", {}).get("items", [])
-    composers = get_relationship_from_record(relationships, "relators:cmp")
+    
+    composers = get_composers_from_source(rism_source)
     data = []
     for composer in composers:
         composer_id = composer["id"].split("/")[-1] if composer else None
@@ -126,9 +147,47 @@ def get_metadata_gblbl(book_directory):
     if manifest.exists():
         with manifest.open() as fp:
             manifest_data = json.load(fp)
+            manifest_url = manifest_data["@id"]
+            shelfmark = None
+            cat = None
             for meta in manifest_data["metadata"]:
                 if meta["label"] == "Identifier":
-                    return {"shelfmark_s": meta["value"]}
+                    shelfmark = meta["value"]
+                elif meta["label"] == "Catalogue record":
+                    match = re.search(r'href="([^"]*)"', meta["value"])
+                    if match:
+                        cat = match.group(1)
+            data = {"manifest_s": manifest_url}
+            if shelfmark:
+                data["shelfmark_s"] = shelfmark
+            if cat:
+                data["catalogue_record_s"] = cat
+            return data
+    return {}
+
+
+def get_metadata_dmbs(book_directory):
+    """Get the shelfmark from metdata in the manifest"""
+    manifest = book_directory / "manifest.json"
+    if manifest.exists():
+        with manifest.open() as fp:
+            manifest_data = json.load(fp)
+            details_url = None
+            manifest_url = manifest_data["@id"]
+            shelfmark = None
+            for seeAlso in manifest_data.get("seeAlso", []):
+                if seeAlso["label"] == "Details":
+                    details_url = seeAlso["@id"]
+                    break
+            for meta in manifest_data["metadata"]:
+                if meta["label"] and {"@language": "en","@value": "Location"} in meta["label"]:
+                    shelfmark = meta["value"]
+            data = {"manifest_s": manifest_url}
+            if shelfmark:
+                data["shelfmark_s"] = shelfmark
+            if details_url:
+                data["catalogue_record_s"] = details_url
+            return data
     return {}
 
 
@@ -152,8 +211,12 @@ def process_book(library: str, book_directory: Path, solr_core: str):
             }
             rism_fields = get_metadata_from_source(source_data)
             fields.update(rism_fields)
-            library_fields = get_metadata_gblbl(book_directory)
-            fields.update(library_fields)
+            if library == "GB-Lbl":
+                library_fields = get_metadata_gblbl(book_directory)
+                fields.update(library_fields)
+            elif library == "D-Mbs":
+                library_fields = get_metadata_dmbs(book_directory)
+                fields.update(library_fields)
 
             people = get_composer_persons_from_source(source_data)
 

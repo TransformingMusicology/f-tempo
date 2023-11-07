@@ -34,10 +34,10 @@ export default async function Page() {
                 <h3>Browse the F-Tempo corpus by person</h3>
                 <ul>
                     {names.map((person: [string, string]) => {
-                        const personName = person[0];
-                        const workCount = person[1];
-                        return <li key={personName}><Link href={`/browse/people/${personName}`}>
-                            {personName}</Link> ({workCount} works)</li>;
+                        const personId = person[0];
+                        const personName = person[1];
+                        return <li key={personName}><Link href={`/browse/people/${personId}`}>
+                            {personName}</Link></li>;
                     })}
                 </ul>
             </Col>

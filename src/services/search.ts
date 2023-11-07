@@ -1,14 +1,26 @@
+import {getMawsForCodestrings} from "@/services/maw";
 
-
-const baseUrl = "http://localhost:8983/solr/ftempo/select?";
 
 function quote(str: string) {
     return `"${str}"`;
 }
 
-async function doSolrSearch(args: { [key: string]: string; }) {
+async function doSolrMetadataSearch(args: string[][] | Record<string, string>, init?: RequestInit) {
     const params = new URLSearchParams(args)
-    const res = await fetch(baseUrl + params);
+    const searchUrl = process.env.SOLR_METADATA_CORE + "select?";
+    const res = await fetch(searchUrl + params);
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch data')
+    }
+    return await res.json();
+}
+
+
+async function doSolrContentSearch(args: string[][] | Record<string, string>, init?: RequestInit) {
+    const params = new URLSearchParams(args)
+    const searchUrl = process.env.SOLR_NOTE_CORE + "select?";
+    const res = await fetch(searchUrl + params, init);
 
     if (!res.ok) {
         throw new Error('Failed to fetch data')
@@ -17,14 +29,15 @@ async function doSolrSearch(args: { [key: string]: string; }) {
 }
 
 export async function getLibraries() {
-    const result = await doSolrSearch({
+    const result = await doSolrMetadataSearch({
         q: '*:*',
+        fq: 'type:book',
         start: '0',
         rows: '0',
         facet: 'true',
-        'facet.field': 'library'
+        'facet.field': 'library_s'
     })
-    const libraries = result.facet_counts.facet_fields.library;
+    const libraries = result.facet_counts.facet_fields.library_s;
     return libraries.reduce(function(result: any, value: any, index: number, array: any) {
         if (index % 2 === 0)
             result.push(array.slice(index, index + 2));
@@ -32,22 +45,63 @@ export async function getLibraries() {
     }, []);
 }
 
-export async function getBooksForLibrary(library: string) {
+
+async function getPeople(peopleIds: string[]) {
+    if (peopleIds.length == 0) {
+        return {};
+    }
+    const fqParams = peopleIds.join(" OR ")
+    const result = await doSolrMetadataSearch([
+        ["q", '*:*'],
+        ["fq", `id:(${fqParams})`],
+        ["fq", "type:person"],
+        ["rows", peopleIds.length.toString()]
+    ])
+    return result.response.docs.reduce((a: any, v: any) => ({ ...a, [v.id]: v}), {})
+}
+
+
+async function addPersonNamesToBooks(books: any[]) {
+    const allComposers: string[] = books.map(bk => bk.composer_ss).filter(x => x !== undefined).reduce(
+            (accumulator, currentArray) => accumulator.concat(currentArray), []
+    )
+    const uniqueComposers = new Set(allComposers);
+    const uniqueComposersArray = Array.from(uniqueComposers);
+    const solrPeople = await getPeople(uniqueComposersArray);
+    return books.map(book => {
+        if (book.composer_ss === undefined) {
+            return book;
+        }
+        return {...book, people: book.composer_ss?.map((v: string) => solrPeople[v])}
+    })
+}
+
+export async function getBooksForLibrary(library: string, page: number = 0) {
     // TODO: This only gets 10 items - offset/count?
     // TODO: Only get some fields
-    const result = await doSolrSearch({
-        q: `library:${quote(library)}`,
-    })
-    return result.response.docs;
+    const numRows = 10;
+    const start = page * numRows;
+
+    const result = await doSolrMetadataSearch([
+        ["q", '*:*'],
+        ["fq", `library_s:${quote(library)}`],
+        ["fq", "type:book"],
+        ["sort", "book_id_s asc"],
+        ["start", start.toString()],
+        ["rows", numRows.toString()]
+    ])
+    const books = result.response.docs;
+    return await addPersonNamesToBooks(books);
 }
 
 export async function getBook(bookId: string) {
     // TODO: This only gets 10 items - offset/count?
     // TODO: Only get some fields
-    const result = await doSolrSearch({
-        q: `id:${quote(bookId)}`,
+    const result = await doSolrMetadataSearch({
+        q: `book_id_s:${quote(bookId)}`,
+        fq: 'type:book'
     })
-    const books = result.response.docs;
+    const books = await addPersonNamesToBooks(result.response.docs);
     if (books.length > 0) {
         return books[0];
     } else {
@@ -56,7 +110,7 @@ export async function getBook(bookId: string) {
 }
 
 export async function queryBook(queryString: string) {
-    const result = await doSolrSearch({
+    const result = await doSolrMetadataSearch({
         q: queryString,
         defType: 'dismax'
     })
@@ -64,24 +118,330 @@ export async function queryBook(queryString: string) {
 }
 
 export async function getNames(library?: string) {
-    const q = library ? `library:${quote(library)}` : "*:*";
-    const result = await doSolrSearch({
-        q,
-        rows: '0',
-        facet: 'true',
-        'facet.field': 'names'
-    })
-    const names = result.facet_counts.facet_fields.names;
-    return names.reduce(function(result: any, value: any, index: number, array: any) {
-        if (index % 2 === 0)
-            result.push(array.slice(index, index + 2));
-        return result;
-    }, []);
+    //const q = library ? `library:${quote(library)}` : "*:*";
+    const countResult = await doSolrMetadataSearch({
+        q: '*:*',
+        fq: 'type:person',
+    });
+    const numResults = countResult.response.numFound;
+    const result = await doSolrMetadataSearch({
+        q: '*:*',
+        fq: 'type:person',
+        rows: numResults,
+    });
+
+    const names = result.response.docs.map((name: any) => {
+        return [name.rism_person_id_s, name.name_s];
+    });
+    return names;
 }
 
-export async function getBooksForPerson(person: string) {
-    const result = await doSolrSearch({
-        q: `names:${quote(person)}`,
+
+export async function getPerson(person_id: string) {
+    const result = await doSolrMetadataSearch({
+        q: `rism_person_id_s:${person_id}`,
+        fq: 'type:person',
     })
-    return result.response.docs;
+    return result.response.docs[0];
+}
+
+export async function getBooksForPerson(person_id: string, page: number = 0) {
+    const numRows = 10;
+    const start = page * numRows;
+    const result = await doSolrMetadataSearch({
+        q: `composer_ss:person_${person_id}`,
+        fq: 'type:book',
+        start: start.toString(),
+        rows: numRows.toString()
+    })
+    const books = result.response.docs;
+    return await addPersonNamesToBooks(books);
+}
+
+
+async function getMawsForSiglum(siglum: string) {
+    const result = await doSolrContentSearch({
+        q: `siglum:${quote(siglum)}`,
+        'fl': 'maws'
+    })
+    if (result.response.numFound >= 1) {
+        const doc = result.response.docs[0];
+        return (doc as any).maws;
+    } else {
+        return "";
+    }
+}
+
+/**
+ *
+ * @param maws A list of maws
+ * @param collections_to_search A list of collections/libraries to search
+ * @param num_results how many results to return
+ * @param boolean_sim if true, use solr's BooleanSimilarity instead of BM25
+ * @returns
+ */
+async function searchMawsSolr(maws: string[], collections_to_search: string[], num_results: number, similarity_type: 'boolean'|'jaccard'|'solr'): Promise<any> {
+    maws = maws.map(quote);
+    collections_to_search = collections_to_search.map(quote)
+
+    const fields: {maws_boolean?: number, maws?: number} = {};
+    let params :any;
+    if (similarity_type === 'boolean') {
+        const fieldname = "maws_boolean";
+        params = [
+            ["q", `${fieldname}: (${maws.join(" ")})`],
+            ["fl", '*,score'],
+            ["rows", num_results]
+        ]
+    } else if (similarity_type === 'solr') {
+        const fieldname = "maws";
+        params = [
+            ["q", `${fieldname}: (${maws.join(" ")})`],
+            ["fl", '*,score'],
+            ["rows", num_results]
+        ]
+    } else if (similarity_type === 'jaccard') {
+        // If we know the number of items in the search term, we can get solr to compute jaccaard itself and
+        // sort by it:
+        //  div(query($q), sub(add(nummaws, 270), query($q))) desc
+        // $q is a solr variable based on the ?q parameter, and query() re-runs a query. This has the effect
+        // of returning the "score", which is the number of matching elements (intersection)
+        // we know the list of maws is unique, so we can compute set union by nummawsA + nummawsB - intersection
+        // store the number of maws in each doc in the 'nummaws' field, count the number of maws in the
+        // search query in js, and re-compute $q again for the number in intersection again
+        const sortparam = `div(query($q), sub(add(nummaws, ${maws.length}), query($q)))`;
+        let sortquery: Record<string, any> = {[sortparam]: "desc"}
+        const fieldname = "maws_boolean";
+        params = [
+            ["q", `${fieldname}: (${maws.join(" ")})`],
+            ["fl", `*,score,jaccard:${sortparam}`],
+            ["sort", sortquery],
+            ["rows", num_results]
+        ]
+    } else {
+        throw new UnknownSearchTypeError();
+    }
+
+    if (collections_to_search.length) {
+        params.push(["fq", `library:(${collections_to_search.join(" OR ")})`])
+    }
+    params.push(["fq", "-notmusic:true"])
+    const result = await doSolrContentSearch(params)
+    if (result.response.numFound >= 1) {
+        return result.response.docs;
+    }
+    return []
+}
+
+export async function searchRandomId(timestamp: string) {
+    const key = `random_${timestamp}`;
+    const result = await doSolrContentSearch({
+        q: "*:*",
+        'fl': "siglum,library,book",
+        rows: "1",
+        sort: `${key} desc`
+    }, { cache: 'no-store' })
+    if (result.response.numFound >= 1) {
+        return result.response.docs[0];
+    }
+    return {};
+}
+
+export async function getMetadata(id: string) {
+    const result = await doSolrContentSearch({
+        q: `siglum:${id}`,
+        fl: "siglum,library,book",
+        start: "0",
+        rows: "1",
+    })
+    if (result.response.numFound >= 1) {
+        return result.response.docs[0];
+    }
+    return {};
+}
+
+
+export function searchNextId(library: string, book_id: string, page_id: string | null, direction: "prev" | "next") {
+    return undefined;
+}
+
+export async function searchById(id: string, collections_to_search: string[], num_results: number, threshold: number,  similarity_type: 'boolean'|'jaccard'|'solr') {
+    const maws = await getMawsForSiglum(id);
+    if (maws) {
+        return await search(maws.split(" "), collections_to_search, num_results, threshold, similarity_type);
+    } else {
+        throw new NoMawsForDocumentError(`cannot get maws for document ${id}`)
+    }
+}
+
+export async function searchByCodestring(codestring: string, collections_to_search: string[], num_results: number, threshold: number, similarity_type: 'boolean'|'jaccard'|'solr') {
+    const maws = getMawsForCodestrings({cs: codestring});
+    if (maws['cs']) {
+        return await search(maws['cs'], collections_to_search, num_results, threshold, similarity_type);
+    } else {
+        // `maw` binary ran successfully, but no maws were generated for this input.
+        // treat this as the same as there not being enough words
+        throw new MawsTooShortError();
+    }
+}
+
+/**
+ * Search for
+ * @param words array of MAWs to search for
+ * @param collections_to_search
+ * @param num_results Filter by this many results
+ * @param threshold
+ * @param similarity_type
+ * @returns {boolean|[]|*[]|*}
+ */
+export async function search(words: string[], collections_to_search: string[], num_results: number, threshold: number,  similarity_type: 'boolean'|'jaccard'|'solr'): Promise<SearchResponse> {
+    if (words.length < 6) {
+        throw new MawsTooShortError();
+    }
+    //console.time("search");
+
+    // Safety check that the words are all unique:
+    const search_uniq_words = new Set(words);
+
+    const maws_results = await searchMawsSolr(words, collections_to_search, num_results * 2, similarity_type);
+    const maws_with_scores: SearchResult[] = maws_results.map((doc: { score: number; maws: string; siglum: string; intervals: string; book: string; library: string; titlepage?: string;}) => {
+        const unique_maws = new Set(doc.maws.split(" "));
+        const num_matched_words = setIntersection(unique_maws, search_uniq_words).size;
+        return {
+            // ID of the document
+            id: doc.siglum,
+            book: doc.book,
+            library: doc.library,
+            score: doc.score,
+            codestring: doc.intervals.split(" ").join(""),
+            // Number of words in common between search term and document
+            num_matched_words: num_matched_words,
+            // Number of unique words in the document
+            num_words: unique_maws.size,
+            // Jaccard similarity
+            jaccard: 1 - (num_matched_words / (unique_maws.size + search_uniq_words.size - num_matched_words)),
+            titlepage: doc.titlepage
+        };
+    });
+
+    const result = gateScoresByThreshold(maws_with_scores, threshold, similarity_type === 'jaccard', num_results);
+    return {
+        numQueryWords: search_uniq_words.size,
+        numResults: maws_results.numResults,
+        results: result
+    };
+}
+
+/**
+ *
+ * @param scores_pruned
+ * @param threshold "median" to threshold by the median score, otherwise a float value
+ * @param jaccard
+ * @param num_results
+ * @returns
+ */
+function gateScoresByThreshold(scores_pruned: SearchResult[], threshold: "median" | number, jaccard: boolean, num_results: number) {
+    // if threshold is set in URL, stop returning results when delta < threshold
+    if (threshold) {
+        const out_array = [];
+        out_array[0] = scores_pruned[0];  // the identity match, or at least the best we have
+        for (let p = 1; p < scores_pruned.length; p++) {
+            let delta = 0;
+            if (jaccard) {
+                delta = jacc_delta(scores_pruned, p);
+            } else {
+                delta = scores_pruned[p - 1].num_matched_words - scores_pruned[p].num_matched_words;
+            }
+            if (threshold === "median") {
+                threshold = getMedian(scores_pruned, jaccard);
+            }
+            if (delta >= threshold) {
+                out_array[p] = scores_pruned[p];
+                out_array[p].delta = delta;
+            } else {
+                num_results = p - 1;
+                break;
+            }
+        }
+        return out_array.slice(0, num_results);
+    } else {
+        // return the first num_results results
+        return scores_pruned.slice(0, num_results);
+    }
+}
+
+
+function jacc_delta (array: SearchResult[], n: number) {
+    return array[n].jaccard - array[n - 1].jaccard;
+}
+
+function getMedian(array: SearchResult[], jaccard: boolean){
+    const values = [];
+    if(jaccard) {
+        for(let i = 0;i < array.length;i++) {
+            values.push(array[i].jaccard);
+        }
+    }
+    else {
+        for(let i = 0;i < array.length;i++) {
+            values.push(array[i].num_matched_words);
+        }
+    }
+    values.sort((a, b) => a - b);
+    let median = (values[(values.length - 1) >> 1] + values[values.length >> 1]) / 2;
+    //console.log("Median = " + median);
+    return median;
+}
+
+
+function setIntersection(setA: Set<string>, setB: Set<string>) {
+    let _intersection = new Set();
+    for (let elem of setB) {
+        if (setA.has(elem)) {
+            _intersection.add(elem);
+        }
+    }
+    return _intersection;
+}
+
+
+export class UnknownSearchTypeError extends Error {
+    constructor() {
+        super("Unknown search type, must be one of 'boolean', 'solr', or 'jaccard'");
+    }
+}
+
+export class NextIdNotFound extends Error {
+    constructor(message: string) {
+        super();
+        this.message = message;
+    }
+}
+
+export type SearchResponse = {
+    numQueryWords: number
+    numResults: number
+    results: SearchResult[]
+}
+
+export class NoMawsForDocumentError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class MawsTooShortError extends Error {
+    constructor() {
+        super("Maws are too short");
+    }
+}
+
+type SearchResult = {
+    id: string
+    codestring: string
+    num_matched_words: number
+    num_words: number
+    jaccard: number
+    delta?: number
+    titlepage?: string
 }

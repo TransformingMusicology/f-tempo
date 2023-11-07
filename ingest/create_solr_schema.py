@@ -36,10 +36,8 @@ def add_field_type(core_url, ft, existing_field_types):
     print(f"Creating field type {ft['name']}")
     for existing_ft in existing_field_types:
         if existing_ft["name"] == ft["name"]:
-            print(f"Field type {ft['name']} already exists")
             return
     request = {"add-field-type": ft}
-    print(ft)
     make_schema_request(core_url, request)
 
 
@@ -61,25 +59,6 @@ def create_copyfield(core_url, cf):
     make_schema_request(core_url, request)
 
 
-def create_core(base_url, core_name):
-    admin_url = urljoin(base_url, "/solr/admin/cores")
-    url = urljoin(base_url, "/solr", core_name)
-    requests.get(admin_url, params={"action": "CREATE", "name": core_name, "configSet": "_default"})
-    requests.post(f"{url}/config", json={"set-user-property": {"update.autoCreateFields": False}})
-
-
-def delete_core(base_url, core_name):
-    admin_url = urljoin(base_url, "/solr/admin/cores")
-    requests.get(admin_url, params={"action": "UNLOAD", "core": core_name})
-    requests.get(admin_url, params={"action": "UNLOAD", "core": core_name, "deleteIndex": True})
-
-
-def delete_cores(solr_base_url):
-    for schema in ["ftempo", "ftempo-meta"]:
-        if schema_is_created(solr_base_url, schema, "id"):
-            delete_core(solr_base_url, schema)
-
-
 def create_schemas(schema_directory, solr_base_url):
     for schema in ["ftempo", "ftempo-meta"]:
         schema_definition = json.load(open(os.path.join(schema_directory, f"{schema}.json")))
@@ -88,7 +67,6 @@ def create_schemas(schema_directory, solr_base_url):
             print(f"Schema {schema} is already created")
         else:
             print(f"No schema for {schema}, creating...")
-            create_core(solr_base_url, schema)
             core_url = urljoin(solr_base_url, f"/solr/{schema}")
             print("field types")
             existing_field_types = get_field_types(core_url)
@@ -106,13 +84,8 @@ def create_schemas(schema_directory, solr_base_url):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("-f", "--force", action="store_true")
     parser.add_argument("schema_directory")
     parser.add_argument("solr_base_url")
     args = parser.parse_args()
-
-    if args.force:
-        print("deleting cores")
-        delete_cores(args.solr_base_url)
 
     create_schemas(args.schema_directory, args.solr_base_url)

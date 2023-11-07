@@ -2,91 +2,16 @@
     "fieldTypes": [],
     "fields": [
         {
-            "name": "thumbnail",
+            "name": "type",
             "type": "string",
             "indexed": false,
             "stored": true
         },
         {
-            "name": "external",
-            "type": "string",
+            "name": "indexed",
+            "type": "pdate",
             "indexed": false,
             "stored": true
-        },
-        {
-            "name": "library",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "title",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "publisher",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "place",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "description",
-            "type": "string",
-            "indexed": true,
-            "stored": true,
-            "multiValued": true
-        },
-        {
-            "name": "rism",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "shelfmark",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "author",
-            "type": "string",
-            "indexed": true,
-            "stored": true
-        },
-        {
-            "name": "person",
-            "type": "string",
-            "indexed": true,
-            "stored": true,
-            "multiValued": true
-        },
-        {
-            "name": "names",
-            "type": "string",
-            "indexed": true,
-            "stored": true,
-            "multiValued": true
-        }
-    ],
-    "copyFields": [
-        {"source": "marc_*", "dest": ["_text_"]}
-    ],
-    "dynamicFields": [
-        {
-            "name": "marc_*",
-            "type": "string",
-            "indexed": true,
-            "stored": true,
-            "multiValued": true
         }
     ]
 }

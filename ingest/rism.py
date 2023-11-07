@@ -58,24 +58,24 @@ def download_individual_sources(start):
             i += 1
             continue
         print(f"{i}/{num_sources} - {source}")
-        data = download_source(source)
+        data = download_url_jsonld(source)
         with open(source_file, "w") as fp:
             json.dump(data, fp, indent=2)
         i += 1
 
 
-def download_source(source_url):
+def download_url_jsonld(url):
     headers = {
         "Accept": "application/ld+json",
         "X-API-Accept-Language": "en",
         "User-Agent": "F-Tempo/Alastair"
     }
-    r = requests.get(source_url, headers=headers, timeout=10)
+    r = requests.get(url, headers=headers, timeout=10)
     try:
         r.raise_for_status()
         return r.json()
     except requests.exceptions.HTTPError as e:
-        print(f"Error downloading {source_url}")
+        print(f"Error downloading {url}")
         return None
 
 

@@ -1,167 +1,211 @@
 import argparse
 import json
-import os
 from pathlib import Path
-import re
+import pprint
 
 import pysolr
 
-def find_marc_record(records, record_type):
-    returned_records = []
+from rism import download_url_jsonld
+
+
+
+def main(library, library_directory, solr_core):
+    library_parent = Path(library_directory).parent
+    library_directory = Path(library_directory)
+    all_books = []
+    all_people = []
+    for i, book in enumerate(library_directory.iterdir(), 1):
+        if book.is_dir():
+            source = book / "rism-source.json"
+            if source.exists():
+                with source.open() as fp:
+                    source_data = json.load(fp)
+                    download_people_for_source(source_data, library_parent)
+            bk, people = process_book(library, book, solr_core)
+            all_books.append(bk)
+            all_people.extend(people)
+
+    add_documents_to_index(solr_core, all_books)
+    add_documents_to_index(solr_core, all_people)
+
+
+def main_single_directory(library, directory, solr_core):
+    directory = Path(directory)
+    if directory.is_dir():
+        source = directory / "rism-source.json"
+        bk, people = process_book(library, directory, solr_core)
+        pprint.pprint(bk)
+        pprint.pprint(people)
+
+
+def get_value_from_record(records, label, label_lang="en"):
     for record in records:
-        if record["id"] == record_type:
-            returned_records.append(record["value"])
-    return returned_records
+        if label in record["label"][label_lang]:
+            value = record["value"]
+            if "en" in value:
+                en_val = value["en"]
+                if isinstance(en_val, list):
+                    return ", ".join(en_val)
+                return en_val
+            else:
+                none_val = value["none"]
+                if isinstance(none_val, list):
+                    return ", ".join(none_val)
+                return none_val
+    return None
 
 
-def get_marc_subfield(field, subfield):
-    parts = field.split("|")
-    for part in parts:
-        if part.startswith(f"{subfield} "):
-            return part[2:]
-
-def get_all_marc_subfields(field):
-    parts = field.split("|")
-    subfields = []
-    for part in parts:
-        if len(part) > 2:
-            # TODO: Assumes that we have '|x '
-            subfields.append(part[2:])
-    return subfields
+def get_relationship_from_record(relationships, relationship_id):
+    ret = []
+    for relationship in relationships:
+        if relationship["role"]["id"] == relationship_id:
+            ret.append(relationship["relatedTo"])
+    return ret
 
 
-def get_one_record_subfield(records, record_type, subfield):
-    field = find_marc_record(records, record_type)
-    if len(field) > 0:
-        return get_marc_subfield(field[0], subfield)
-    else:
-        return None
+
+def get_metadata_from_source(rism_source):
+    contents = rism_source["contents"]
+    summary = contents["summary"]
+    title = get_value_from_record(summary, "Standardized title")
+    source_title = get_value_from_record(summary, "Title on source")
+    source_url = rism_source["id"]
+    source_id = source_url.split("/")[-1]
+
+    relationships = rism_source.get("relationships", {}).get("items", [])
+    composers = get_relationship_from_record(relationships, "relators:cmp")
+    composer_ids = [c["id"].split("/")[-1] for c in composers]
+    publishers = get_relationship_from_record(relationships, "relators:pbl")
+    # if publisher and publisher["type"] != "rism:Institution":
+    #     print(f"Publisher is not an institution for {source_url}")
+
+    material = rism_source.get("materialGroups", {}).get("items")
+    if len(material) == 0:
+        print(f"No material group for {source_url}")
+        place = None
+        date = None
+    elif len(material) > 1:
+        print(f"More than one material group for {source_url}")
+    material = material[0]
+    place = get_value_from_record(material["summary"], "Place of publication")
+    date = get_value_from_record(material["summary"], "Date")
+
+    data = {
+        "rism_source_s": str(source_id),
+        "title_s": source_title,
+        "standardized_title_s": title,
+        "place_of_publication_s": place,
+        "date_of_publication_s": date,
+    }
+    if composer_ids:
+        data["composer_ss"] = [f"person_{str(composer_id)}" for composer_id in composer_ids]
+    if publishers:
+        data["publisher_ss"] = [publisher["label"]["none"][0] for publisher in publishers]
+
+    return data
 
 
-def get_thumbnail_and_external(manifest_file):
-    j = json.load(open(manifest_file))
-    thumbnail = None
-    external = None
-    for m in j["metadata"]:
-        if m["label"] == "Catalogue record":
-            external = m["value"]
-            break
-    external_url = re.search(r'(?P<url>https?://[^"]+)', external).group("url")
-    thumbnail = j["thumbnail"]["@id"]
-    return thumbnail, external_url
+def get_composer_persons_from_source(rism_source):
+    relationships = rism_source.get("relationships", {}).get("items", [])
+    composers = get_relationship_from_record(relationships, "relators:cmp")
+    data = []
+    for composer in composers:
+        composer_id = composer["id"].split("/")[-1] if composer else None
+        data.append({
+            "type": "person",
+            "id": f"person_{composer_id}",
+            "rism_person_id_s": str(composer_id),
+            "name_s": composer["label"]["none"][0],
+        })
+    return data
 
 
-def get_solr_document_for_file(input_files, library):
-    marc_file = input_files[0]
-    manifest_file = input_files[1]
-    j = json.load(open(marc_file))
-    p = Path(marc_file)
-
-    thumbnail, external = get_thumbnail_and_external(manifest_file)
-
-    document = {}
-    document["id"] = p.parent.name
-    document["library"] = library
-    document["thumbnail"] = thumbnail
-    document["external"] = external
-    for row in j:
-        i = row["id"]
-        value = row["value"]
-        document[f"marc_{i}"] = document.setdefault(f"marc_{i}", [])
-        document[f"marc_{i}"].append(value)
-
-    title_types = ["24500", "24501", "24502", "24503", "24504", "24510", "24512", "24513", "24514"]
-    title_record = None
-    for t in title_types:
-        title_record = find_marc_record(j, t)
-        if title_record:
-            break
-    if title_record:
-        title = get_all_marc_subfields(title_record[0])
-        document["title"] = " ".join(title)
-    publisher = get_one_record_subfield(j, "264 1", "b")
-    if publisher:
-        document["publisher"] = publisher
-    country = get_one_record_subfield(j, "752", "a")
-    place = get_one_record_subfield(j, "752", "d")
-    country_data = ""
-    if place:
-        country_data = f"{place}"
-    if country_data and country:
-        document["place"] = f"{country_data}, {country}"
-    elif country:
-        document["place"] = country
-
-    description = find_marc_record(j, "500")
-    if description:
-        document["description"] = [get_all_marc_subfields(d)[0] for d in description]
-
-    reference = find_marc_record(j, "5104")
-    if reference:
-        rism = None
-        for r in reference:
-            resource = get_marc_subfield(r, "a")
-            if "RISM B/I" in resource:
-                rism = get_marc_subfield(r, "c")
-        if rism:
-            document["rism"] = rism
-
-    shelfmark = find_marc_record(j, "8524")
-    if shelfmark:
-        shelfmark = get_marc_subfield(shelfmark[0], "j")
-        document["shelfmark"] = shelfmark.strip()
-
-    author = get_one_record_subfield(j, "1001", "a")
-    if author:
-        document["author"] = author.strip(" ,.")
-
-    persons = find_marc_record(j, "7001")
-    if persons:
-        document["person"] = [get_marc_subfield(p, "a").strip(" ,.") for p in persons]
-
-    names = set()
-    if persons:
-        names = set([get_marc_subfield(p, "a").strip(" ,.") for p in persons])
-    if author:
-        names.add(document["author"])
-    document["names"] = list(names)
-
-    return document
+def get_metadata_gblbl(book_directory):
+    """Get the shelfmark from metdata in the manifest"""
+    manifest = book_directory / "manifest.json"
+    if manifest.exists():
+        with manifest.open() as fp:
+            manifest_data = json.load(fp)
+            for meta in manifest_data["metadata"]:
+                if meta["label"] == "Identifier":
+                    return {"shelfmark_s": meta["value"]}
+    return {}
 
 
-def get_marc_files(data_directory):
-    to_process = []
-    for root, dirs, files in os.walk(data_directory):
-        for f in files:
-            if f == "marc.json":
-                d = [os.path.join(root, f), os.path.join(root, "manifest.json")]
-                to_process.append(d)
-    return to_process
+def process_book(library: str, book_directory: Path, solr_core: str):
+    """
+    fields for the book:
+      plus metadata from rism
+      plus metadata from the library
+    """
 
-def main(data_directory, library):
-    marc_files = get_marc_files(data_directory)
-    all_docs = []
-    for f in marc_files:
-        document = get_solr_document_for_file(f, library)
-        all_docs.append(document)
-    add_documents_to_index(all_docs)
+    source = book_directory / "rism-source.json"
+    if source.exists():
+        with source.open() as fp:
+            source_data = json.load(fp)
+
+            fields = {
+                "id": f"book_{library}_{book_directory.name}",
+                "library_s": library,
+                "type": "book",
+                "book_id_s": book_directory.name,
+            }
+            rism_fields = get_metadata_from_source(source_data)
+            fields.update(rism_fields)
+            library_fields = get_metadata_gblbl(book_directory)
+            fields.update(library_fields)
+
+            people = get_composer_persons_from_source(source_data)
+
+            return fields, people
+
+    return {}, {}
+
+
+def rism_get_composer(source):
+    creator = source.get("creator", {})
+    role = creator.get("role", {})
+    relatedTo = role.get("relatedTo", {})
+    if relatedTo and role["id"] == "relators:cre" and relatedTo["type"] == "rism:Person":
+        return creator
+    return None
+
+
+def download_people_for_source(source, data_directory):
+    rism_people = data_directory / "rism-people"
+    rism_people.mkdir(exist_ok=True)
+    creator = rism_get_composer(source)
+    if creator:
+        related_url = creator["relatedTo"]["id"]
+        print(f"Downloading {related_url}")
+        related_id = related_url.split("/")[-1]
+        related_file = rism_people / f"{related_id}.json"
+        if not related_file.exists():
+            with related_file.open("w") as fp:
+                content = download_url_jsonld(related_url)
+                if content:
+                    json.dump(content, fp, indent=2)
+
 
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
 
-def add_documents_to_index(documents):
-    solr = pysolr.Solr('http://localhost:8983/solr/ftempo/', always_commit=True)
+def add_documents_to_index(solr_url, documents):
+    solr = pysolr.Solr(solr_url, always_commit=True)
 
     for ch in chunks(documents, 1000):
         print("Adding 1000 documents")
         solr.add(ch)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_directory", help="")
+    parser.add_argument("library_directory", help="")
     parser.add_argument("library")
+    parser.add_argument("solr_core")
 
     args = parser.parse_args()
-    main(args.data_directory, args.library)
+    #main_single_directory(args.library, args.library_directory, args.solr_core)
+    main(args.library, args.library_directory, args.solr_core)

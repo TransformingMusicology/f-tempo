@@ -1,6 +1,13 @@
 import Link from "next/link";
 import React from "react";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
+function TooltipLink({ id, children, title, href }: { id: string, children: React.ReactNode, title: string, href: string }) {
+    return <OverlayTrigger placement={"bottom"} overlay={<Tooltip id={id}>{title}</Tooltip>}>
+        <Link href={href}>{children}</Link>
+    </OverlayTrigger>
+}
 
 export default function BookSearchResult(props: { books: any[]; }) {
     return <table className="table">
@@ -21,7 +28,7 @@ export default function BookSearchResult(props: { books: any[]; }) {
             const rism = book.rism_source_s!;
             return <tr key={id}>
                 <td><Link href={`/browse/library/${libraryName}`}>{libraryName}</Link></td>
-                <td><Link href={`/browse/library/${libraryName}/${id}`} title={title}>{standardized_title}</Link></td>
+                <td><TooltipLink href={`/browse/library/${libraryName}/${id}`} title={title} id={id}>{standardized_title}</TooltipLink></td>
                 <td>{book.people?.map((person: any, i: number) => {
                         return [
                             i > 0 && ", ",

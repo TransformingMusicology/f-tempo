@@ -16,11 +16,11 @@ export default async function BrowseBook({ params }: { params: { library: string
     return <Row>
         <Col sm={2} />
         <Col>
-            <h3 title={book.title_s}>{book.standardized_title_s!}</h3>
+            <h3 title={book.title_s}>{book.standardized_title_s!}<small>    <a href={"#"}>content search for this book</a></small></h3>
             <table className='table'>
                 <tbody>
                 <tr>
-                    <th>Composer</th>
+                    <th>Composers</th>
                     <td>{book.people?.map((person: any, i: number) => {
                             return [
                                 i > 0 && ", ",
@@ -28,6 +28,10 @@ export default async function BrowseBook({ params }: { params: { library: string
                                       href={`/browse/people/${person.rism_person_id_s}`}>{person.name_s}</Link>]
                         }
                     )}</td>
+                </tr>
+                <tr>
+                    <th>Title on source</th>
+                    <td><small>{book.title_s}</small></td>
                 </tr>
                 <tr>
                     <th>Publisher</th>

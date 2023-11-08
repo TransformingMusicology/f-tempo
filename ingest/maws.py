@@ -13,7 +13,7 @@ def get_maws_for_codestrings(codestrings):
     input_str = '\n'.join(input_array) + '\n'
 
     maw_command = [
-        maw_path, "-a", "PROT", "-i", "-", "-o", "-", "-k", "4", "-K", "8"
+        MAW_PATH, "-a", "PROT", "-i", "-", "-o", "-", "-k", "4", "-K", "8"
     ]
 
     try:
@@ -24,11 +24,8 @@ def get_maws_for_codestrings(codestrings):
             capture_output=True,
             check=True
         )
-    except subprocess.CalledProcessError:
-        raise CannotRunMawError("Error when computing maws")
-
-    if maws.returncode != 0:
-        raise CannotRunMawError("Error when computing maws")
+    except subprocess.CalledProcessError as e:
+        raise CannotRunMawError("Error when computing maws") from e
 
     maws_output = maws.stdout
     output = {}

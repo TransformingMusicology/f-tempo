@@ -95,7 +95,7 @@ def get_metadata_from_source(rism_source):
     source_id = source_url.split("/")[-1]
     relationships = rism_source.get("relationships", {}).get("items", [])
     composers = get_composers_from_source(rism_source)
-    composer_ids = [c["id"].split("/")[-1] for c in composers]
+    composer_ids = list(set([c["id"].split("/")[-1] for c in composers]))
     publishers = get_relationship_from_record(relationships, "relators:pbl")
     # if publisher and publisher["type"] != "rism:Institution":
     #     print(f"Publisher is not an institution for {source_url}")

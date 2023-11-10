@@ -2,12 +2,13 @@ import React from 'react';
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Link from "next/link";
-import {getBook} from "@/services/search";
+import {getBook, getPagesForBook} from "@/services/search";
 
 
 export default async function BrowseBook({ params }: { params: { library: string, book: string} }) {
 
     const book = await getBook(params.book);
+    const pages = await getPagesForBook(params.library, params.book);
 
     if (!book) {
         return <></>;
@@ -16,7 +17,7 @@ export default async function BrowseBook({ params }: { params: { library: string
     return <Row>
         <Col sm={2} />
         <Col>
-            <h3 title={book.title_s}>{book.standardized_title_s!}<small>    <a href={"#"}>content search for this book</a></small></h3>
+            <h3 title={book.title_s}>{book.standardized_title_s!}</h3>
             <table className='table'>
                 <tbody>
                 <tr>
@@ -68,7 +69,14 @@ export default async function BrowseBook({ params }: { params: { library: string
 
                 </tbody>
             </table>
-            <img src={book.thumbnail} alt={`Thumbnail image of ${book.standardized_title_s}`} width="600px" />
+            <table className="table">
+                {pages.slice(0, 10).map((page: any) => {
+                    return <tr key={page.id}>
+                        <td>{page.id}</td>
+                        <td><a href={`/ftempo/${page.library}/${page.book}/${page.id}`}>{page.id}</a></td>
+                    </tr>
+                })}
+            </table>
         </Col>
         <Col sm={2} />
     </Row>;

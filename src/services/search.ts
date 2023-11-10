@@ -210,7 +210,7 @@ async function searchMawsSolr(maws: string[], collections_to_search: string[], n
         // store the number of maws in each doc in the 'nummaws' field, count the number of maws in the
         // search query in js, and re-compute $q again for the number in intersection again
         const sortparam = `div(query($q), sub(add(nummaws, ${maws.length}), query($q)))`;
-        let sortquery: Record<string, any> = {[sortparam]: "desc"}
+        let sortquery = `${sortparam} desc`
         const fieldname = "maws_boolean";
         params = [
             ["q", `${fieldname}: (${maws.join(" ")})`],
@@ -261,8 +261,53 @@ export async function getMetadata(id: string) {
 }
 
 
-export function searchNextId(library: string, book_id: string, page_id: string | null, direction: "prev" | "next") {
-    return undefined;
+export async function getPagesForBook(libraryId: string, bookId: string) {
+    const result = await doSolrContentSearch({
+        q: `id:${libraryId}_${bookId}*`,
+        sort: "id asc"
+    });
+    return result.response.docs;
+}
+
+
+export async function searchNextPageId(library: string, bookId: string, pageId: string, direction: "prev" | "next") {
+    let params;
+    if (direction === "next") {
+        params = [
+            ["q", "*:*"],
+            ["q.op", "AND"],
+            ["fq", `id:${library}_${bookId}*`],
+            ["fq", `id:{${library}_${bookId}_${pageId} TO *]`],
+            ["sort", "id asc"]
+        ]
+    } else {
+       params = [
+           ["q", "*:*"],
+           ["q.op", "AND"],
+           ["fq", `id:${library}_${bookId}*`],
+           ["fq", `id:[* TO ${library}_${bookId}_${pageId}]`],
+           ["sort", "id desc"]
+        ]
+    }
+    const result = await doSolrContentSearch(params);
+    if (direction === "next") {
+        if (result.response.numFound > 0) {
+            return result.response.docs[0];
+        } else {
+            return null;
+        }
+    } else {
+        if (result.response.numFound > 1) {
+            return result.response.docs[1];
+        } else {
+            return null;
+        }
+    }
+
+}
+
+export async function searchNextBookId(library: string, bookId: string, direction: "prev" | "next") {
+
 }
 
 export async function searchById(id: string, collections_to_search: string[], num_results: number, threshold: number,  similarity_type: 'boolean'|'jaccard'|'solr') {

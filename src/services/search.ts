@@ -1,5 +1,3 @@
-import {getMawsForCodestrings} from "@/services/maw";
-
 
 function quote(str: string) {
     return `"${str}"`;
@@ -100,7 +98,7 @@ export async function getBook(bookId: string) {
     const result = await doSolrMetadataSearch({
         q: `book_id_s:${quote(bookId)}`,
         fq: 'type:book'
-    })
+    }, { cache: 'no-store' })
     const books = await addPersonNamesToBooks(result.response.docs);
     if (books.length > 0) {
         return books[0];
@@ -113,8 +111,8 @@ export async function queryBook(queryString: string) {
     const result = await doSolrMetadataSearch({
         q: queryString,
         defType: 'dismax'
-    })
-    return result.response.docs;
+    }, { cache: 'no-store' })
+    return await addPersonNamesToBooks(result.response.docs);
 }
 
 export async function getNames(library?: string) {
@@ -320,14 +318,14 @@ export async function searchById(id: string, collections_to_search: string[], nu
 }
 
 export async function searchByCodestring(codestring: string, collections_to_search: string[], num_results: number, threshold: number, similarity_type: 'boolean'|'jaccard'|'solr') {
-    const maws = getMawsForCodestrings({cs: codestring});
-    if (maws['cs']) {
-        return await search(maws['cs'], collections_to_search, num_results, threshold, similarity_type);
-    } else {
-        // `maw` binary ran successfully, but no maws were generated for this input.
-        // treat this as the same as there not being enough words
-        throw new MawsTooShortError();
-    }
+    // const maws = getMawsForCodestrings({cs: codestring});
+    // if (maws['cs']) {
+    //     return await search(maws['cs'], collections_to_search, num_results, threshold, similarity_type);
+    // } else {
+    //     // `maw` binary ran successfully, but no maws were generated for this input.
+    //     // treat this as the same as there not being enough words
+    //     throw new MawsTooShortError();
+    // }
 }
 
 /**

@@ -219,6 +219,8 @@ def process_book(library: str, book_directory: Path, solr_core: str):
                 fields.update(library_fields)
 
             people = get_composer_persons_from_source(source_data)
+            people_names = [person["name_s"] for person in people]
+            fields["people_ss"] = list(set(people_names))
 
             return fields, people
 
@@ -260,7 +262,8 @@ def add_documents_to_index(solr_url, documents):
 
     for ch in chunks(documents, 1000):
         print("Adding 1000 documents")
-        solr.add(ch)
+        docs = [c for c in ch if c.get("id")]
+        solr.add(docs)
 
 
 if __name__ == "__main__":

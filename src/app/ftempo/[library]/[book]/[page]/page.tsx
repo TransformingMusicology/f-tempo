@@ -31,20 +31,34 @@ export default async function Page({params, searchParams} : {searchParams: { [ke
         siglum: params.page
     }
 
+    const paramCollections = searchParams.collections_to_search;
+    let paramCollectionsArray: string[] = [];
+    if (Array.isArray(paramCollections)) {
+        paramCollectionsArray = paramCollections;
+    } else if (typeof paramCollections === "string") {
+        paramCollectionsArray = [paramCollections];
+    }
+
+    const paramNumResults = searchParams.num_results || "10";
+    let paramNumResultsSingle = Number(paramNumResults);
+    if (Array.isArray(paramNumResults)) {
+        paramNumResultsSingle = Number(paramNumResults[0]);
+    }
+
     return <Row>
         <Col>
             <LeftPane page={metadata} />
         </Col>
         <Col md={3}>
             <SearchOptions searchParams={searchParams} />
-            <Suspense fallback={<FakeSearchResultList numResults={10} />} >
-                <SearchResultList currentPage={pageData} />
-            </Suspense>
+            {paramCollections && <Suspense fallback={<FakeSearchResultList numResults={10} />} >
+                <SearchResultList collectionsToSearch={paramCollectionsArray} numResults={paramNumResultsSingle} currentPage={pageData} />
+            </Suspense>}
         </Col>
         <Col>
-            <Suspense>
-                <SearchResultView currentPage={pageData} />
-            </Suspense>
+            {paramCollections && <Suspense>
+                <SearchResultView collectionsToSearch={paramCollectionsArray} numResults={paramNumResultsSingle} currentPage={pageData} />
+            </Suspense>}
         </Col>
     </Row>;
 };

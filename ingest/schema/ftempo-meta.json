@@ -13,5 +13,9 @@
             "indexed": false,
             "stored": true
         }
+    ],
+    "copyFields": [
+        {"source": "*_s", "dest": ["_text_"]},
+        {"source": "*_ss", "dest": ["_text_"]}
     ]
 }

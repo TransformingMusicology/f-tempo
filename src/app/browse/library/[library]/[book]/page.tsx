@@ -72,7 +72,10 @@ export default async function BrowseBook({ params }: { params: { library: string
             <table className="table">
                 {pages.slice(0, 10).map((page: any) => {
                     return <tr key={page.id}>
-                        <td>{page.id}</td>
+                        <td><img
+                            src={`https://uk-dev-ftempo.rism.digital/img/jpg/${page.id}.jpg`}
+                            alt="x"
+                            style={{width: "200px"}} /></td>
                         <td><a href={`/ftempo/${page.library}/${page.book}/${page.id}`}>{page.id}</a></td>
                     </tr>
                 })}

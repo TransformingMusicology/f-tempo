@@ -40,7 +40,6 @@ const numResultsTypes: SelectOptions[] = [
 
 export default async function SearchOptions({searchParams}: {searchParams: { [key: string]: string | string[] | undefined }}) {
 
-    const paramCollections = searchParams.collections_to_search;
     const paramNumResults = searchParams.num_results;
     const paramSimilarityType = searchParams.similarity_type;
 
@@ -62,7 +61,7 @@ export default async function SearchOptions({searchParams}: {searchParams: { [ke
             <Col>
                 <FormSelect name="num_results" defaultValue={paramNumResults}>
                     {numResultsTypes.map(rt => {
-                        return <option key={rt.value} value={rt.value}>{rt.label}</option>;
+                        return <option defaultValue={"10"} key={rt.value} value={rt.value}>{rt.label}</option>;
                     })}
                 </FormSelect>
             </Col>
@@ -70,13 +69,14 @@ export default async function SearchOptions({searchParams}: {searchParams: { [ke
         <Row className="mb-3">
             <label>Collections to search</label>
             <Col>
-                {libraries.map((library: string, i: number) => {
+                {libraries.map((library: string[], i: number) => {
+                    const libraryName = library[0];
                     return <FormCheck
-                        key={library}
+                        key={libraryName}
                         name="collections_to_search"
-                        defaultValue={library}
+                        defaultValue={libraryName}
                         inline
-                        label={library}
+                        label={libraryName}
                         type={"checkbox"}
                         defaultChecked={true}
                         id={`form-collection-check-${i}`}/>;

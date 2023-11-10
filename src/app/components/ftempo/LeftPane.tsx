@@ -1,7 +1,8 @@
 import {Button, ButtonGroup, Row} from "react-bootstrap";
 import ImageView from "./ImageView";
 import Link from "next/link";
-import {searchNextBookId, searchNextPageId} from "@/services/search";
+import {getBook, searchNextBookId, searchNextPageId} from "@/services/search";
+import React from "react";
 
 export type CurrentPageData = {
     library: string
@@ -17,18 +18,7 @@ type LeftPaneProps = {
 export default async function LeftPane(props: LeftPaneProps) {
     const { page } = props;
 
-    // const change_book = useCallback((direction: 'next'|'prev') => {
-    //     apiClient.changeBook(direction, props.page.library, props.page.book_id).then(page => {
-    //         navigate(`/ftempo/${page.library}/${page.book_id}/${page.page_id}`);
-    //     });
-    // }, [apiClient, navigate, props.page.book_id, props.page.library]);
-    //
-    // const change_page = useCallback((direction: 'next'|'prev') => {
-    //     apiClient.changePage(direction, props.page.library, props.page.book_id, props.page.page_id).then(page => {
-    //         navigate(`/ftempo/${page.library}/${page.book_id}/${page.page_id}`);
-    //     });
-    // }, [apiClient, navigate, props.page.book_id, props.page.library]);
-
+    const book = await getBook(page.book);
 
     const prevPage = await searchNextPageId(page.library, page.book, page.siglum, "prev");
     const nextPage = await searchNextPageId(page.library, page.book, page.siglum, "next");
@@ -84,5 +74,23 @@ export default async function LeftPane(props: LeftPaneProps) {
         <Row>
             <ImageView page={props.page} />
         </Row>
+        {book && <Row>
+            <ul>
+                <li>Title: {book.title_s}</li>
+                <li>Standardized Title: {book.standardized_title_s}</li>
+                <li>Place of publication: {book.place_of_publication_s} ({book.date_of_publication_s})</li>
+                <li>Composers: {book.people?.map((person: any, i: number) => {
+                        return [
+                            i > 0 && ", ",
+                            <Link key={person}
+                                  href={`/browse/people/${person.rism_person_id_s}`}>{person.name_s}</Link>]
+                    }
+                )}</li>
+                <li>Shelfmark: {book.shelfmark_s}</li>
+                <li>Publisher: {book.publisher_ss}</li>
+                <li><a href={book.catalogue_record_s}>Catalogue</a></li>
+            </ul>
+        </Row>}
     </>);
 };
+

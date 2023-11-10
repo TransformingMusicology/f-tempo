@@ -1,6 +1,6 @@
-import {searchById} from "@/services/search";
-import {CurrentPageData} from "@/app/components/ftempo/LeftPane";
+import {getBook, searchById} from "@/services/search";
 import SearchResultViewClient from "@/app/components/ftempo/SearchResultViewClient";
+import {SearchResultProps} from "@/app/components/ftempo/SearchResultList";
 
 type ResultType = {
     id: string;
@@ -13,10 +13,12 @@ type ResultType = {
     jaccard: number;
 }
 
-export default async function SearchResultView(props: {currentPage: CurrentPageData}) {
+export default async function SearchResultView(props: SearchResultProps) {
 
-    const {currentPage: page} = props;
-    const results = await searchById(page.siglum, ["GB-Lbl"], 10, 0, "jaccard");
+    const {currentPage: page, numResults, collectionsToSearch} = props;
+    const results = await searchById(page.siglum, collectionsToSearch, numResults, 0, "jaccard");
 
-    return <SearchResultViewClient results={results} />;
+    const book = await getBook(props.currentPage.book);
+
+    return <SearchResultViewClient results={results} book={book} />;
 }

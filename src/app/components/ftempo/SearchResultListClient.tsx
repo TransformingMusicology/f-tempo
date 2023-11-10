@@ -13,7 +13,7 @@ export default function SearchResultListClient(props: {results: any}) {
     const searchParams = useSearchParams()!
 
     const searchN = search.get('n');
-    const searchNNumber = Number(searchN);
+    const searchNNumber = searchN ? Number(searchN) : 1;
 
     const createQueryString = useCallback(
         (name: string, value: string) => {
@@ -81,9 +81,6 @@ export default function SearchResultListClient(props: {results: any}) {
                                 'width=1200, height=600, directories=no, location=no, menubar=no, resizable=no, scrollbars=1, status=no, toolbar=no');
                         }}
                     />;
-                }
-                if (result.titlepage) {
-                    titlePage = <img src="/img/tp_book.svg" alt="View the title page for this result's book" height="20" />;
                 }
                 return <tr
                     key={result.id}

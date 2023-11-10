@@ -13,6 +13,8 @@ export const metadata: Metadata = {
     title: 'Search',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function BrowseSearch({searchParams}: {
     searchParams: { [key: string]: string | string[] | undefined }
 }) {

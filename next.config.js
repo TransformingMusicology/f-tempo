@@ -8,22 +8,28 @@ import { withSentryConfig } from "@sentry/nextjs";
 const sentryNextConfig = withSentryConfig(
   nextConfig,
   {
-    // Suppresses source map uploading logs during build
-    silent: true,
     org: "alastair-corp",
     project: "f-tempo",
-  },
-  {
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
+
+    // Only print logs for uploading source maps in CI
+    silent: !process.env.CI,
     widenClientFileUpload: true,
-    // Transpiles SDK to be compatible with IE11 (increases bundle size)
-    transpileClientSDK: false,
-    // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-    tunnelRoute: "/monitoring",
+
+    // Automatically annotate React components to show their full name in breadcrumbs and session replay
+    reactComponentAnnotation: {
+      enabled: true,
+    },
     // Hides source maps from generated client bundles
     hideSourceMaps: true,
+
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
+
+    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
+    // See the following for more information:
+    // https://docs.sentry.io/product/crons/
+    // https://vercel.com/docs/cron-jobs
+    automaticVercelMonitors: true,
   }
 );
 

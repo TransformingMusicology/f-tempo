@@ -2,7 +2,8 @@ import React from 'react';
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Link from "next/link";
-import {getBook, getPagesForBook} from "@/services/search";
+import {getBook} from "@/services/metadata";
+import {getPagesForBook} from "@/services/search";
 
 
 export default async function BrowseBook({ params }: { params: { library: string, book: string} }) {

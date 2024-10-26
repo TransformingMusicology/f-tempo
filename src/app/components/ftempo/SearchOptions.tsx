@@ -1,12 +1,11 @@
 import Button from "react-bootstrap/Button";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
 import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
 import FormLabel from "react-bootstrap/FormLabel";
 import FormSelect from "react-bootstrap/FormSelect";
 import FormCheck from "react-bootstrap/FormCheck";
 import Row from "react-bootstrap/Row";
-import {getLibraries} from "@/services/search";
+import {getLibraries} from "@/services/metadata";
 
 type SelectOptions = {
     value: string

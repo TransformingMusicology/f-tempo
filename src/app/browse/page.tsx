@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import {getLibraries, getNames} from "@/services/search";
+import {getLibraries, getNames} from "@/services/metadata";
 import Link from "next/link";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";

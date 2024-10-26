@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 
-import {queryBook} from "@/services/search";
+import {searchBooks} from "@/services/metadata";
 import {Metadata} from "next";
 import BookSearchResult from "@/app/components/BookSearchResult";
 import React from "react";
@@ -15,19 +15,24 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
+function getSingleQueryParam(paramValue: string | string[] | undefined, defaultValue: string): string {
+    if (Array.isArray(paramValue)) {
+        return paramValue[0];
+    } else if (typeof paramValue === "string") {
+        return paramValue;
+    } else {
+        return defaultValue;
+    }
+}
+
 export default async function BrowseSearch({searchParams}: {
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
 
-    const queryParam = searchParams.q;
-    let queryParamString = '';
-    if (Array.isArray(queryParam)) {
-        queryParamString = queryParam[0];
-    } else {
-        queryParamString = queryParam || '';
-    }
 
-    const books = await queryBook(queryParamString);
+    const queryParam = getSingleQueryParam(searchParams.q, '');
+
+    const books = await searchBooks(queryParam);
 
     return <><Row>
         <Col sm={2} />

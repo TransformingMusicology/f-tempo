@@ -1,7 +1,8 @@
 import {Button, ButtonGroup, Row} from "react-bootstrap";
 import ImageView from "./ImageView";
 import Link from "next/link";
-import {getBook, searchNextBookId, searchNextPageId} from "@/services/search";
+import {searchNextBookId, searchNextPageId} from "@/services/search";
+import {getBook} from "@/services/metadata";
 import React from "react";
 
 export type CurrentPageData = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {getBooksForPerson, getPerson} from "@/services/search";
+import {getBooksForPerson, getPerson} from "@/services/metadata";
 
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";

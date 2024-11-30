@@ -5,7 +5,8 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import BookSearchResult from "@/app/components/BookSearchResult";
 
-export default async function Page({ params }: { params: { person: string } }) {
+export default async function Page(props: { params: Promise<{ person: string }> }) {
+    const params = await props.params;
     const person_id = decodeURIComponent(params.person);
     const books = await getBooksForPerson(person_id);
     const person = await getPerson(person_id);

@@ -15,8 +15,12 @@ type FTempoSearchResults = {
 };
 
 
-export default async function Page({params, searchParams} : {searchParams: { [key: string]: string | string[] | undefined },
-    params: { library: string, book: string, page: string } }) {
+export default async function Page(
+    props: {searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
+        params: Promise<{ library: string, book: string, page: string }> }
+) {
+    const searchParams = await props.searchParams;
+    const params = await props.params;
 
     // TODO: On page load, check if the URL structure is correct, get data for the page
     /*

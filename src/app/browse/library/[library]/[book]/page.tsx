@@ -6,7 +6,8 @@ import {getBook} from "@/services/metadata";
 import {getPagesForBook} from "@/services/search";
 
 
-export default async function BrowseBook({ params }: { params: { library: string, book: string} }) {
+export default async function BrowseBook(props: { params: Promise<{ library: string, book: string}> }) {
+    const params = await props.params;
 
     const book = await getBook(params.book);
     const pages = await getPagesForBook(params.library, params.book);

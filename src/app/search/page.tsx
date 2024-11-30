@@ -25,9 +25,12 @@ function getSingleQueryParam(paramValue: string | string[] | undefined, defaultV
     }
 }
 
-export default async function BrowseSearch({searchParams}: {
-    searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default async function BrowseSearch(
+    props: {
+        searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    }
+) {
+    const searchParams = await props.searchParams;
 
 
     const queryParam = getSingleQueryParam(searchParams.q, '');

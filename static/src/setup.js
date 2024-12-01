@@ -83,7 +83,7 @@ let current_page = {library: '', book: '', page: ''};
 
 var ports_to_search = [];
 
-const BASE_IMG_URL = 'https://uk-dev-ftempo.rism.digital/img/jpg/';
+const BASE_IMG_URL = 'https://search.f-tempo.org/img/jpg/';
 
 function get_or_set_user_id() {
     if (storageAvailable('localStorage')) {

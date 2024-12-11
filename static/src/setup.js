@@ -318,7 +318,7 @@ function show_results(json) {
         var sim_choice_id = "sim_choice" + q;
         var sim_id = "sim" + q;
         imageSrcs.push(BASE_IMG_URL + results[q].id + ".jpg");
-        var book = JSON.stringify({book_id: results[q].book, library: results[q].library});
+        var book = JSON.stringify({book: results[q].book, library: results[q].library});
 
         const rank_percentage = (rank_factor * 100).toFixed(2);
 
@@ -390,17 +390,9 @@ function show_results(json) {
     $('#results_table').html(table_html);
 
     const top_result_id = results[0].id;
-    let top_result_rank_factor;
-    /*
-    if (jaccard) {
-        top_result_rank_factor = 1 - results[0].jaccard;
-    } else {
-        top_result_rank_factor = results[0].num_matched_words / results[0].num_words;
-    }
-    */
-    top_result_rank_factor = 1 - results[0].jaccard;
+    const top_result_rank_factor = 1 - results[0].jaccard;
 
-    load_result_image(top_result_id, 0, top_result_rank_factor);
+    load_result_image(top_result_id, 0, current_page);
 
     if (query_id.length) {
         display_cosine_sim_line(json);
@@ -441,7 +433,7 @@ function load_result_image(id, rank, book) {
         document.getElementById("result_image_display").innerHTML = "";
         return false;
     }
-    current_page = {library: book.library, book: book.book_id, page: id};
+    current_page = {library: book.library, book: book.book, page: id};
     const image = id + ".jpg";
 
     if (query_id !== id) {
@@ -589,7 +581,10 @@ function checkKey(e) {
                 row_id = "result_row0";
             }
         }
-        document.getElementById(row_id).click();
+        const row = document.getElementById(row_id);
+        if (row) {
+            row.click();
+        }
         return;
     }
     if (e.keyCode === 37) {    // left arrow - Search previous page/book

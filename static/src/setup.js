@@ -228,21 +228,16 @@ function search_by_active_query_id(load_query_image = false, ngram_search, colle
     search(query_id, similarity_type, num_results, ngram_search, collections_to_search, true);
 }
 
-function show_tp(id, isquery) {
+function show_tp(tp_url, isquery) {
+    // get small version of the image via IIIF:
+    let bits = tp_url.split("/");
     let new_img_src = "";
-    for (var i = 0; i < tp_urls.length; i++) {
-        if (tp_urls[i].indexOf(parse_id(id).book) > 0) {
-            // get small version of the image via IIIF:
-            let bits = tp_urls[i].split("/");
-            for (var j = 0; j < bits.length - 1; j++) {
-                var seg = bits[j];
-                if (seg == ",500") seg = "500,";
-                new_img_src += seg + "/";
-            }
-            new_img_src += bits[j];
-            break;
-        }
+    for (var j = 0; j < bits.length - 1; j++) {
+        var seg = bits[j];
+        if (seg == ",500") seg = "500,";
+        new_img_src += seg + "/";
     }
+    new_img_src += bits[j];
     if (isquery) {
         var query_tp_img = document.getElementById("query_image");
         query_tp_img.src = new_img_src;
@@ -319,6 +314,7 @@ function show_results(json) {
         var sim_id = "sim" + q;
         imageSrcs.push(BASE_IMG_URL + results[q].id + ".jpg");
         var book = JSON.stringify({book: results[q].book, library: results[q].library});
+        var tp_url = results[q].titlepage;
 
         const rank_percentage = (rank_factor * 100).toFixed(2);
 
@@ -327,7 +323,7 @@ function show_results(json) {
                 "<tr class='id_list_name' id='" + result_row_id
                 + "' onclick='load_result_image(\"" + target_id + "\"," + q + "," + book + ");'>";
             if (target_id.startsWith("D-Mbs")) {
-                table_html += "<td id='title_page_link'><img src='img/tp_book.svg' height='20' onmousedown='show_tp(\"" + query_id + "\"," + true + ")' onmouseup='reload_page_query(\"" + query_id + "\")'></td>";
+                table_html += "<td id='title_page_link'><img src='img/tp_book.svg' height='20' onmousedown='show_tp(\"" + tp_url + "\"," + true + ")' onmouseup='reload_page_query(\"" + query_id + "\")'></td>";
             } else {
                 table_html += "<td></td>";
             }
@@ -357,7 +353,7 @@ function show_results(json) {
             table_html +=
                 "<tr class='id_list_name' id='" + result_row_id
                 + "' onclick='load_result_image(\"" + target_id + "\"," + q + "," + book + ");'>";
-            if (target_id.startsWith("D-Mbs")) table_html += "<td id='title_page_link'><img src='img/tp_book.svg' height='20' onmousedown='show_tp(\"" + target_id + "\"," + false + ")'></td>";
+            if (target_id.startsWith("D-Mbs")) table_html += "<td id='title_page_link'><img src='img/tp_book.svg' height='20' onmousedown='show_tp(\"" + tp_url + "\"," + false + ")'></td>";
             else table_html += "<td></td>";
             table_html += "<td text-align='center' style='color:blue; font-size: 10px'>"+(q+1)+ ". " + target_id + "</td>"
                 + "<td >"

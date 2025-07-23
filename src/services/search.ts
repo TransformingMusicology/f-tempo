@@ -1,3 +1,54 @@
+export type SearchResponse = {
+    numQueryWords: number
+    numResults: number
+    results: SearchResult[]
+}
+
+export type SearchResult = {
+    id: string
+    book: string;
+    library: string;
+    score: number;
+    codestring: string
+    num_matched_words: number
+    num_words: number
+    jaccard: number
+    delta?: number
+    titlepage?: string
+}
+
+// Client-side specific types
+type ClientSolrDocument = {
+    siglum: string
+    library: string
+    book: string
+    score?: number
+    maws?: string
+    intervals?: string
+    titlepage?: string
+}
+
+type ClientMetadataResult = {
+    siglum: string
+    library: string
+    book: string
+}
+
+type ClientRandomIdResult = {
+    siglum: string
+    library: string
+    book: string
+}
+
+type ClientPageResult = {
+    id: string
+    library: string
+    book: string
+    page_number: string
+    jpg: string
+    mei: string
+}
+
 function quote(str: string) {
     return `"${str}"`;
 }
@@ -13,7 +64,7 @@ async function doSolrContentSearch(args: string[][] | Record<string, string>, in
     return await res.json();
 }
 
-async function getMawsForSiglum(siglum: string) {
+async function getMawsForSiglum(siglum: string): Promise<string> {
     const result = await doSolrContentSearch({
         q: `siglum:${quote(siglum)}`,
         'fl': 'maws'
@@ -34,7 +85,7 @@ async function getMawsForSiglum(siglum: string) {
  * @param boolean_sim if true, use solr's BooleanSimilarity instead of BM25
  * @returns
  */
-async function searchMawsSolr(maws: string[], collections_to_search: string[], num_results: number, similarity_type: 'boolean'|'jaccard'|'solr'): Promise<any> {
+async function searchMawsSolr(maws: string[], collections_to_search: string[], num_results: number, similarity_type: 'boolean'|'jaccard'|'solr'): Promise<ClientSolrDocument[]> {
     maws = maws.map(quote);
     collections_to_search = collections_to_search.map(quote)
 
@@ -87,7 +138,7 @@ async function searchMawsSolr(maws: string[], collections_to_search: string[], n
     return []
 }
 
-export async function searchRandomId(timestamp: string) {
+export async function searchRandomId(timestamp: string): Promise<ClientRandomIdResult> {
     const key = `random_${timestamp}`;
     const result = await doSolrContentSearch({
         q: "*:*",
@@ -98,10 +149,10 @@ export async function searchRandomId(timestamp: string) {
     if (result.response.numFound >= 1) {
         return result.response.docs[0];
     }
-    return {};
+    return {} as ClientRandomIdResult;
 }
 
-export async function getMetadata(id: string) {
+export async function getMetadata(id: string): Promise<ClientMetadataResult> {
     const result = await doSolrContentSearch({
         q: `siglum:${id}`,
         fl: "siglum,library,book",
@@ -111,11 +162,11 @@ export async function getMetadata(id: string) {
     if (result.response.numFound >= 1) {
         return result.response.docs[0];
     }
-    return {};
+    return {} as ClientMetadataResult;
 }
 
 
-export async function getPagesForBook(libraryId: string, bookId: string) {
+export async function getPagesForBook(libraryId: string, bookId: string): Promise<ClientPageResult[]> {
     const result = await doSolrContentSearch({
         q: `id:${libraryId}_${bookId}*`,
         sort: "id asc"
@@ -124,7 +175,7 @@ export async function getPagesForBook(libraryId: string, bookId: string) {
 }
 
 
-export async function searchNextPageId(library: string, bookId: string, pageId: string, direction: "prev" | "next") {
+export async function searchNextPageId(library: string, bookId: string, pageId: string, direction: "prev" | "next"): Promise<ClientPageResult | null> {
     let params;
     if (direction === "next") {
         params = [
@@ -160,11 +211,11 @@ export async function searchNextPageId(library: string, bookId: string, pageId: 
 
 }
 
-export async function searchNextBookId(library: string, bookId: string, direction: "prev" | "next") {
-
+export async function searchNextBookId(library: string, bookId: string, direction: "prev" | "next"): Promise<ClientPageResult | null> {
+    throw new Error("Not implemented");
 }
 
-export async function searchById(id: string, collections_to_search: string[], num_results: number, threshold: number,  similarity_type: 'boolean'|'jaccard'|'solr') {
+export async function searchById(id: string, collections_to_search: string[], num_results: number, threshold: number,  similarity_type: 'boolean'|'jaccard'|'solr'): Promise<SearchResponse> {
     const maws = await getMawsForSiglum(id);
     if (maws) {
         return await search(maws.split(" "), collections_to_search, num_results, threshold, similarity_type);
@@ -173,15 +224,8 @@ export async function searchById(id: string, collections_to_search: string[], nu
     }
 }
 
-export async function searchByCodestring(codestring: string, collections_to_search: string[], num_results: number, threshold: number, similarity_type: 'boolean'|'jaccard'|'solr') {
-    // const maws = getMawsForCodestrings({cs: codestring});
-    // if (maws['cs']) {
-    //     return await search(maws['cs'], collections_to_search, num_results, threshold, similarity_type);
-    // } else {
-    //     // `maw` binary ran successfully, but no maws were generated for this input.
-    //     // treat this as the same as there not being enough words
-    //     throw new MawsTooShortError();
-    // }
+export async function searchByCodestring(codestring: string, collections_to_search: string[], num_results: number, threshold: number, similarity_type: 'boolean'|'jaccard'|'solr'): Promise<SearchResponse> {
+    throw new Error("Not implemented");
 }
 
 /**
@@ -203,16 +247,16 @@ export async function search(words: string[], collections_to_search: string[], n
     const search_uniq_words = new Set(words);
 
     const maws_results = await searchMawsSolr(words, collections_to_search, num_results * 2, similarity_type);
-    const maws_with_scores: SearchResult[] = maws_results.map((doc: { score: number; maws: string; siglum: string; intervals: string; book: string; library: string; titlepage?: string;}) => {
-        const unique_maws = new Set(doc.maws.split(" "));
+    const maws_with_scores: SearchResult[] = maws_results.map((doc: ClientSolrDocument) => {
+        const unique_maws = new Set(doc.maws?.split(" ") || []);
         const num_matched_words = setIntersection(unique_maws, search_uniq_words).size;
         return {
             // ID of the document
             id: doc.siglum,
             book: doc.book,
             library: doc.library,
-            score: doc.score,
-            codestring: doc.intervals.split(" ").join(""),
+            score: doc.score || 0,
+            codestring: doc.intervals?.split(" ").join("") || "",
             // Number of words in common between search term and document
             num_matched_words: num_matched_words,
             // Number of unique words in the document
@@ -226,7 +270,7 @@ export async function search(words: string[], collections_to_search: string[], n
     const result = gateScoresByThreshold(maws_with_scores, threshold, similarity_type === 'jaccard', num_results);
     return {
         numQueryWords: search_uniq_words.size,
-        numResults: maws_results.numResults,
+        numResults: result.length,
         results: result
     };
 }
@@ -270,7 +314,7 @@ function gateScoresByThreshold(scores_pruned: SearchResult[], threshold: "median
 }
 
 
-function jacc_delta (array: SearchResult[], n: number) {
+function jacc_delta(array: SearchResult[], n: number) {
     return array[n].jaccard - array[n - 1].jaccard;
 }
 
@@ -317,12 +361,6 @@ export class NextIdNotFound extends Error {
     }
 }
 
-export type SearchResponse = {
-    numQueryWords: number
-    numResults: number
-    results: SearchResult[]
-}
-
 export class NoMawsForDocumentError extends Error {
     constructor(message: string) {
         super(message);
@@ -333,17 +371,4 @@ export class MawsTooShortError extends Error {
     constructor() {
         super("Maws are too short");
     }
-}
-
-export type SearchResult = {
-    id: string
-    book: string;
-    library: string;
-    score: number;
-    codestring: string
-    num_matched_words: number
-    num_words: number
-    jaccard: number
-    delta?: number
-    titlepage?: string
 }

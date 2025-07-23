@@ -104,7 +104,8 @@ export async function getBooksForLibrary(library: string, page: number = 0) {
         ["rows", numRows.toString()]
     ])
     const books = result.response.docs;
-    return await addPersonNamesToBooks(books);
+    const booksWithPeople = await addPersonNamesToBooks(books);
+    return booksWithPeople;
 }
 
 export async function getBook(bookId: string) {

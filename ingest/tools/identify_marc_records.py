@@ -1,13 +1,12 @@
-# Take a directory tree created  by parse_iiif.ts with 
+# Take a directory tree created  by parse_iiif.ts with
 # library/book/marc.json
 # this file is a list of {id:, value:} dicts.
 # Find the unique list of all marc ids over all files
 
 
 import argparse
-import os
-import glob
 import json
+import os
 
 
 def main(data_directory):
@@ -16,7 +15,7 @@ def main(data_directory):
         for f in files:
             if f == "marc.json":
                 to_process.append(os.path.join(root, f))
-    
+
     unique_marc_records = set()
     for f in to_process:
         j = json.load(open(f))

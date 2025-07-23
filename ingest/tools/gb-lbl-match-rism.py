@@ -3,7 +3,7 @@ import csv
 import json
 import os
 
-import rism
+from service import rism
 
 
 def get_mapping(download_directory):
@@ -36,7 +36,7 @@ def main(download_directory, data_file):
                 print("  Not found")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("download_directory")
     parser.add_argument("data_file")

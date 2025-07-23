@@ -11,7 +11,7 @@ class Page:
     mei_path: str
     width: str
     height: str
-    systems: List['System']
+    systems: List["System"]
     label: Optional[str]
     part_number: Optional[str]
 
@@ -19,7 +19,7 @@ class Page:
 @dataclass
 class System:
     id: str
-    notes: List['Note']
+    notes: List["Note"]
     y: str
 
 
@@ -60,7 +60,9 @@ def parse_mei_parts(mei_root, filename):
                 p = note.get("pname")
                 o = note.get("oct")
                 id = note.get("xml:id")
-                staffs[measure_staff_id]["systems"][0]["notes"].append({"id": id, "p": p, "o": o})
+                staffs[measure_staff_id]["systems"][0]["notes"].append(
+                    {"id": id, "p": p, "o": o}
+                )
 
     return list(staffs.values())
 
@@ -119,7 +121,7 @@ def notes_to_contour(notes: List[Note], chunk_size=None):
     n_grams = []
 
     for i in range(len(notes) - chunk_size + 1):
-        part = notes[i:i + chunk_size]
+        part = notes[i : i + chunk_size]
         contour = pitches_to_interval_mapping(part)
         n_gram = {"contour": contour, "notes": part, "sequence": i}
         n_grams.append(n_gram)
@@ -130,11 +132,15 @@ def notes_to_contour(notes: List[Note], chunk_size=None):
 def pitches_to_interval_mapping(pitches):
     interval_mapping = "-abcdefghijklmnopqrstuvwxyz"
 
-    alphabet = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+    alphabet = ["C", "D", "E", "F", "G", "A", "B"]
 
-    pitch_nums = [alphabet.index(note.p.upper()) + (7 * int(note.o)) for note in pitches]
+    pitch_nums = [
+        alphabet.index(note.p.upper()) + (7 * int(note.o)) for note in pitches
+    ]
 
-    pitch_intervals = [pitch_nums[i + 1] - pitch_nums[i] for i in range(len(pitch_nums) - 1)]
+    pitch_intervals = [
+        pitch_nums[i + 1] - pitch_nums[i] for i in range(len(pitch_nums) - 1)
+    ]
 
     def clamp(i):
         if i < -26:
@@ -144,6 +150,6 @@ def pitches_to_interval_mapping(pitches):
         return i
 
     pitch_intervals = [interval_mapping[abs(clamp(i))] for i in pitch_intervals]
-    pitch_intervals = [i.upper() if i > 'a' else i for i in pitch_intervals]
+    pitch_intervals = [i.upper() if i > "a" else i for i in pitch_intervals]
 
     return pitch_intervals

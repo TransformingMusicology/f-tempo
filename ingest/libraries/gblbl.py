@@ -1,7 +1,7 @@
 import json
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 
 
 def find_marc_record(records, record_type):
@@ -17,6 +17,7 @@ def get_marc_subfield(field, subfield):
     for part in parts:
         if part.startswith(f"{subfield} "):
             return part[2:]
+
 
 def get_all_marc_subfields(field):
     parts = field.split("|")
@@ -68,7 +69,17 @@ def get_solr_document_for_file(input_files, library):
         document[f"marc_{i}"] = document.setdefault(f"marc_{i}", [])
         document[f"marc_{i}"].append(value)
 
-    title_types = ["24500", "24501", "24502", "24503", "24504", "24510", "24512", "24513", "24514"]
+    title_types = [
+        "24500",
+        "24501",
+        "24502",
+        "24503",
+        "24504",
+        "24510",
+        "24512",
+        "24513",
+        "24514",
+    ]
     title_record = None
     for t in title_types:
         title_record = find_marc_record(j, t)

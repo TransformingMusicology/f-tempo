@@ -23,7 +23,7 @@ def get_sources_for_institution(institution):
     headers = {
         "Accept": "application/ld+json",
         "X-API-Accept-Language": "en",
-        "User-Agent": "F-Tempo/Alastair"
+        "User-Agent": "F-Tempo/Alastair",
     }
     r = requests.get(base_url, params=params, headers=headers, timeout=10)
     r.raise_for_status()
@@ -68,13 +68,13 @@ def download_url_jsonld(url):
     headers = {
         "Accept": "application/ld+json",
         "X-API-Accept-Language": "en",
-        "User-Agent": "F-Tempo/Alastair"
+        "User-Agent": "F-Tempo/Alastair",
     }
     r = requests.get(url, headers=headers, timeout=10)
     try:
         r.raise_for_status()
         return r.json()
-    except requests.exceptions.HTTPError as e:
+    except requests.exceptions.HTTPError:
         print(f"Error downloading {url}")
         return None
 
@@ -83,6 +83,6 @@ def get_mbs():
     get_sources_for_institution("30000882")
 
 
-if __name__ == '__main__':
-    #get_mbs()
+if __name__ == "__main__":
+    # get_mbs()
     download_individual_sources(int(sys.argv[1]))

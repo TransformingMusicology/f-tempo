@@ -1,13 +1,11 @@
 import argparse
 import json
-from pathlib import Path
 import pprint
 import re
+from pathlib import Path
 
 import pysolr
-
-from rism import download_url_jsonld
-
+from service.rism import download_url_jsonld
 
 
 def main(library, library_directory, solr_core):
@@ -35,7 +33,6 @@ def main(library, library_directory, solr_core):
 def main_single_directory(library, directory, solr_core):
     directory = Path(directory)
     if directory.is_dir():
-        source = directory / "rism-source.json"
         bk, people = process_book(library, directory, solr_core)
         pprint.pprint(bk)
         pprint.pprint(people)
@@ -69,7 +66,9 @@ def get_relationship_from_record(relationships, relationship_id):
 def get_composers_from_source(source):
     primary_composer = []
     if "creator" in source:
-        primary_composer = get_relationship_from_record([source["creator"]], "relators:cre")
+        primary_composer = get_relationship_from_record(
+            [source["creator"]], "relators:cre"
+        )
     relationships = source.get("relationships", {}).get("items", [])
     composers = get_relationship_from_record(relationships, "relators:cmp")
     if primary_composer:
@@ -78,11 +77,15 @@ def get_composers_from_source(source):
     if "sourceItems" in source:
         for item in source["sourceItems"].get("items", []):
             if "creator" in item:
-                primary_composer = get_relationship_from_record([item["creator"]], "relators:cre")
+                primary_composer = get_relationship_from_record(
+                    [item["creator"]], "relators:cre"
+                )
                 if primary_composer:
                     composers.append(primary_composer[0])
             relationships = item.get("relationships", {}).get("items", [])
-            composers.extend(get_relationship_from_record(relationships, "relators:cmp"))
+            composers.extend(
+                get_relationship_from_record(relationships, "relators:cmp")
+            )
     return composers
 
 
@@ -119,25 +122,30 @@ def get_metadata_from_source(rism_source):
         "date_of_publication_s": date,
     }
     if composer_ids:
-        data["composer_ss"] = [f"person_{str(composer_id)}" for composer_id in composer_ids]
+        data["composer_ss"] = [
+            f"person_{str(composer_id)}" for composer_id in composer_ids
+        ]
     if publishers:
-        data["publisher_ss"] = [publisher["label"]["none"][0] for publisher in publishers]
+        data["publisher_ss"] = [
+            publisher["label"]["none"][0] for publisher in publishers
+        ]
 
     return data
 
 
 def get_composer_persons_from_source(rism_source):
-    
     composers = get_composers_from_source(rism_source)
     data = []
     for composer in composers:
         composer_id = composer["id"].split("/")[-1] if composer else None
-        data.append({
-            "type": "person",
-            "id": f"person_{composer_id}",
-            "rism_person_id_s": str(composer_id),
-            "name_s": composer["label"]["none"][0],
-        })
+        data.append(
+            {
+                "type": "person",
+                "id": f"person_{composer_id}",
+                "rism_person_id_s": str(composer_id),
+                "name_s": composer["label"]["none"][0],
+            }
+        )
     return data
 
 
@@ -180,7 +188,10 @@ def get_metadata_dmbs(book_directory):
                     details_url = seeAlso["@id"]
                     break
             for meta in manifest_data["metadata"]:
-                if meta["label"] and {"@language": "en","@value": "Location"} in meta["label"]:
+                if (
+                    meta["label"]
+                    and {"@language": "en", "@value": "Location"} in meta["label"]
+                ):
                     shelfmark = meta["value"]
             data = {"manifest_s": manifest_url}
             if shelfmark:
@@ -231,7 +242,11 @@ def rism_get_composer(source):
     creator = source.get("creator", {})
     role = creator.get("role", {})
     relatedTo = role.get("relatedTo", {})
-    if relatedTo and role["id"] == "relators:cre" and relatedTo["type"] == "rism:Person":
+    if (
+        relatedTo
+        and role["id"] == "relators:cre"
+        and relatedTo["type"] == "rism:Person"
+    ):
         return creator
     return None
 
@@ -252,9 +267,9 @@ def download_people_for_source(source, data_directory):
                     json.dump(content, fp, indent=2)
 
 
-def chunks(l, n):
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+def chunks(list_, n):
+    for i in range(0, len(list_), n):
+        yield list_[i : i + n]
 
 
 def add_documents_to_index(solr_url, documents):
@@ -273,5 +288,5 @@ if __name__ == "__main__":
     parser.add_argument("solr_core")
 
     args = parser.parse_args()
-    #main_single_directory(args.library, args.library_directory, args.solr_core)
+    # main_single_directory(args.library, args.library_directory, args.solr_core)
     main(args.library, args.library_directory, args.solr_core)

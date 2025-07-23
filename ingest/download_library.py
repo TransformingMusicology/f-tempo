@@ -5,15 +5,12 @@ import json
 import os
 
 import requests
-from iiif import get_pages_from_manifest
-
-import rism
+from service import rism
+from service.iiif import get_pages_from_manifest
 
 
 def download(url, json=True):
-    headers = {
-        "User-Agent": "F-Tempo 0.1/ftempo.org (alastair@porter.net.nz)"
-    }
+    headers = {"User-Agent": "F-Tempo 0.1/f-tempo.org (alastair@porter.net.nz)"}
     r = requests.get(url, headers=headers, timeout=10)
     try:
         r.raise_for_status()
@@ -21,7 +18,7 @@ def download(url, json=True):
             return r.json()
         else:
             return r.content
-    except requests.exceptions.HTTPError as e:
+    except requests.exceptions.HTTPError:
         print(f"Error downloading {url}")
 
 
@@ -58,8 +55,9 @@ def download_pages(pages, book_directory, threads=1):
     total_pages = len(pages)
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         for i, page in enumerate(pages, 1):
-            executor.submit(download_single_page, i, total_pages, images_directory, page)
-
+            executor.submit(
+                download_single_page, i, total_pages, images_directory, page
+            )
 
 
 def download_item(rism_id, manifest_url, library_id, download_dir, threads):
@@ -83,7 +81,6 @@ def download_item(rism_id, manifest_url, library_id, download_dir, threads):
     download_pages(pages, book_directory, threads)
 
 
-
 def main(data_file, library_id, download_dir, threads):
     library_dir = os.path.join(download_dir, library_id)
     os.makedirs(library_dir, exist_ok=True)
@@ -95,7 +92,7 @@ def main(data_file, library_id, download_dir, threads):
             download_item(rism_id, manifest_url, library_id, download_dir, threads)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("data_file")
     parser.add_argument("library_id")

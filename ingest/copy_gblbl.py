@@ -1,15 +1,9 @@
 import argparse
 import json
 import os
-from pathlib import Path
-import pprint
 import re
 import shutil
-
-import pysolr
-
-from rism import download_url_jsonld
-
+from pathlib import Path
 
 
 def main(download_directory, index_file):
@@ -57,15 +51,17 @@ def process_book(library: str, book_directory: Path, index):
     books_keys = index["books"].keys()
     library_fields = get_metadata_gblbl(book_directory)
     fields.update(library_fields)
-    fields['directory_name_s'] = book_directory.name
+    fields["directory_name_s"] = book_directory.name
     shelfmark = fields.get("shelfmark_s")
     if shelfmark:
         shelfmark = shelfmark.replace("Digital Store ", "").replace(".", "")
         if "(" in shelfmark:
-            #remove all content in parens
-            shelfmark = re.sub(r'\([^)]*\)', '', shelfmark)
+            # remove all content in parens
+            shelfmark = re.sub(r"\([^)]*\)", "", shelfmark)
         if shelfmark in books_keys:
-            new_book_directory = book_directory.parent.parent / "GB-Lbl-oldid" / shelfmark
+            new_book_directory = (
+                book_directory.parent.parent / "GB-Lbl-oldid" / shelfmark
+            )
             new_book_directory.mkdir(exist_ok=True, parents=True)
             new_mei = new_book_directory / "mei"
             new_mei.mkdir(exist_ok=True, parents=True)

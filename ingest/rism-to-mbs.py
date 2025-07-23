@@ -1,4 +1,3 @@
-import collections
 import csv
 import json
 import os
@@ -11,7 +10,10 @@ def get_manifests_from_rism(rism):
     for item in rism.get("exemplars", {}).get("items", []):
         externals = item.get("externalResources", {}).get("items", [])
         for e in externals:
-            if e.get("type") == "rism:ExternalResource" and e.get("resourceType") == "rism:IIIFManifestLink":
+            if (
+                e.get("type") == "rism:ExternalResource"
+                and e.get("resourceType") == "rism:IIIFManifestLink"
+            ):
                 manifests.append(e.get("url"))
     return manifests
 
@@ -28,7 +30,7 @@ def main(manifest_dir, rism_dir):
         for f in files:
             if f == "manifest.json":
                 d = json.load(open(os.path.join(root, f)))
-                mbs_manifest_urls.add(d['@id'])
+                mbs_manifest_urls.add(d["@id"])
 
     rism_files = {}
     found_manifests = set()
@@ -43,37 +45,41 @@ def main(manifest_dir, rism_dir):
                         if m in mbs_manifest_urls:
                             found_manifests.add(m)
                             if m in rism_files:
-                                print(f"Duplicate manifest {m} in {rism_files[m]} and {source_id}")
+                                print(
+                                    f"Duplicate manifest {m} in {rism_files[m]} and {source_id}"
+                                )
                             rism_files[m] = source_id
 
     print(f"Found {len(rism_files)} RISM files that are also in MBS")
-    # for m, f in rism_files.items():
-    #     print(f"{f},{m}")
 
     header = ["manifest", "viewer", "rism_source", "mbs_rism_id", "mbs_title"]
-    with open("f-temppo-rism-d-mbs.csv", "w") as fp:
+    with open("f-tempo-rism-d-mbs.csv", "w") as fp:
         w = csv.DictWriter(fp, fieldnames=header)
         w.writeheader()
         for m, f in rism_files.items():
             rism, title, dirname = manifest_to_metadata[m]
-            w.writerow({
-                "manifest": m,
-                "viewer": f"https://rism.online/viewer.html#?manifest={m}",
-                "rism_source": f,
-                "mbs_rism_id": rism,
-                "mbs_title": title
-            })
+            w.writerow(
+                {
+                    "manifest": m,
+                    "viewer": f"https://rism.online/viewer.html#?manifest={m}",
+                    "rism_source": f,
+                    "mbs_rism_id": rism,
+                    "mbs_title": title,
+                }
+            )
 
         missing = mbs_manifest_urls - found_manifests
         for manifest in missing:
             rism, title, dirname = manifest_to_metadata[manifest]
-            w.writerow({
-                "manifest": manifest,
-                "viewer": f"https://rism.online/viewer.html#?manifest={m}",
-                "rism_source": "",
-                "mbs_rism_id": rism,
-                "mbs_title": title
-            })
+            w.writerow(
+                {
+                    "manifest": manifest,
+                    "viewer": f"https://rism.online/viewer.html#?manifest={m}",
+                    "rism_source": "",
+                    "mbs_rism_id": rism,
+                    "mbs_title": title,
+                }
+            )
 
 
 def main2(x, rism_dir):
@@ -91,7 +97,9 @@ def main2(x, rism_dir):
 def get_rism_description(metadata_path):
     document = ET.parse(metadata_path)
     descriptions = document.findall(".//{http://purl.org/dc/terms/}description")
-    rism_descriptions = [d.text for d in descriptions if d.text.startswith("Bibliogr Nachweis: RISM")]
+    rism_descriptions = [
+        d.text for d in descriptions if d.text.startswith("Bibliogr Nachweis: RISM")
+    ]
     if len(rism_descriptions) == 1:
         rism = rism_descriptions[0]
     else:
@@ -109,7 +117,7 @@ def get_manifest_to_metadata(manifest_dir, rism_dir):
         for f in files:
             if f == "manifest.json":
                 d = json.load(open(os.path.join(root, f)))
-                manifest = d['@id']
+                manifest = d["@id"]
             if f == "metadata.rdf":
                 rism, title = get_rism_description(os.path.join(root, f))
         if manifest:
@@ -122,5 +130,5 @@ def get_manifest_to_metadata(manifest_dir, rism_dir):
     return manifest_to_metadata
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])

@@ -5,12 +5,12 @@ def get_pages_from_manifest(manifest):
 
     pages = []
 
-    for sequence in manifest['sequences']:
-        for canvas in sequence['canvases']:
+    for sequence in manifest["sequences"]:
+        for canvas in sequence["canvases"]:
             page = {
-                'id': canvas['@id'],
-                'label': canvas.get('label'),
-                'image': canvas['images'][0]['resource']['@id'],
+                "id": canvas["@id"],
+                "label": canvas.get("label"),
+                "image": canvas["images"][0]["resource"]["@id"],
             }
             pages.append(page)
 

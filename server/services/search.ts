@@ -109,10 +109,10 @@ async function search_maws_solr(maws: string[], collections_to_search: string[],
     let query :any;
     if (similarity_type === 'boolean') {
         const fieldname = "maws_boolean";
-        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl('*,score').rows(num_results);
+        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl('*,score').mm(2).rows(num_results);
     } else if (similarity_type === 'solr') {
         const fieldname = "maws";
-        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl('*,score').rows(num_results);
+        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl('*,score').mm(2).rows(num_results);
     } else if (similarity_type === 'jaccard') {
         // If we know the number of items in the search term, we can get solr to compute jaccaard itself and
         // sort by it:
@@ -125,7 +125,7 @@ async function search_maws_solr(maws: string[], collections_to_search: string[],
         const sortparam = `div(query($q), sub(add(nummaws, ${maws.length}), query($q)))`;
         let sortquery: Record<string, any> = {[sortparam]: "desc"}
         const fieldname = "maws_boolean";
-        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl(`*,score,jaccard:${sortparam}`).sort(sortquery).rows(num_results);
+        query = client.query().q(`${fieldname}: (${maws.join(" ")})`).fl(`*,score,jaccard:${sortparam}`).sort(sortquery).mm(2).rows(num_results);
     } else {
         throw new UnknownSearchTypeError();
     }
@@ -258,7 +258,7 @@ export async function search(words: string[], collections_to_search: string[], n
     // Safety check that the words are all unique:
     const search_uniq_words = new Set(words);
 
-    const maws_results = await search_maws_solr(words, collections_to_search, num_results * 2, similarity_type);
+    const maws_results = await search_maws_solr(Array.from(search_uniq_words), collections_to_search, num_results * 2, similarity_type);
     const maws_with_scores: SearchResult[] = maws_results.map((doc: { score: number; maws: string; siglum: string; intervals: string; book: string; library: string; titlepage?: string;}) => {
         const unique_maws = new Set(doc.maws.split(" "));
         const num_matched_words = set_intersection(unique_maws, search_uniq_words).size;
@@ -285,7 +285,7 @@ export async function search(words: string[], collections_to_search: string[], n
     //console.log(result);
     return {
         numQueryWords: search_uniq_words.size,
-        numResults: maws_results.numResults,
+        numResults: result.length,
         results: result
      };
 }

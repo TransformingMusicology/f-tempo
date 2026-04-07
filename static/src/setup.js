@@ -280,6 +280,7 @@ function show_results(json) {
     }
 
     num_results = results.length;
+    current_page = {library: results[0].library, book: results[0].book, page: results[0].id};
 
     let table_html = "<thead><tr><th colspan=3>" + num_results + " results - "
         + results[0].num_words + " words in query</th></tr>"

@@ -295,17 +295,11 @@ function show_results(json) {
     for (let q = 0; q < results.length; q++) {
         let rank_factor;
 
-        // NOTE: the else here is wrong if we don't assume that the
-        // 0th result is the identity match
-        /*
-        if (jaccard) {
+        if (similarity_type === 'jaccard') {
             rank_factor = 1 - results[q].jaccard;
         } else {
             rank_factor = results[q].num_matched_words / results[0].num_words;
         }
-        */
-        rank_factor = results[q].num_matched_words / results[0].num_words;
-        rank_factor = 1 - results[q].jaccard;
 
         matched_words[q] = results[q].num_matched_words;
         words_in_page[q] = results[q].num_words;

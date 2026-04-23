@@ -23,11 +23,12 @@ export function get_maws_for_codestrings(codestrings: {[k: string]: string}): {[
         ["-a", "PROT", "-i", "-", "-o", "-", "-k", "4", "-K", "8"],
         {input: inputstr}
     );
-    if (maws === undefined) {
-        throw new CannotRunMawError("Cannot find `maw` binary");
+    if (maws.error) {
+        throw new CannotRunMawError(`Cannot run maw binary at ${nconf.get('config:maw_path')}: ${maws.error.message}`);
     }
     if (maws.status !== 0) {
-        throw new CannotRunMawError("Error when computing maws")
+        const stderr = maws.stderr ? maws.stderr.toString() : '';
+        throw new CannotRunMawError(`maw exited with status ${maws.status}: ${stderr}`);
     }
     // Output consists of >id on one line and then a maw on each subsequent line until the next >id line
     const maws_output = maws.stdout.toString();

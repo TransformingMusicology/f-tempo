@@ -71,24 +71,18 @@ function makeDocumentsFromFile(item: Input) {
         return data;
     }
 
-    try {
-        if (type === 'aruspix') {
-            // Aruspix files have just 1 part, so return it as a list
-            const pageData = parseMeiFile(meiRoot, filePath);
-            return [pageDataToSolr(pageData)];
-        } else if (type === 'mxml') {
-            // Files from CPDL/musicxml may have multiple parts, so return each of them
-            const pageParts = parseMeiParts(meiRoot, filePath);
-            return pageParts.map((pagePart) => {
-                return pageDataToSolr(pagePart);
-            });
-        }
-    } catch (e) {
-        // Probably means the file isn't there
-        //console.log(`error reading file ${filePath}`);
-        throw e;
-        return [undefined];
+    if (type === 'aruspix') {
+        // Aruspix files have just 1 part, so return it as a list
+        const pageData = parseMeiFile(meiRoot, filePath);
+        return [pageDataToSolr(pageData)];
+    } else if (type === 'mxml') {
+        // Files from CPDL/musicxml may have multiple parts, so return each of them
+        const pageParts = parseMeiParts(meiRoot, filePath);
+        return pageParts.map((pagePart) => {
+            return pageDataToSolr(pagePart);
+        });
     }
+    return [];
 }
 
 
@@ -106,7 +100,7 @@ function addMaws(documents: any[]) {
         if (mawsOutput[doc.siglum] !== undefined) {
             maws['maws'] = mawsOutput[doc.siglum].join(' ')
             maws['nummaws'] = mawsOutput[doc.siglum].length;
-        } else if (mawsOutput[doc.siglum] !== undefined && doc.intervals) {
+        } else if (doc.intervals) {
             // If there's no maws output, but there is an interval string, an error
             console.error(`missing expected maws output for ${doc.siglum}`);
         }

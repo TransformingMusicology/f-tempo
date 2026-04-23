@@ -89,6 +89,7 @@ const argv = yargs(process.argv.slice(2)).usage('Parse MEI files to solr')
 async function clearSolr() {
     const client = solr.createClient(nconf.get('search'));
     await client.deleteAll();
+    await client.commit();
 }
 
 /**
@@ -270,50 +271,44 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
     //  so that we can keep large chunks for solr import but still process maws 100 at a time.
     const chunk = readCache ? 2000 : 100;
     const len = inputList.length;
-    for (let i = 0; i < len; i += chunk) {
-        const items = inputList.slice(i, i + chunk);
-        if (readCache) {
-            // If we're reading from the cache then don't use the pool, just load chunks and save them
-            // Use a larger chunk size as we're not running `maw`
-            const documents = readFromCache(items);
-            await saveToSolr(documents);
-            if (i % (chunk * 10) === 0) {
-                await commit();
+    // Commit every N batches (so every chunk*N documents)
+    const commitEvery = 10;
+    const shouldCommitAfter = (batchIndex: number) => (batchIndex + 1) % commitEvery === 0;
+
+    if (readCache || nconf.get('config:import:threads') === 1) {
+        for (let i = 0; i < len; i += chunk) {
+            const items = inputList.slice(i, i + chunk);
+            const batchIndex = i / chunk;
+            let response: any[];
+            if (readCache) {
+                response = readFromCache(items);
+            } else {
+                const {doImport} = await import('../lib/mei_to_solr_worker.js');
+                response = doImport(items);
             }
-            console.log(`${Math.min(i+chunk, len)}/${len}`)
-        } else if (nconf.get('config:import:threads') === 1) {
-            // If we have 1 thread, don't use the pool, sometimes it terminates early
-            const {doImport} = await import('../lib/mei_to_solr_worker.js');
-            const response = doImport(items);
             await saveToSolr(response);
-            if (i % (chunk * 10) === 0) {
-                await commit();
-            }
-            console.log(`${Math.min(i+chunk, len)}/${len}`)
-            if (doSaveCache) {
-                saveCache(response);
-            }
-        } else {
-            pool.exec('doImport', [items]).then((resp: any[]) => {
-                saveToSolr(resp);
-                if (i % (chunk * 10) === 0) {
-                    commit();
-                }
-                console.log(`${Math.min(i+chunk, len)}/${len}`);
-                if (doSaveCache) {
-                    saveCache(resp);
-                }
-            }).then(function () {
-                const stats = pool.stats();
-                // This is a bit sketchy - we push all of inputList into the queue as quickly as possible
-                // and hope that the first task doesn't terminate before we finish adding items.
-                if (stats.activeTasks === 0) {
-                    pool.terminate();
-                }
-            });
+            if (shouldCommitAfter(batchIndex)) await commit();
+            console.log(`${Math.min(i + chunk, len)}/${len}`);
+            if (doSaveCache && !readCache) saveCache(response);
         }
+    } else {
+        const promises: Promise<void>[] = [];
+        for (let i = 0; i < len; i += chunk) {
+            const items = inputList.slice(i, i + chunk);
+            const batchIndex = i / chunk;
+            promises.push(
+                pool.exec('doImport', [items]).then(async (resp: any[]) => {
+                    await saveToSolr(resp);
+                    if (shouldCommitAfter(batchIndex)) await commit();
+                    console.log(`${Math.min(i + chunk, len)}/${len}`);
+                    if (doSaveCache) saveCache(resp);
+                })
+            );
+        }
+        await Promise.all(promises);
+        await pool.terminate();
     }
-    //await commit();
+    await commit();
 }
 
 /**

@@ -3,11 +3,17 @@ import { get_maws_for_codestrings } from './maw.js';
 import {pageToContourList, pageToNoteList, parseMeiFile, parseMeiParts} from "./mei.js";
 import nconf from 'nconf';
 import workerpool from 'workerpool';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import type { Input } from './import_types.js';
 
-nconf.argv().file('./config/default_config.json')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const configDir = path.join(__dirname, '..', 'config');
+
+nconf.argv().file(path.join(configDir, 'default_config.json'))
 if (process.env.NODE_ENV === "production") {
-    nconf.file('./config/production_config.json')
+    nconf.file(path.join(configDir, 'production_config.json'))
 }
 
 const meiRoot = nconf.get('config:base_mei_url');

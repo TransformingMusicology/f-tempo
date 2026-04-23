@@ -341,14 +341,32 @@ function saveCache(documents: any[]) {
  */
 function readFromCache(files: Input[]) {
     const response: any[] = [];
+    // Cache files are named by siglum (id + optional `_label`), but we look
+    // them up by input.id, so we have to match `<id>.json` and `<id>_*.json`.
+    // Memoise per-book directory listings so we read each dir once.
+    const dirListings = new Map<string, string[]>();
     files.forEach(input => {
-        const dirname = path.join('solr', 'cache', input.library, input.book)
-        const fpath = path.join(dirname, `${input.id}.json`);
-        try {
-            const data = JSON.parse(fs.readFileSync(fpath, 'utf-8'));
-            response.push(data);
-        } catch {
-            //console.error(`No such file? ${fpath}`);
+        const dirname = path.join('solr', 'cache', input.library, input.book);
+        let entries = dirListings.get(dirname);
+        if (entries === undefined) {
+            try {
+                entries = fs.readdirSync(dirname);
+            } catch {
+                entries = [];
+            }
+            dirListings.set(dirname, entries);
+        }
+        const exact = `${input.id}.json`;
+        const prefix = `${input.id}_`;
+        for (const entry of entries) {
+            if (entry === exact || (entry.startsWith(prefix) && entry.endsWith('.json'))) {
+                try {
+                    const data = JSON.parse(fs.readFileSync(path.join(dirname, entry), 'utf-8'));
+                    response.push(data);
+                } catch {
+                    //console.error(`Cannot read ${entry}`);
+                }
+            }
         }
     });
     return response;

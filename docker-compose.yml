@@ -16,7 +16,7 @@ services:
     env_file:
       - .env
   solr:
-    image: solr:8.11.1
+    image: solr:9.10.1
     ports:
       - "8983:8983"
     command: solr-precreate ftempo /solrconfig/ftempo

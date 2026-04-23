@@ -12,7 +12,7 @@ linux install [docker engine](https://docs.docker.com/engine/install/ubuntu/).
 
 To build the packages, run
 
-    docker-compose build
+    docker compose build
 
 #### Configuration
 
@@ -45,7 +45,7 @@ See the "Search index" section below to configure search server
 
 To start the server (including the web server and solr) run
 
-    docker-compose up
+    docker compose up
 
 ### Search index
 
@@ -62,7 +62,7 @@ without needing to run the build process described above.
 
 First, start the solr server:
 
-    docker-compose up -d solr
+    docker compose up -d solr
 
 Or use the `bin/solr` script in a manually installed version
 
@@ -71,7 +71,7 @@ Be careful to set this correctly if you are not running in docker
 
 In docker, to start a shell run
 
-    docker-compose run --rm ftempo bash
+    docker compose run --rm ftempo bash
 
 And then to import an index file, run
 

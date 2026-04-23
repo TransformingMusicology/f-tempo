@@ -22,6 +22,8 @@ const pool = workerpool.pool(
     {maxWorkers: nconf.get('config:import:threads')}
 );
 
+const solrClient = solr.createClient(nconf.get('search'));
+
 const argv = yargs(process.argv.slice(2)).usage('Parse MEI files to solr')
     .command({
         command: 'clear',
@@ -88,9 +90,8 @@ const argv = yargs(process.argv.slice(2)).usage('Parse MEI files to solr')
  * Entrypoint for the `clear` command.
  */
 async function clearSolr() {
-    const client = solr.createClient(nconf.get('search'));
-    await client.deleteAll();
-    await client.commit();
+    await solrClient.deleteAll();
+    await solrClient.commit();
 }
 
 /**
@@ -305,17 +306,14 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
  * @param documents
  */
 async function saveToSolr(documents: any[]) {
-    const client = solr.createClient(nconf.get('search'));
-    const response = await client.add(documents)
+    const response = await solrClient.add(documents)
     console.log(response);
-    //await client.commit();
     return response;
 }
 
 
 async function commit() {
-    const client = solr.createClient(nconf.get('search'));
-    await client.commit();
+    await solrClient.commit();
 }
 
 

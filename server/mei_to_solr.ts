@@ -7,6 +7,7 @@ import fs from "fs";
 import nconf from 'nconf';
 import workerpool from 'workerpool';
 import { fileURLToPath } from 'url';
+import type { Input } from '../lib/import_types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -196,18 +197,6 @@ async function processMeiLibrary(librarypath: string) {
         // }
 
     }
-}
-
-// TODO: This is duplicated in mei_to_solr_worker
-type Input = {
-    type: 'aruspix'|'mxml',
-    filePath: string,
-    id: string,
-    library: string,
-    book: string,
-    page: string,
-    notmusic?: boolean,
-    titlepage?: string,
 }
 
 /**

@@ -3,6 +3,7 @@ import { get_maws_for_codestrings } from './maw.js';
 import {pageToContourList, pageToNoteList, parseMeiFile, parseMeiParts} from "./mei.js";
 import nconf from 'nconf';
 import workerpool from 'workerpool';
+import type { Input } from './import_types.js';
 
 nconf.argv().file('./config/default_config.json')
 if (process.env.NODE_ENV === "production") {
@@ -16,17 +17,6 @@ if (nconf.get('config:import:threads') !== 1) {
     workerpool.worker({
         doImport: doImport
     });
-}
-
-type Input = {
-    type: 'aruspix'|'mxml',
-    filePath: string,
-    id: string,
-    library: string,
-    book: string,
-    page: string,
-    notmusic?: boolean,
-    titlepage?: string,
 }
 
 export function doImport(param: Input[]) {

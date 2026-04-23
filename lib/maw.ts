@@ -36,7 +36,9 @@ export function get_maws_for_codestrings(codestrings: {[k: string]: string}): {[
     let currentKey: string = '';
     for (const line of maws_output.split("\n")) {
         if (line.startsWith(">")) {
-            currentKey = line.replaceAll(">", "").replaceAll(":", "");
+            // Format is `>id:` — drop the leading `>` and trailing `:`
+            const trimmed = line.trimEnd();
+            currentKey = trimmed.endsWith(':') ? trimmed.slice(1, -1) : trimmed.slice(1);
             output[currentKey] = []
         } else {
             if (line) {

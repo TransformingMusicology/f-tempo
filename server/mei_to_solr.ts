@@ -125,13 +125,13 @@ async function processMeiLibrary(librarypath: string) {
     for (const [book_id, book] of Object.entries(library.books)) {
         for (const [page_id, page] of Object.entries((book as any).pages)) {
             const parts = page_id.split("_");
-            const library = parts[0];
+            const libraryCode = parts[0];
             const page2 = (page as any);
             // The library file says if books are in subdirectories
             // Scores are always in an "mei" subdirectory, either in the library dir, or the book dir
             const book_directory = directory_per_book ? book_id : "";
-            const filePath = path.join(library, book_directory, "mei", page2.mei);
-            const input: Input = {filePath, library, id: page2.id, book: book_id, page: page2.id, type: 'mxml'}
+            const filePath = path.join(libraryCode, book_directory, "mei", page2.mei);
+            const input: Input = {filePath, library: libraryCode, id: page2.id, book: book_id, page: page2.id, type: 'mxml'}
             inputList.push(input)
         }
     }
@@ -239,15 +239,15 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
     for (const [book_id, book] of Object.entries(library.books)) {
         for (const [page_id, page] of Object.entries((book as any).pages)) {
             const parts = page_id.split("_");
-            const library = parts[0];
+            const libraryCode = parts[0];
             const page2 = (page as any);
             // The library file says if books are in subdirectories
             // Scores are always in an "mei" subdirectory, either in the library dir, or the book dir
             const book_directory = directory_per_book ? book_id : "";
-            const filePath = path.join(library, book_directory, "mei", page2.mei);
+            const filePath = path.join(libraryCode, book_directory, "mei", page2.mei);
             const input: Input = {
                 filePath,
-                library,
+                library: libraryCode,
                 id: page2.id,
                 book: book_id,
                 page: page2.id,

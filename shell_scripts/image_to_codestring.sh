@@ -16,14 +16,14 @@ WORKINGPATH=$2;
 set -e # stop if anything errors
 
 # Setup working location
-cd $WORKINGPATH
-echo "New working directory: "$WORKINGPATH >> log
-echo $IMG_FILE >> log
+cd "$WORKINGPATH"
+echo "New working directory: $WORKINGPATH" >> log
+echo "$IMG_FILE" >> log
 
 
-# Convert the input image to tiff, removing alpha channel
-convert $IMG_FILE -alpha off page.tiff 2>> log
-#convert ../$IMG_FILE -alpha off page.tiff 2>> log
+# Convert the input image to tiff, removing alpha channel.
+# Master's TS server passes -compress none here; matching it for parity.
+convert "$IMG_FILE" -alpha off -compress none page.tiff 2>> log
 echo "Converted to tiff OK" >> log
 
 
@@ -48,5 +48,5 @@ cat page.txt >> log;
 # return the codestring
 head -n 1 page.txt
 
-cd $HOME_DIR;
+cd "$HOME_DIR";
 

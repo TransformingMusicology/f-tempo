@@ -591,9 +591,12 @@ app.post('/api/query', function (req, res) {
     if(req.body.id) {
         var codestring = get_codestring(req.body.id);
 console.log("'"+codestring+"'")
-        if(codestring.length <= 2) {
+        // get_codestring can return undefined for an unknown id; guard before
+        // touching .length so we send a clean 404 rather than crashing the
+        // handler on a property access.
+        if(!codestring || codestring.length <= 2) {
 console.log("No codestring found for id: "+req.body.id)
-		   res.send(req.body.id+" not found!!");
+		   return res.status(404).send(req.body.id+" not found!!");
         }
         else {
 		   codestring = "'" + codestring + "'";
@@ -610,16 +613,33 @@ console.log("No codestring found for id: "+req.body.id)
 
 	function search_ports(query,ports,num_results) {
 		num_ports_to_search = ports.length
+		num_ports_searched = 0;
 		for(var i=0;i<num_ports_to_search;i++) {
 			var port = parseInt(ports[i]);
 			let url = 'http://localhost:'+port.toString()+"/api/query"
-			let command="curl -s -d "+JSON.stringify(query)+" -H 'Content-Type: application/json'  -X POST "+url;	
-			var result =  cp.exec(command,(error,stdout,stderr) => {
+			// execFile (args array, no shell) so arbitrary bytes inside the
+			// JSON-stringified query can't break shell quoting.
+			var result = cp.execFile('curl', ['-s', '-d', query, '-H', 'Content-Type: application/json', '-X', 'POST', url], (error, stdout, stderr) => {
 			  if (error) {
 			    console.error(`exec error: ${error}`);
+			    // Count this port as done so one failure doesn't leave the
+			    // client hanging forever waiting for the completion check in
+			    // handle_multi_results to fire.
+			    num_ports_searched++;
+			    if (num_ports_searched == num_ports_to_search && !res.headersSent) {
+			        res.send(multi_results_array);
+			    }
 			    return;
 			  }
-			handle_multi_results(`${stdout}`,num_results);
+			  try {
+			    handle_multi_results(`${stdout}`, num_results);
+			  } catch (e) {
+			    console.error('handle_multi_results failed:', e && e.stack || e);
+			    num_ports_searched++;
+			    if (num_ports_searched == num_ports_to_search && !res.headersSent) {
+			        res.send(multi_results_array);
+			    }
+			  }
 			});
 		}
 			if(result)   return multi_results_array;
@@ -763,12 +783,17 @@ app.post('/api/image_query', function (req, res) {
     // Use the mv() method to save the file there
     user_image.mv(working_path + new_filename, (err) => {
         if (err) { return res.status(500).send(err); }
-        else {
-// console.log("Uploaded file saved as " + working_path + new_filename);
+        // run_multi_image_query shells out and can throw; without this try/catch
+        // the throw escapes the mv callback as an uncaughtException and kills
+        // the process.
+        try {
             const ngram_search = ngram;
-            const result = run_multi_image_query(user_id, new_filename, working_path, ngram_search);
- //           if (result) { res.send(result); }
- //           if(!result) { return res.status(422).send('Could not process this file.'); }
+            run_multi_image_query(user_id, new_filename, working_path, ngram_search);
+        } catch (e) {
+            console.error('image_query failed:', e && e.stack || e);
+            if (!res.headersSent) {
+                return res.status(500).send({error: 'Could not process image'});
+            }
         }
     });
 
@@ -780,9 +805,11 @@ app.post('/api/image_query', function (req, res) {
 	    let query_data;
 	    let query;
 	    if(!ngram_search) {
-			  query_data = cp.execSync('./shell_scripts/image_to_codestring.sh ' + new_filename + ' ' + working_path );
-			  image_codestring = String(query_data); 
-//console.log("image_codestring is: '"+image_codestring+"'")
+			  // execFileSync (args array, no shell) so filenames with spaces,
+			  // parentheses, or other shell metachars don't cause /bin/sh -c to
+			  // parse-error before the script even starts.
+			  query_data = cp.execFileSync('./shell_scripts/image_to_codestring.sh', [new_filename, working_path]);
+			  image_codestring = String(query_data);
 		   multi_result = multi_search(image_codestring, jaccard, num_results, threshold, false, ports_to_search);
 	    }
 /* Not yet!
@@ -803,18 +830,35 @@ app.post('/api/image_query', function (req, res) {
 	function search_ports(query,ports,num_results) {
 
 		multi_results_array.length=0;
-		
+
 		num_ports_to_search = ports.length
+		num_ports_searched = 0;
 		for(var i=0;i<num_ports_to_search;i++) {
 			var port = parseInt(ports[i]);
 			let url = 'http://localhost:'+port.toString()+"/api/query"
-			let command="curl -s -d "+JSON.stringify(query)+" -H 'Content-Type: application/json'  -X POST "+url;	
-			var result =  cp.exec(command,(error,stdout,stderr) => {
+			// execFile (args array, no shell) so arbitrary bytes inside the
+			// JSON-stringified query can't break shell quoting.
+			var result = cp.execFile('curl', ['-s', '-d', query, '-H', 'Content-Type: application/json', '-X', 'POST', url], (error, stdout, stderr) => {
 			  if (error) {
 			    console.error(`exec error: ${error}`);
+			    // Count this port as done so one failure doesn't leave the
+			    // client hanging forever waiting for the completion check in
+			    // handle_multi_results to fire.
+			    num_ports_searched++;
+			    if (num_ports_searched == num_ports_to_search && !res.headersSent) {
+			        res.send(JSON.stringify(multi_results_array));
+			    }
 			    return;
 			  }
-			handle_multi_results(`${stdout}`,num_results);
+			  try {
+			    handle_multi_results(`${stdout}`, num_results);
+			  } catch (e) {
+			    console.error('handle_multi_results failed:', e && e.stack || e);
+			    num_ports_searched++;
+			    if (num_ports_searched == num_ports_to_search && !res.headersSent) {
+			        res.send(JSON.stringify(multi_results_array));
+			    }
+			  }
 			});
 		}
 			if(result)   return multi_results_array;

@@ -530,7 +530,7 @@ function get_result_from_words(words, signature_to_ids_dict, jaccard, num_result
     const uniq_words = Array.from(new Set(words));
     const scores = get_scores(uniq_words, signature_to_ids_dict, ngram);
     //console.time("pruning")
-    const scores_pruned = get_pruned_and_sorted_scores(scores, uniq_words.length, jaccard, ngram);
+    const scores_pruned = get_pruned_and_sorted_scores(scores, uniq_words, jaccard, ngram);
     //console.timeEnd("pruning")
     const result = gate_scores_by_threshold(scores_pruned, threshold, jaccard, num_results);
     //console.timeEnd("search");
@@ -574,7 +574,7 @@ function get_pruned_and_sorted_scores(scores, wds_in_q, jaccard, ngram) {
             result.num = num;
             result.num_words = num_words;
 
-            result.jaccard = 1 - (num / (num_words + wds_in_q - num));
+            result.jaccard = 1 - (num / (num_words + wds_in_q.length - num));
             if ((result.jaccard < 0) && (num > num_words)) console.log(port + ": " + id + " : num: " + num + " : num_words: " + num_words + " : jaccard: " + result.jaccard);
             scores_pruned.push(result);
         }

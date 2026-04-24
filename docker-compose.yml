@@ -1,16 +1,22 @@
 version: "3.4"
+volumes:
+  run:
+  log:
+  uploadrun:
+
 services:
   ftempo:
     build: .
     command: ./start.sh
     volumes:
-      - "/storage:/storage"
-    ports:
-      - 8000:8000
+      - "/mnt/storage:/storage"
+      - "/mnt/storage:/mnt/storage"
+      - run:/app/multiservers/run
+      - uploadrun:/app/run
+      - log:/app/logs
     environment:
       - VIRTUAL_HOST=uk-dev-ftempo.rism.digital
       - VIRTUAL_PORT=8000
       - LETSENCRYPT_HOST=uk-dev-ftempo.rism.digital
       - LETSENCRYPT_EMAIL=alastair@porter.net.nz
-    network_mode: bridge
-
+    restart: always

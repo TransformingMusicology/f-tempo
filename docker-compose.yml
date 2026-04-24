@@ -15,8 +15,8 @@ services:
       - uploadrun:/app/run
       - log:/app/logs
     environment:
-      - VIRTUAL_HOST=uk-dev-ftempo.rism.digital
+      - VIRTUAL_HOST=f-tempo.finishthings.com,search.f-tempo.org
       - VIRTUAL_PORT=8000
-      - LETSENCRYPT_HOST=uk-dev-ftempo.rism.digital
+      - LETSENCRYPT_HOST=f-tempo.finishthings.com,search.f-tempo.org
       - LETSENCRYPT_EMAIL=alastair@porter.net.nz
     restart: always

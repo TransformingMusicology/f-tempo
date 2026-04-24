@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-var DIAT_MEL_DB = '/storage/ftempo/locations/all/codestrings'; 
+var DIAT_MEL_DB = '/storage/ftempo/locations/all/codestrings-2022-01-20';
 const EMO_IDS_DIAT_MELS = {}; // keys are ids, values are the diat_int_code for that id
 
 const port = process.argv[2]; // This should be the port on which to listen (8500)

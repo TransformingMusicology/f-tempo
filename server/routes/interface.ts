@@ -1,6 +1,6 @@
 import fs from "fs";
 import express from "express";
-import {BASE_IMG_URL, BASE_MEI_URL, db, ngr_len, SERVER_BASE_ROUTE} from "../server.js";
+import {BASE_IMG_URL, BASE_MEI_PATH, db, ngr_len, SERVER_BASE_ROUTE} from "../server.js";
 import path from "path";
 import {get_codestring} from "../services/search.js";
 
@@ -28,7 +28,7 @@ function get_mei_path(library: string, book: string, id: string) {
     const directory_per_book = db[library]?.directory_per_book;
     const book_directory = directory_per_book ? book : "";
     const page = db[library].books[book].pages[id]
-    return path.join(BASE_MEI_URL, library, book_directory, "mei", page.mei)
+    return path.join(BASE_MEI_PATH, library, book_directory, "mei", page.mei)
 }
 
 router.get('/compare', async function (req, res) {

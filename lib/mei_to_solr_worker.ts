@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "production") {
     nconf.file(path.join(configDir, 'production_config.json'))
 }
 
-const meiRoot = nconf.get('config:base_mei_url');
+const meiRoot = nconf.get('config:base_mei_path');
 
 // Only bind the pool if we have >1 threads
 if (nconf.get('config:import:threads') !== 1) {

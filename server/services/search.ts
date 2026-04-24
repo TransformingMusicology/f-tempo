@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "production") {
     nconf.file('./config/production_config.json')
 }
 
-const meiRoot = nconf.get('config:base_mei_url');
+const meiRoot = nconf.get('config:base_mei_path');
 
 type SubsequenceSearchResponse = {
     part_name?: string

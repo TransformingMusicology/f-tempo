@@ -24,7 +24,7 @@
     },
     "storage": "./storage/ftempo/",
     "base_image_url": "https://search.f-tempo.org/img/jpg/",
-    "base_mei_url": "./storage/scores/",
+    "base_mei_path": "./storage/scores/",
     "maw_path": "./src/maw"
   }
 }

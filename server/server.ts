@@ -64,7 +64,7 @@ const databases = nconf.get('databases')
 console.log(`Databases = ${databases}`);
 
 export const BASE_IMG_URL = nconf.get('config:base_image_url');
-export const BASE_MEI_URL = nconf.get('config:base_mei_url');
+export const BASE_MEI_PATH = nconf.get('config:base_mei_path');
 
 let base_route =  nconf.get('config:base_route')
 if (base_route === undefined) {

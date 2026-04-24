@@ -23,7 +23,7 @@
     },
     "storage": "/storage/ftempo/",
     "base_image_url": "https://uk-dev-ftempo.rism.digital/img/jpg/",
-    "base_mei_url": "/storage/ftempo/scores/",
+    "base_mei_path": "/storage/ftempo/scores/",
     "maw_path": "/usr/local/bin/maw",
     "base_route": ""
   }

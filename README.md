@@ -75,7 +75,7 @@ In docker, to start a shell run
 
 And then to import an index file, run
 
-    node --loader ts-node/esm server/mei_to_solr.ts import /storage/ftempo/index-D-Mbs.json
+    tsx server/mei_to_solr.ts import /storage/ftempo/index-D-Mbs.json
 
 The MEI files for each corpus need to be available at `/storage/ftempo/locations/{LIBRARY}/mei/`
 

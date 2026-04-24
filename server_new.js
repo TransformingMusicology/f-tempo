@@ -801,7 +801,7 @@ function parse_id_maws_line(line) {
     if (maws_str === undefined) {
         return parsed_line;
     }
-    const words = maws_str.split(/[ ,]+/).filter(Boolean); // splits rest into words by whitespace
+    const words = maws_str.split(/[ ,]+/).filter((w) => {return w !== 'query:'}).filter(Boolean); // splits rest into words by whitespace
     parsed_line.words = words;
     return parsed_line;
 }

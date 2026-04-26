@@ -25,15 +25,19 @@ if (nconf.get('config:import:threads') !== 1) {
     });
 }
 
-export function doImport(param: Input[]) {
+export interface ImportOptions {
+    skipMissing?: boolean;
+}
+
+export function doImport(param: Input[], opts: ImportOptions = {}) {
     const documents = param.flatMap(item => {
-        return makeDocumentsFromFile(item);
+        return makeDocumentsFromFile(item, opts);
     })
     const mawDocuments = addMaws(documents.filter(d => {return d !== undefined}));
     return mawDocuments
 }
 
-function makeDocumentsFromFile(item: Input) {
+function makeDocumentsFromFile(item: Input, opts: ImportOptions) {
     const {filePath, id, book, page, notmusic, titlepage, type} = item;
 
     const parts = id.split("_");
@@ -67,18 +71,26 @@ function makeDocumentsFromFile(item: Input) {
         return data;
     }
 
-    if (type === 'aruspix') {
-        // Aruspix files have just 1 part, so return it as a list
-        const pageData = parseMeiFile(meiRoot, filePath);
-        return [pageDataToSolr(pageData)];
-    } else if (type === 'mxml') {
-        // Files from CPDL/musicxml may have multiple parts, so return each of them
-        const pageParts = parseMeiParts(meiRoot, filePath);
-        return pageParts.map((pagePart) => {
-            return pageDataToSolr(pagePart);
-        });
+    let pageParts: Page[];
+    try {
+        if (type === 'aruspix') {
+            // Aruspix files have just 1 part, so wrap it as a list
+            pageParts = [parseMeiFile(meiRoot, filePath)];
+        } else if (type === 'mxml') {
+            // Files from CPDL/musicxml may have multiple parts
+            pageParts = parseMeiParts(meiRoot, filePath);
+        } else {
+            return [];
+        }
+    } catch (e: any) {
+        // ENOENT comes from fs.readFileSync inside parseMeiFile/parseMeiParts when the MEI is missing on disk.
+        if (e?.code === 'ENOENT' && opts.skipMissing) {
+            console.warn(`skip missing MEI: ${filePath}`);
+            return [];
+        }
+        throw e;
     }
-    return [];
+    return pageParts.map(pageDataToSolr);
 }
 
 
@@ -89,6 +101,8 @@ function addMaws(documents: any[]) {
             input[doc.siglum] = doc.intervals.split(' ').join('')
         }
     }
+    // maw rejects empty stdin as non-FASTA input, so skip the call when there's nothing to do.
+    if (Object.keys(input).length === 0) return documents;
     const mawsOutput = get_maws_for_codestrings(input);
 
     return documents.map(doc => {

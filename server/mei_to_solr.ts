@@ -51,6 +51,12 @@ const argv = yargs(process.argv.slice(2)).usage('Parse MEI files to solr')
                 description: 'if set, make the index from saved cache data',
                 required: false,
                 default: false
+            },
+            'skipMissing': {
+                type: 'boolean',
+                description: 'continue past MEI files that are missing from disk instead of aborting',
+                required: false,
+                default: false
             }
         })
     })
@@ -62,7 +68,14 @@ const argv = yargs(process.argv.slice(2)).usage('Parse MEI files to solr')
             yargs.positional('library', {
                 description: 'path to library definition file',
                 default: undefined
-            })
+            }).options({
+            'skipMissing': {
+                type: 'boolean',
+                description: 'continue past MEI files that are missing from disk instead of aborting',
+                required: false,
+                default: false
+            }
+        })
     })
     .command({
         command: 'debug <file>',
@@ -100,7 +113,7 @@ async function clearSolr() {
  */
 async function importSolr(argv: any) {
     if (argv.library) {
-        await processLibrary(argv.library, argv.saveCache, argv.readCache);
+        await processLibrary(argv.library, argv.saveCache, argv.readCache, argv.skipMissing);
     } else {
         yargs.showHelp();
     }
@@ -112,14 +125,14 @@ async function importSolr(argv: any) {
  */
  async function importMei(argv: any) {
     if (argv.library) {
-        await processMeiLibrary(argv.library);
+        await processMeiLibrary(argv.library, argv.skipMissing);
     } else {
         yargs.showHelp();
     }
 }
 
 
-async function processMeiLibrary(librarypath: string) {
+async function processMeiLibrary(librarypath: string, skipMissing: boolean) {
     const data = fs.readFileSync(librarypath, 'utf-8');
     const library = JSON.parse(data);
 
@@ -142,12 +155,13 @@ async function processMeiLibrary(librarypath: string) {
 
     // We assume that we get ~4 parts per MEI file, but we have a limit of 100 items per batch
     // to compute maws, so keep this chunk size quite small
+    const opts = {skipMissing};
     const chunk = 10;
     const len = inputList.length;
     for (let i = 0; i < len; i += chunk) {
         const items = inputList.slice(i, i + chunk);
         const {doImport} = await import('../lib/mei_to_solr_worker.js');
-        const response = doImport(items);
+        const response = doImport(items, opts);
         await saveToSolr(response);
         if (i % (chunk * 10) === 0) {
             await commit();
@@ -221,7 +235,7 @@ async function processMeiLibrary(librarypath: string) {
  * @param doSaveCache
  * @param readCache
  */
-async function processLibrary(librarypath: string, doSaveCache: boolean, readCache: boolean) {
+async function processLibrary(librarypath: string, doSaveCache: boolean, readCache: boolean, skipMissing: boolean) {
     const data = fs.readFileSync(librarypath, 'utf-8');
     const library = JSON.parse(data);
 
@@ -266,6 +280,7 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
     const commitEvery = 10;
     const shouldCommitAfter = (batchIndex: number) => (batchIndex + 1) % commitEvery === 0;
 
+    const opts = {skipMissing};
     if (readCache || nconf.get('config:import:threads') === 1) {
         for (let i = 0; i < len; i += chunk) {
             const items = inputList.slice(i, i + chunk);
@@ -275,7 +290,7 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
                 response = readFromCache(items);
             } else {
                 const {doImport} = await import('../lib/mei_to_solr_worker.js');
-                response = doImport(items);
+                response = doImport(items, opts);
             }
             await saveToSolr(response);
             if (shouldCommitAfter(batchIndex)) await commit();
@@ -288,7 +303,7 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
             const items = inputList.slice(i, i + chunk);
             const batchIndex = i / chunk;
             promises.push(
-                pool.exec('doImport', [items]).then(async (resp: any[]) => {
+                pool.exec('doImport', [items, opts]).then(async (resp: any[]) => {
                     await saveToSolr(resp);
                     if (shouldCommitAfter(batchIndex)) await commit();
                     console.log(`${Math.min(i + chunk, len)}/${len}`);

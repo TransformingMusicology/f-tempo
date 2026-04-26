@@ -298,20 +298,23 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
             if (doSaveCache && !readCache) saveCache(response);
         }
     } else {
-        const promises: Promise<void>[] = [];
+        const numWorkers: number = nconf.get('config:import:threads');
+        const inFlight = new Set<Promise<void>>();
         for (let i = 0; i < len; i += chunk) {
             const items = inputList.slice(i, i + chunk);
             const batchIndex = i / chunk;
-            promises.push(
-                pool.exec('doImport', [items, opts]).then(async (resp: any[]) => {
-                    await saveToSolr(resp);
-                    if (shouldCommitAfter(batchIndex)) await commit();
-                    console.log(`${Math.min(i + chunk, len)}/${len}`);
-                    if (doSaveCache) saveCache(resp);
-                })
-            );
+            const p: Promise<void> = pool.exec('doImport', [items, opts]).then(async (resp: any[]) => {
+                await saveToSolr(resp);
+                if (shouldCommitAfter(batchIndex)) await commit();
+                console.log(`${Math.min(i + chunk, len)}/${len}`);
+                if (doSaveCache) saveCache(resp);
+            }).finally(() => { inFlight.delete(p); });
+            inFlight.add(p);
+            if (inFlight.size >= numWorkers) {
+                await Promise.race(inFlight);
+            }
         }
-        await Promise.all(promises);
+        await Promise.all(inFlight);
         await pool.terminate();
     }
     await commit();

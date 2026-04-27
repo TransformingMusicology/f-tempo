@@ -22,7 +22,7 @@
       "threads": 4
     },
     "storage": "/storage/ftempo/",
-    "base_image_url": "https://uk-dev-ftempo.rism.digital/img/jpg/",
+    "base_image_url": "https://search.f-tempo.org/img/jpg/",
     "base_mei_path": "/storage/ftempo/scores/",
     "maw_path": "/usr/local/bin/maw",
     "base_route": ""

@@ -22,4 +22,4 @@ services:
     command: solr-precreate ftempo /solrconfig/ftempo
     volumes:
       - ./solr/cores:/solrconfig
-      - ${FTEMPO_SOLR_DATA_DIR}:/var/solr/data
+      - ${FTEMPO_SOLR_DATA_DIR}:/var/solr

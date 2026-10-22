@@ -68,8 +68,8 @@ function rewriteFunction(path, req) {
     return 'localhost:8000/api/query_' + port; // or whatever the localhost path should be
 }
 
-const BASE_IMG_URL = 'https://uk-dev-ftempo.rism.digital/img/jpg/';
-const BASE_MEI_URL = 'https://uk-dev-ftempo.rism.digital/img/mei/';
+const BASE_IMG_URL = 'https://search.f-tempo.org/img/jpg/';
+const BASE_MEI_URL = 'https://search.f-tempo.org/img/mei/';
 
 
 /*******************************************************************************

@@ -1,9 +1,9 @@
 import express from 'express';
-import fs from 'fs';
 import {
     get_codestring,
     get_random_id, MawsTooShortError, next_id, NextIdNotFound, NoMawsForDocumentError, UnknownSearchTypeError,
     run_image_query,
+    ImageRecognitionError,
     search,
     search_by_codestring,
     search_by_id,
@@ -111,7 +111,7 @@ router.get('/api/get_mei', async function (req, res) {
         res.setHeader('content-type', 'text/xml');
         res.send(searchResult);
     } else {
-        res.status(404).json({status: "error", error: "Codestrings not found"})
+        res.status(404).json({status: "error", error: `No MEI available for ${id}`})
     }
 });
 
@@ -230,43 +230,25 @@ router.post('/api/query', async function (req, res, next) {
 });
 
 
+/**
+ * Recognise the music in an uploaded image (multipart field `user_image_file`).
+ * Responds with {status: "ok", data: {codestring}}; the client then runs a codestring search.
+ */
 router.post('/api/image_query', async function (req, res, next) {
-    if (!req.files) {
-        return res.status(400).json({status: "error", error: 'No files were uploaded.'});
+    const user_image = req.files?.user_image_file;
+    if (!user_image || Array.isArray(user_image)) {
+        return res.status(400).json({status: "error", error: 'Upload exactly one image as user_image_file.'});
     }
 
-    let user_image = req.files.user_image_file as fileUpload.UploadedFile;
-
     try {
-        const result = await run_image_query(user_image);
-        return res.json({status: "ok", data: result});
+        const codestring = await run_image_query(user_image);
+        return res.json({status: "ok", data: {codestring}});
     } catch (e) {
+        if (e instanceof ImageRecognitionError) {
+            return res.status(422).json({status: "error", error: e.message});
+        }
         next(e);
     }
-});
-
-router.post('/api/log', function (req, res, next) {
-    const log_entry = req.body.log_entry;
-    const log = req.body.log;
-    if (!log_entry) {
-        return res.status(400).send('No report was provided.');
-    }
-    if (!log) {
-        return res.status(400).send('No log was specified.');
-    }
-
-    try {
-        fs.appendFileSync('./logs/' + log, log_entry);
-        return res.send(
-            `Successfully logged:
-    ${log_entry}
-to log ${log}.`
-        );
-    } catch (err) {
-        next(err);
-    }
-
-
 });
 
 export default router;

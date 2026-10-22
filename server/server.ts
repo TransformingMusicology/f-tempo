@@ -7,13 +7,11 @@ import path from 'path';
 import express, {NextFunction, Request, Response} from 'express';
 import fileUpload from 'express-fileupload';
 
-import mustacheExpress from 'mustache-express';
 import cors from 'cors';
 import nconf from '../lib/config.js';
 import * as Sentry from "@sentry/node";
 
 import api from "./routes/api.js";
-import webinterface from "./routes/interface.js";
 
 
 /*******************************************************************************
@@ -23,8 +21,6 @@ import webinterface from "./routes/interface.js";
 interface StringToAny {
     [key: string]: any;
 }
-
-export const ngr_len = 5;
 
 const app = express();
 const hasSentry = process.env.FTEMPO_SENTRY_DSN !== undefined;
@@ -44,14 +40,7 @@ if (hasSentry) {
 const databases = nconf.get('databases')
 console.log(`Databases = ${databases}`);
 
-export const BASE_IMG_URL = nconf.get('config:base_image_url');
-export const BASE_MEI_PATH = nconf.get('config:base_mei_path');
 
-let base_route =  nconf.get('config:base_route')
-if (base_route === undefined) {
-    base_route = "";
-}
-export const SERVER_BASE_ROUTE = base_route;
 
 /*******************************************************************************
  * Setup
@@ -80,12 +69,6 @@ for (const key of databases) {
     }
 }
 
-app.engine('html', mustacheExpress()); // render html templates using Mustache
-app.set('view engine', 'html');
-app.set('views', './templates');
-app.set('view cache', false);
-
-app.use('/', express.static('static'))
 app.use(fileUpload());
 app.use(express.json());
 app.use(function(error: Error, request: Request, response: Response, next: NextFunction) {
@@ -99,7 +82,18 @@ app.use(express.urlencoded({extended: true})); // for parsing application/x-www-
 app.use(cors());
 
 app.use('/', api);
-app.use('/', webinterface);
+
+// The React interface, built with `npm run build` in web/. Any non-API path serves its index.html
+// so that client-side routes work on reload.
+const webDist = path.resolve(nconf.get('config:web_dist') ?? 'web/dist');
+if (fs.existsSync(path.join(webDist, 'index.html'))) {
+    app.use(express.static(webDist, {index: false}));
+    app.get(/^\/(?!api\/).*/, (request, response) => {
+        response.sendFile(path.join(webDist, 'index.html'));
+    });
+} else {
+    console.warn(`No built web interface at ${webDist}; only /api routes are served`);
+}
 
 if (hasSentry) {
     app.use(Sentry.Handlers.errorHandler());

@@ -9,6 +9,8 @@ services:
       - ${FTEMPO_STORAGE_DIR}:/storage
       - .:/app
       - /app/node_modules
+      - /app/web/node_modules
+      - /app/web/dist
     ports:
       - 8000:8000
     env_file:

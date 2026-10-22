@@ -61,7 +61,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
+# Web interface: built here so the image serves it from /app/web/dist.
+COPY web/package.json web/package-lock.json ./web/
+RUN cd web && npm ci
+
 COPY . ./
+RUN cd web && npm run build
 
 EXPOSE 8000
 

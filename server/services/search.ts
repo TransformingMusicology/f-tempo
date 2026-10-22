@@ -213,7 +213,7 @@ async function search_subsequences_solr(subsequence: string, collections_to_sear
 async function search_random_id(timestamp: string) {
     const key = `random_${timestamp}`;
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q("*:*").fl("siglum,library,book").start(0).rows(1).sort({[key]: 'desc'});
+    const query = client.query().q("*:*").fl("siglum,library,book,titlepage").start(0).rows(1).sort({[key]: 'desc'});
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         return result.response.docs[0];
@@ -223,7 +223,7 @@ async function search_random_id(timestamp: string) {
 
 export async function get_metadata(id: string) {
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q(`siglum:${id}`).fl("siglum,library,book").start(0).rows(1);
+    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage").start(0).rows(1);
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         return result.response.docs[0];
@@ -234,7 +234,7 @@ export async function get_metadata(id: string) {
 export async function get_random_id() {
     const now = new Date().getTime();
     const id = await search_random_id(now.toString());
-    return {id: id.siglum, book: id.book, library: id.library}
+    return {id: id.siglum, book: id.book, library: id.library, titlepage: id.titlepage}
 }
 
 export class NoMawsForDocumentError extends Error {
@@ -440,39 +440,31 @@ export function next_id(library: string, book_id: string, page_id: string | null
 }
 
 
-export async function run_image_query(image: fileUpload.UploadedFile) {
-    const jaccard = true; // TODO(ra) should probably get this setting through the POST request, too...
-    const num_results = 20; // TODO(ra) should probably get this setting through the POST request, too...
-    const threshold = 0; // TODO(ra) should probably get this setting through the POST request, too...
+export class ImageRecognitionError extends Error {}
 
-    // TODO: Check if we have all of the required programs installed
-    // TODO: Check each spawn call in case there was an error and don't continue
-
-    let tmpDir;
-    const appPrefix = 'emo-upload';
+/**
+ * Run OMR on an uploaded image and return the interval codestring it recognised.
+ * The caller searches with the codestring like any other codestring query.
+ */
+export async function run_image_query(image: fileUpload.UploadedFile): Promise<string> {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emo-upload'));
     try {
-        tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
         await image.mv(path.join(tmpDir, image.name));
-
-        const data = perform_omr_image(tmpDir, image.name);
-
-        const page = parseMeiData(data, '');
-        const intervals = pageToContourList(page)
-
-        return search_by_codestring(intervals.join(""), [], num_results, threshold, 'jaccard');
-    }
-    catch (e) {
-        console.error(`error when running stuff ${e}`);
-        // handle error
-    } finally {
+        let meiData: string;
         try {
-            if (tmpDir) {
-                fs.rmdirSync(tmpDir, { recursive: true });
-            }
+            meiData = perform_omr_image(tmpDir, image.name);
+        } catch (e) {
+            console.error(`OMR failed for upload ${image.name}: ${e}`);
+            throw new ImageRecognitionError('Music recognition failed on the server');
         }
-        catch (e) {
-            console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`);
+        const page = parseMeiData(meiData, image.name);
+        const codestring = pageToContourList(page).join('');
+        if (!codestring) {
+            throw new ImageRecognitionError('No music was recognised in the image');
         }
+        return codestring;
+    } finally {
+        fs.rmSync(tmpDir, {recursive: true, force: true});
     }
 }
 
@@ -496,10 +488,10 @@ export async function get_mei(id: string) {
         const meiPath = doc.mei_path;
         const fullMeiPath = path.join(meiRoot, meiPath);
         try {
-            const data = fs.readFileSync(fullMeiPath, 'utf-8');
-            return data;
+            return fs.readFileSync(fullMeiPath, 'utf-8');
         } catch {
-            return "Exception when reading file";
+            console.error(`Cannot read MEI for ${id} at ${fullMeiPath}`);
+            return undefined;
         }
     }
     return undefined;

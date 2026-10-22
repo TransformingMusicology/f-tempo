@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Form} from 'react-bootstrap';
+import {Button, Form} from 'react-bootstrap';
 import {useNavigate} from 'react-router';
 import {
     NUM_RESULTS_OPTIONS, RANKINGS, RANKING_LABELS, REPRESENTATIONS, REPRESENTATION_LABELS,
@@ -11,15 +11,24 @@ type Props = {
     catalogues: string[];
     /** Builds the URL for the same query with different options. */
     buildUrl: (options: SearchOptions) => string;
+    onSearch: () => void;
+    searchLabel: string;
+    /** True while a search is in flight: changes are ignored instead of starting another search. */
+    disabled: boolean;
 };
 
-/** Search options. Any change navigates to the same query with the new options, which re-runs the search. */
-export default function SearchOptionsPanel({options, catalogues, buildUrl}: Props) {
+/**
+ * Search options. Any change navigates to the same query with the new options; when a search is
+ * showing, that re-runs it. The Search button runs (or repeats) the search for the query page.
+ */
+export default function SearchOptionsPanel({options, catalogues, buildUrl, onSearch, searchLabel, disabled}: Props) {
     const navigate = useNavigate();
     const [collectionError, setCollectionError] = useState<string | null>(null);
     const selected = options.collections.length ? new Set(options.collections) : new Set(catalogues);
 
-    const apply = (next: SearchOptions) => navigate(buildUrl(next));
+    const apply = (next: SearchOptions) => {
+        if (!disabled) navigate(buildUrl(next));
+    };
 
     const setRepresentation = (representation: Representation) => {
         const ranking = isRankingFor(representation, options.ranking) ? options.ranking : defaultRanking(representation);
@@ -39,7 +48,11 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl}: Prop
     };
 
     return (
-        <Form className="search-options" onSubmit={event => event.preventDefault()}>
+        <Form className="search-options" onSubmit={event => { event.preventDefault(); onSearch(); }}>
+            <div className="d-grid mb-2">
+                <Button type="submit" variant="primary" size="sm" title="Search with the query page (Enter)" disabled={disabled}>{searchLabel}</Button>
+            </div>
+            <fieldset disabled={disabled}>
             <Form.Group className="mb-2" controlId="opt-representation">
                 <Form.Label className="mb-0 small">Search type</Form.Label>
                 <Form.Select size="sm" value={options.representation} onChange={e => setRepresentation(e.target.value as Representation)}>
@@ -77,6 +90,7 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl}: Prop
                     ))}
                 </div>
                 {collectionError && <div className="text-danger small">{collectionError}</div>}
+            </fieldset>
             </fieldset>
         </Form>
     );

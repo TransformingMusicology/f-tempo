@@ -14,8 +14,11 @@ type CommonLoaderData = {
     catalogues: string[];
     /** The query's interval codestring, used for the cosine marker; null if unavailable. */
     queryCodestring: Promise<string | null>;
-    /** The search itself. Never rejects: failures are returned as an outcome. */
-    search: Promise<SearchOutcome>;
+    /**
+     * The search, or null when the page is only being viewed (/page/:id).
+     * Never rejects: failures are returned as an outcome.
+     */
+    search: Promise<SearchOutcome> | null;
 };
 
 export type PageLoaderData = CommonLoaderData & {kind: 'page'; page: PageMetadata};
@@ -34,7 +37,8 @@ function startSearch(input: QueryInput, options: SearchOptions, signal: AbortSig
         .catch(toOutcome);
 }
 
-export async function pageLoader({params, request}: LoaderFunctionArgs): Promise<PageLoaderData> {
+/** /page/:id shows a page without searching; /search/:id also runs the search. */
+async function loadPage({params, request}: LoaderFunctionArgs, runSearch: boolean): Promise<PageLoaderData> {
     const pageId = params.id!;
     const url = new URL(request.url);
     const catalogues = await getCatalogues();
@@ -56,9 +60,17 @@ export async function pageLoader({params, request}: LoaderFunctionArgs): Promise
         options,
         notices,
         catalogues,
-        queryCodestring: getCodestring(pageId, request.signal).catch(() => null),
-        search: startSearch({id: pageId}, options, request.signal),
+        queryCodestring: runSearch ? getCodestring(pageId, request.signal).catch(() => null) : Promise.resolve(null),
+        search: runSearch ? startSearch({id: pageId}, options, request.signal) : null,
     };
+}
+
+export function pageLoader(args: LoaderFunctionArgs): Promise<PageLoaderData> {
+    return loadPage(args, false);
+}
+
+export function searchLoader(args: LoaderFunctionArgs): Promise<PageLoaderData> {
+    return loadPage(args, true);
 }
 
 export async function codeLoader({request}: LoaderFunctionArgs): Promise<CodeLoaderData> {

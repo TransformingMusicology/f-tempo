@@ -23,10 +23,11 @@ export default function Help() {
 
                 <h2 className="h4">Searching</h2>
                 <p>
-                    Showing a page searches with it: the results list is always the search for the page on the left. Move through
-                    the collection with the previous/next page and book buttons, pick a random page, open one of the{' '}
-                    <Link to="/examples">examples</Link>, or <Link to="/search">enter a page ID or codestring</Link>.
-                    Clicking a result shows it on the right; <em>Search with this page</em> makes it the new query.
+                    The page on the left is the query. Move through the collection with the previous/next page and book buttons,
+                    pick a random page, open one of the <Link to="/examples">examples</Link>, or{' '}
+                    <Link to="/search">enter a page ID or codestring</Link>. Press <kbd>Enter</kbd> or click <em>Search</em> to find
+                    pages with similar music; changing an option while results are shown re-runs the search. Clicking a result shows
+                    it on the right, and <em>Search with this page</em> makes it the new query.
                 </p>
                 <p>
                     The address bar holds the query and every option, so a search can be bookmarked, shared, reloaded, and
@@ -69,7 +70,7 @@ export default function Help() {
                         <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / next page of the book</td></tr>
                         <tr><td><kbd>Shift</kbd>+<kbd>←</kbd> / <kbd>→</kbd></td><td>First page of the previous / next book</td></tr>
                         <tr><td><kbd>\</kbd></td><td>Random page</td></tr>
-                        <tr><td><kbd>Enter</kbd></td><td>Search with the selected result</td></tr>
+                        <tr><td><kbd>Enter</kbd></td><td>Search with the query page, or with the selected result once results are shown</td></tr>
                         <tr><td><kbd>Esc</kbd></td><td>Clear the selection</td></tr>
                     </tbody>
                 </Table>

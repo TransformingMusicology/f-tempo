@@ -3,6 +3,7 @@ import {Badge, Placeholder, ProgressBar, Table} from 'react-bootstrap';
 import type {SearchResponse} from '../api/types';
 import {cosineMarker, describeScore, scoreLabel} from '../search/score';
 import {TitlePageButton} from './TitlePageHold';
+import type {SearchOptions} from '../search/params';
 
 type Props = {
     response: SearchResponse;
@@ -14,16 +15,27 @@ type Props = {
     onHoldTitlePage: (id: string | null) => void;
 };
 
-export function ResultListSkeleton({rows}: {rows: number}) {
+/** Same table structure as the results, with placeholders, so the layout does not jump when results arrive. */
+export function ResultListSkeleton({rows, options}: {rows: number; options: SearchOptions}) {
     return (
-        <Table size="sm" className="results-table">
-            <thead><tr><th colSpan={3}><Placeholder animation="glow"><Placeholder xs={8} /></Placeholder></th></tr></thead>
+        <Table size="sm" className="results-table" aria-busy="true" aria-label="Searching">
+            <thead>
+                <tr><th colSpan={3} className="fw-normal small"><Placeholder animation="glow"><Placeholder xs={7} /></Placeholder></th></tr>
+                <tr>
+                    <th className="title-col" />
+                    <th>Page</th>
+                    <th>{scoreLabel(options)}</th>
+                </tr>
+            </thead>
             <tbody>
                 {Array.from({length: rows}, (_, i) => (
                     <tr key={i}>
-                        <td style={{width: '2.5rem'}} />
-                        <td><Placeholder animation="glow"><Placeholder xs={10} /></Placeholder></td>
-                        <td><Placeholder animation="glow"><Placeholder xs={i < 4 ? 10 - i * 2 : 2} /></Placeholder></td>
+                        <td className="title-col" />
+                        <td className="result-id"><Placeholder animation="glow"><Placeholder xs={9} /></Placeholder></td>
+                        <td className="score-cell">
+                            <div className="score-bar"><ProgressBar now={i === 0 ? 100 : Math.max(12, 70 - i * 7)} variant="secondary" className="opacity-25" /></div>
+                            <span className="score-text"><Placeholder animation="glow"><Placeholder xs={10} /></Placeholder></span>
+                        </td>
                     </tr>
                 ))}
             </tbody>
@@ -56,7 +68,7 @@ export default function ResultList({response, queryId, queryCodestring, selected
                         </th>
                     </tr>
                     <tr>
-                        <th style={{width: '2.5rem'}}><span className="visually-hidden">Title page</span></th>
+                        <th className="title-col"><span className="visually-hidden">Title page</span></th>
                         <th>Page</th>
                         <th>{scoreLabel(response)}</th>
                     </tr>
@@ -75,7 +87,7 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                 onClick={() => onSelect(result.id)}
                                 aria-selected={isSelected}
                             >
-                                <td onClick={e => e.stopPropagation()}>
+                                <td className="title-col" onClick={e => e.stopPropagation()}>
                                     <TitlePageButton titlepage={result.titlepage} label={result.id} setHeld={held => onHoldTitlePage(held ? result.id : null)} />
                                 </td>
                                 <td className="result-id">

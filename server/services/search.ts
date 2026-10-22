@@ -1,18 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import solr from 'solr-client';
-import nconf from 'nconf';
+import nconf from '../../lib/config.js';
 import {get_maws_for_codestrings} from "../../lib/maw.js";
 import * as path from "path";
 import fileUpload from "express-fileupload";
 import {pageToContourList, parseMeiData} from "../../lib/mei.js";
 import {db} from "../server.js";
 import { perform_omr_image } from './omr.js';
-
-nconf.argv().file('./config/default_config.json')
-if (process.env.NODE_ENV === "production") {
-    nconf.file('./config/production_config.json')
-}
 
 const meiRoot = nconf.get('config:base_mei_path');
 

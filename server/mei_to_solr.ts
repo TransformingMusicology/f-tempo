@@ -4,7 +4,7 @@ import util from 'util';
 import solr from "solr-client";
 import path from "path";
 import fs from "fs";
-import nconf from 'nconf';
+import nconf from '../lib/config.js';
 import workerpool from 'workerpool';
 import { fileURLToPath } from 'url';
 import type { Input } from '../lib/import_types.js';
@@ -14,15 +14,13 @@ const MIN_UNIQUE_MAWS = 10;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const configDir = path.join(__dirname, '..', 'config');
-nconf.argv().file(path.join(configDir, 'default_config.json'))
-if (process.env.NODE_ENV === "production") {
-    nconf.file(path.join(configDir, 'production_config.json'))
-}
-
 const pool = workerpool.pool(
     __dirname + '/../lib/worker.js',
-    {maxWorkers: nconf.get('config:import:threads')}
+    {
+        maxWorkers: nconf.get('config:import:threads'),
+        workerThreadOpts: {argv: process.argv.slice(2)},
+        forkArgs: process.argv.slice(2)
+    }
 );
 
 const solrClient = solr.createClient(nconf.get('search'));

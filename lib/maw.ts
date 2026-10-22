@@ -1,5 +1,5 @@
 import cp from "child_process";
-import nconf from "nconf";
+import nconf from './config.js';
 
 export class CannotRunMawError extends Error {
 

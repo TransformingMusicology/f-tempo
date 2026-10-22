@@ -9,7 +9,7 @@ import fileUpload from 'express-fileupload';
 
 import mustacheExpress from 'mustache-express';
 import cors from 'cors';
-import nconf from 'nconf';
+import nconf from '../lib/config.js';
 import * as Sentry from "@sentry/node";
 
 import api from "./routes/api.js";
@@ -19,25 +19,6 @@ import webinterface from "./routes/interface.js";
 /*******************************************************************************
  * Globals / init
  ******************************************************************************/
-
-if (process.env.FTEMPO_CONFIG) {
-    console.log("`FTEMPO_CONFIG` environment variable set");
-    if (fs.existsSync(process.env.FTEMPO_CONFIG)) {
-        console.log(`Loading config from "${process.env.FTEMPO_CONFIG}"`)
-        nconf.argv().file({file: process.env.FTEMPO_CONFIG})
-    } else {
-        throw new Error(`Cannot find config file ${process.env.FTEMPO_CONFIG}`)
-    }
-    console.log("Config");
-    console.log(nconf.get())
-} else {
-    console.log("Loading default config");
-    nconf.argv().file({file: './config/default_config.json'})
-    if (process.env.NODE_ENV === "production") {
-        console.log("NODE_ENV=production, Loading production config");
-        nconf.file('./config/production_config.json')
-    }
-}
 
 interface StringToAny {
     [key: string]: any;

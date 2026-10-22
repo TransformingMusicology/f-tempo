@@ -79,12 +79,14 @@ export default function QueryPane({query, navigation}: Props & {navigation: Retu
     return (
         <div className="pane query-pane">
             <div className="pane-toolbar">
-                <ButtonGroup size="sm">
-                    <Button variant="outline-secondary" disabled={!canNavigate || busy} onClick={() => changeBook('prev')} title="Previous book (Shift+←)">« Book</Button>
-                    <Button variant="outline-secondary" disabled={!canNavigate || busy} onClick={() => changePage('prev')} title="Previous page (←)">‹ Page</Button>
-                    <Button variant="secondary" disabled={busy} onClick={randomPage} title="Random page (\)">Random</Button>
-                    <Button variant="outline-secondary" disabled={!canNavigate || busy} onClick={() => changePage('next')} title="Next page (→)">Page ›</Button>
-                    <Button variant="outline-secondary" disabled={!canNavigate || busy} onClick={() => changeBook('next')} title="Next book (Shift+→)">Book »</Button>
+                {/* Clicks during a pending lookup are ignored by the navigation hook; the buttons are not
+                    visually disabled because the lookup is brief and the style change flickers. */}
+                <ButtonGroup size="sm" aria-busy={busy}>
+                    <Button variant="outline-secondary" disabled={!canNavigate} onClick={() => changeBook('prev')} title="Previous book (Shift+←)">« Book</Button>
+                    <Button variant="outline-secondary" disabled={!canNavigate} onClick={() => changePage('prev')} title="Previous page (←)">‹ Page</Button>
+                    <Button variant="secondary" onClick={randomPage} title="Random page (\)">Random</Button>
+                    <Button variant="outline-secondary" disabled={!canNavigate} onClick={() => changePage('next')} title="Next page (→)">Page ›</Button>
+                    <Button variant="outline-secondary" disabled={!canNavigate} onClick={() => changeBook('next')} title="Next book (Shift+→)">Book »</Button>
                 </ButtonGroup>
             </div>
             {query.kind === 'page' ? (

@@ -1,4 +1,4 @@
-FROM node:14.16-buster
+FROM node:14-bullseye
 
 RUN apt-get update \
     && apt-get install -y \
@@ -17,7 +17,7 @@ RUN apt-get update \
 RUN mkdir -p /tmp/aruspix
 
 WORKDIR /tmp/aruspix
-RUN wget -q https://netcologne.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2
+RUN wget -q https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.2/wxWidgets-3.0.2.tar.bz2
 RUN tar xfj wxWidgets-3.0.2.tar.bz2
 WORKDIR /tmp/aruspix/wxWidgets-3.0.2
 RUN ./configure --disable-unicode --disable-shared --disable-gui && make && make install && ldconfig

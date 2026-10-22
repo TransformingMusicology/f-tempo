@@ -28,8 +28,7 @@ echo "Converted to tiff OK" >> log
 
 
 # Run Aruspix on the converted image
-#aruspix-cmdline -m ~/emo_search/data/aruspix_models page.tiff 2>> log
-aruspix-cmdline -m /storage/ftempo/aruspix_models page.tiff 2>> log
+aruspix-cmdline -m /storage/ftempo/multiservers/aruspix_models page.tiff 2>> log
 echo "Passed through Aruspix OK" >> log
 
 # delete page.mei if it exists, as unzip needs interaction if it does

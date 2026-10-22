@@ -31,7 +31,7 @@ const ngr_len = 5;
 
 const app = express();
 
-const SKIP_FILELIST = "/storage/ftempo/skip_id_filelist";
+const SKIP_FILELIST = require('./multiservers/paths').SKIP_FILE;
 
 let ARG_LIST = [];
 if (argv._.length) {
@@ -68,7 +68,7 @@ function rewriteFunction(path, req) {
     return 'localhost:8000/api/query_' + port; // or whatever the localhost path should be
 }
 
-const BASE_IMG_URL = 'https://search.f-tempo.org/img/jpg/';
+const BASE_IMG_URL = require('./multiservers/paths').IMAGE_URL;
 const BASE_MEI_URL = 'https://search.f-tempo.org/img/mei/';
 
 

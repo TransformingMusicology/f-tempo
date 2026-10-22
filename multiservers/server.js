@@ -41,7 +41,7 @@ function get_datapath(id) {
 var test = false;
 var MAWS_DB = './data/latest_maws'; 
 //const MAWS_DB = './data/latest_maws_corrIDs_30Sep2019.txt'; 
-var DIAT_MEL_DB = './data/latest_diat_mel_strs'; 
+var DIAT_MEL_DB = require('./paths').CODESTRINGS_FILE;
 //const DIAT_MEL_DB = './data/latest_diat_mel_strs_corrIDs_30Sep2019.txt'; 
 const EMO_IDS = []; // all ids in the system
 const EMO_IDS_TO_SKIP = new Set();
@@ -93,9 +93,9 @@ var DB_PREFIX_LIST = []; // Array of prefixes to F_TEMPO data collections
 //const BASE_MEI_URL = 'http://doc.gold.ac.uk/~mas01tc/EMO_search/new_mei_pages/';
 //const BASE_IMG_URL = '/img/jpg/';
 //const BASE_MEI_URL = '/img/mei/';
-const BASE_IMG_URL = 'https://search.f-tempo.org/img/jpg/';
+const BASE_IMG_URL = require('./paths').IMAGE_URL;
 //const BASE_MEI_URL = 'https://search.f-tempo.org/img/mei/';
-const BASE_MEI_URL = '/app/static/img/mei/';
+const BASE_MEI_URL = require('./paths').MEI_DIR;
 
 // flags to say whether the current id comes from D-Mbs or elsewhere (in app.get('/compare' ..., below)
 // If true, page-image MEI files are local; otherwise they need to be downloaded via http 
@@ -171,27 +171,9 @@ if((!DB_PREFIX_LIST.length)||((DB_PREFIX_LIST.length==1)&&(DB_PREFIX_LIST[0]=="t
 	load_maws(); // load the MAWS
 	load_diat_mels(); // load the diatonic melodies
 }else {
-	console.log(DB_PREFIX_LIST.length+" Databases to load: "+DB_PREFIX_LIST);
-	for (var m=0;m<DB_PREFIX_LIST.length;m++) {
-		console.log(m)
-// Comment out the next 5 lines on the 'real' server, where D-Mbs files will be present.
-//		if(DB_PREFIX_LIST[m].startsWith("D-Mbs")) {
-//			console.log("D-Mbs not available on this server");
-//			process.exit();
-//			continue;
-//		}
-		if(DB_PREFIX_LIST[m].startsWith("D-Mbs")) var maws_db = "/storage/ftempo/locations/"+DB_PREFIX_LIST[m]+"/maws";
-		else var maws_db = "/storage/ftempo/locations/"+DB_PREFIX_LIST[m]+"/all/maws";
-//		load_file(maws_db, parse_maws_db,DB_PREFIX_LIST[m]);
-
-		if(DB_PREFIX_LIST[m].startsWith("D-Mbs")) var diat_mel_db = "/storage/ftempo/locations/"+DB_PREFIX_LIST[m]+"/codestrings";
-		else var diat_mel_db = "/storage/ftempo/locations/"+DB_PREFIX_LIST[m]+"/all/codestrings";
-		const skip_filelist = "/storage/ftempo/skip_id_filelist";
-		load_file(skip_filelist, load_skipped_files, skip_filelist);
-		console.log("diat_mel_db is "+diat_mel_db);
-		load_file(diat_mel_db, parse_diat_mels_db, DB_PREFIX_LIST[m]);
-
-	}
+	const skip_filelist = require('./paths').SKIP_FILE;
+	load_skipped_files(load_file_sync(skip_filelist), skip_filelist);
+	load_diat_mels();
 }
 
 if(DB_PREFIX_LIST.includes("D-Mbs")) {
@@ -1232,6 +1214,9 @@ function parse_diat_mels_db(data_str,source) {
     for (let line of lines) {
         if (line) {
             const [id, diat_mels_str] = line.split(/ (.+)/); // splits on first match of whitespace
+            if (!test && !DB_PREFIX_LIST.some(prefix => id.startsWith(prefix.split('/')[0] + '_'))) {
+                continue;
+            }
             if (EMO_IDS_TO_SKIP.has(id)) {
                 continue
             }

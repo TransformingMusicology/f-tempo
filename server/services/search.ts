@@ -129,6 +129,7 @@ async function search_maws_solr(maws: string[], collections_to_search: string[],
         query = query.matchFilter("library", "(" + collections_to_search.join(" OR ") + ")")
     }
     query = query.matchFilter("-notmusic", "true");
+    query = query.matchFilter("nummaws", "[10 TO *]");
     const result = await client.search(query!);
     if (result.response.numFound >= 1) {
         return result.response.docs;

@@ -30,7 +30,8 @@ router.get('/api/random_id', async function(req, res) {
         const id = await get_random_id();
         return res.status(200).json(id);
     } catch (err) {
-        return res.status(500).json({status: "error", error: "Unable to contact random server"});
+        console.error('random_id failed:', err);
+        return res.status(500).json({status: "error", error: "Unable to contact the search server"});
     }
 });
 
@@ -39,13 +40,14 @@ router.get('/api/metadata', async function(req, res) {
     const page_id = req.query.id as string;
     try {
         const metadata = await get_metadata(page_id);
-        if (metadata) {
+        if (metadata && metadata.siglum) {
             return res.status(200).json(metadata);
         } else {
-            return res.status(404).json(metadata);
+            return res.status(404).json({status: "error", error: `Page ${page_id} not found`});
         }
     } catch (err) {
-        return res.status(500).json({status: "error", error: "Unable to contact random server"});
+        console.error('metadata failed:', err);
+        return res.status(500).json({status: "error", error: "Unable to contact the search server"});
     }
 });
 

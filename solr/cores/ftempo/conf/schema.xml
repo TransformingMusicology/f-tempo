@@ -185,6 +185,18 @@
       <tokenizer class="solr.WhitespaceTokenizerFactory"/>
     </analyzer>
   </fieldType>
+  <!-- Five consecutive interval symbols; repeated grams retain term frequencies. -->
+  <fieldType name="interval_5grams" class="solr.TextField">
+    <analyzer type="index">
+      <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+      <filter class="solr.ShingleFilterFactory" minShingleSize="5" maxShingleSize="5"
+              outputUnigrams="false" outputUnigramsIfNoShingles="false" tokenSeparator=""/>
+    </analyzer>
+    <!-- Queries supply complete grams, e.g. AB-ca; preserve case and frequency. -->
+    <analyzer type="query">
+      <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+    </analyzer>
+  </fieldType>
   <!-- the same as text_ws but using a simple BooleanSimilarity instead of BM25 -->
   <fieldType name="text_ws_boolean" class="solr.TextField" positionIncrementGap="100">
     <analyzer>
@@ -210,6 +222,7 @@
   <field name="part_name" type="string" indexed="false" stored="true"/>
   <field name="mei_path" type="string" indexed="false" stored="true"/>
   <field name="intervals" type="text_ws" uninvertible="true" indexed="true" stored="true"/>
+  <field name="intervals_5grams" type="interval_5grams" indexed="true" stored="false" termVectors="true"/>
   <field name="library" type="string" uninvertible="true" indexed="true" stored="true"/>
   <field name="maws" type="text_ws" uninvertible="true" indexed="true" stored="true"/>
   <field name="nummaws" type="pint" uninvertible="true" indexed="true" stored="true"/>
@@ -225,6 +238,7 @@
   <field name="titlepage" type="string" indexed="false" stored="true"/>
   <dynamicField name="random_*" type="random"/>
   <copyField source="maws" dest="maws_boolean"/>
+  <copyField source="intervals" dest="intervals_5grams"/>
   <copyField source="maws" dest="maws_minhash"/>
   <copyField source="notes" dest="notes_boolean"/>
   <copyField source="notes" dest="notes_minhash"/>

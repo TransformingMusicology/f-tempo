@@ -83,8 +83,8 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                     {isQuery && <> <Badge bg="info" text="dark" title="This result is the query page itself">query</Badge></>}
                                 </td>
                                 <td className="score-cell">
-                                    <div className="score-bar">
-                                        <ProgressBar now={score.fraction * 100} label={score.text} />
+                                    <div className="score-bar" title={`${score.label}: ${score.text}`}>
+                                        <ProgressBar now={score.fraction * 100} aria-label={`${score.label} ${score.text}`} />
                                         {marker !== undefined && (
                                             <span
                                                 className="cosine-marker"
@@ -93,6 +93,7 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                             />
                                         )}
                                     </div>
+                                    <span className="score-text">{score.text}</span>
                                 </td>
                             </tr>
                         );

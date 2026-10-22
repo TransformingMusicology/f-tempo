@@ -87,14 +87,13 @@ export default function QueryPane({query, navigation}: Props & {navigation: Retu
                     <Button variant="outline-secondary" disabled={!canNavigate || busy} onClick={() => changeBook('next')} title="Next book (Shift+→)">Book »</Button>
                 </ButtonGroup>
             </div>
-            {notice && <Alert variant="info" className="py-1 my-2 small" onClose={() => undefined}>{notice}</Alert>}
-
             {query.kind === 'page' ? (
                 <>
                     <div className="pane-heading">
                         <span className="pane-label">Query page</span> <code>{query.page.id}</code>
                         <TitlePageButton titlepage={query.page.titlepage} label={query.page.id} setHeld={setHeld} />
                     </div>
+                    <p className="pane-info small text-muted mb-1">Library {query.page.library}, book {query.page.book}.</p>
                     {held && query.page.titlepage
                         ? <TitlePageImage titlepage={query.page.titlepage} label={query.page.id} />
                         : <ScanImage src={scanImageUrl(query.page.id)} alt={`Scan of ${query.page.id}`} />}
@@ -102,15 +101,16 @@ export default function QueryPane({query, navigation}: Props & {navigation: Retu
             ) : (
                 <>
                     <div className="pane-heading"><span className="pane-label">Query codestring</span></div>
+                    <p className="pane-info small text-muted mb-1">
+                        {query.codestring.length} intervals{query.uploadedImageUrl
+                            ? ', recognised from the uploaded image (kept for this session only).'
+                            : '. There is no page scan for this query.'}
+                    </p>
                     {query.uploadedImageUrl && <ScanImage src={query.uploadedImageUrl} alt="Uploaded image" />}
                     <pre className="codestring">{query.codestring}</pre>
-                    <p className="text-muted small">
-                        {query.uploadedImageUrl
-                            ? 'Recognised from the uploaded image. The image is kept only for this session.'
-                            : 'Interval codestring search. There is no page scan for this query.'}
-                    </p>
                 </>
             )}
+            {notice && <Alert variant="info" className="py-1 my-2 small">{notice}</Alert>}
         </div>
     );
 }

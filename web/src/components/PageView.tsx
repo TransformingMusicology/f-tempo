@@ -51,7 +51,7 @@ export default function PageView({data}: Props) {
             <Col xs={12} lg={4}>
                 <QueryPane query={query} navigation={navigation} />
             </Col>
-            <Col xs={12} lg={4} xl={3} className="results-column">
+            <Col xs={12} lg={4} className="results-column">
                 <SearchOptionsPanel options={data.options} catalogues={data.catalogues} buildUrl={buildUrl} />
                 {data.notices.map(notice => <Alert key={notice} variant="warning" className="py-1 small">{notice}</Alert>)}
                 <Suspense fallback={<ResultListSkeleton rows={data.options.numResults} />}>
@@ -65,7 +65,7 @@ export default function PageView({data}: Props) {
                     />
                 </Suspense>
             </Col>
-            <Col xs={12} lg={4} xl={5}>
+            <Col xs={12} lg={4}>
                 <Suspense fallback={null}>
                     <ResultPaneColumn {...shared} heldTitlePageId={heldTitlePageId} searchWith={searchWith} />
                 </Suspense>

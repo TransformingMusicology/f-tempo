@@ -44,7 +44,7 @@ export function TitlePageButton({titlepage, label, setHeld}: Props & {setHeld: (
             onBlur={() => setHeld(false)}
             onContextMenu={event => event.preventDefault()}
         >
-            <img src="/tp_book.svg" alt="" height={18} /> Title page
+            <img src="/tp_book.svg" alt="" height={16} />
         </Button>
     );
 }

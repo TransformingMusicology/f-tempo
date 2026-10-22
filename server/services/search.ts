@@ -8,6 +8,7 @@ import fileUpload from "express-fileupload";
 import {pageToContourList, parseMeiData} from "../../lib/mei.js";
 import {db} from "../server.js";
 import { perform_omr_image } from './omr.js';
+import {next_id as navigate_next_id} from './navigation.js';
 
 const meiRoot = nconf.get('config:base_mei_path');
 
@@ -432,64 +433,10 @@ export async function search_subsequence(query_subsequence: string, num_results:
     return response;
 }
 
-export class NextIdNotFound extends Error {
-    public status: number;
-    constructor(message: string) {
-        super();
-        this.message = message;
-        this.status = 404;
-    }
-}
+export {NextIdNotFound} from './navigation.js';
 
 export function next_id(library: string, book_id: string, page_id: string | null, direction: "prev" | "next") {
-    const db_library = db[library];
-    if (!db_library) {
-        throw new NextIdNotFound(`Library ${library} not found`)
-    }
-
-    if (!db_library.book_ids.includes(book_id)) {
-        throw new NextIdNotFound(`Book ${book_id} not found in library ${library}`)
-    }
-    if (page_id) {
-        // If a page is set, then we want next/prev page
-        const book = db_library.books[book_id];
-        if (!book.page_ids.includes(page_id)) {
-            throw new NextIdNotFound(`Page ${page_id} not found in book ${book_id}`)
-        }
-        const page_position = book.page_ids.indexOf(page_id)
-        let new_position = page_position + (direction === "prev" ? -1 : 1);
-        if (new_position < 0) {
-            new_position = 0;
-        } else if (new_position >= book.page_ids.length) {
-            new_position = book.page_ids.length - 1;
-        }
-        const new_book_page_id = book.page_ids[new_position];
-        const response = {
-            library,
-            book_id,
-            page: book.pages[new_book_page_id]
-        }
-        return response;
-    } else {
-        // If page isn't set, we want next/prev book
-        const book_position = db_library.book_ids.indexOf(book_id);
-        let new_position = book_position + (direction === "prev" ? -1 : 1);
-        if (new_position < 0) {
-            new_position = 0;
-        } else if (new_position >= db_library.books.length) {
-            new_position = db_library.books.length - 1;
-        }
-        const new_book_id = db_library.book_ids[new_position];
-        const new_book = db_library.books[new_book_id];
-        // If we get a new book, we want to return the first page from that book
-        const new_book_page_id = new_book.page_ids[0];
-        const response = {
-            library,
-            book_id: new_book_id,
-            page: new_book.pages[new_book_page_id]
-        }
-        return response;
-    }
+    return navigate_next_id(db, library, book_id, page_id, direction);
 }
 
 

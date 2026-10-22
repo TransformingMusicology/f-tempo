@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "Early Music Online search engine",
   "scripts": {
-    "test": "jest",
+    "test": "jest && npm run test:server",
+    "test:server": "node --import tsx --test \"server/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit -p tsconfig.server.json",
     "start": "tsx server/server.ts",
     "watch": "nodemon --watch server --watch lib --ext ts --exec \"npm start\""
   },

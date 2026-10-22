@@ -158,15 +158,16 @@ function display_cosine_sim_line(json) {
         canv.top = (canTop - canHeight) + "px";
         canv.left = canLeft;
         const m_str = results[q].codestring;
-        var cos_sim = textCosineSimilarity(ngram_array(q_str, ngr_len).join(' '), ngram_array(m_str, ngr_len).join(' '));
+        var cos_sim = json.data.representation === '5gram' ? results[q].cosine
+            : textCosineSimilarity(ngram_array(q_str, ngr_len).join(' '), ngram_array(m_str, ngr_len).join(' '));
         var line_x = cos_sim * canv.width;
         lineAt(canv, line_x, 0, "red");
     }
 }
 
 // Basic remote search function.
-function search(id, similarity_type, num_results, collections_to_search, record) {
-    let search_data = JSON.stringify({id, num_results, threshold, collections_to_search, similarity_type});
+function search(id, similarity_type, num_results, collections_to_search, record, representation = document.getElementById('search_select').value) {
+    let search_data = JSON.stringify({id, num_results, threshold, collections_to_search, similarity_type, representation});
     console.log(search_data);
     if (record) {
         searches.push({search_data: JSON.parse(search_data)});
@@ -197,13 +198,15 @@ function repeat_search(n) {
         searches[n].search_data.similarity_type,
         searches[n].search_data.num_results,
         searches[n].search_data.collections_to_search,
-        false // don't record this as a new search!
+        false, // don't record this as a new search!
+        searches[n].search_data.representation || 'maw'
     );
 }
 
 function code_search(codestring, similarity_type, num_results, collections_to_search, record) {
     $('#results_table').html('<tr><td><img src="img/ajax-loader.gif" alt="search in progress"></td></tr>');
-    let search_data = JSON.stringify({codestring, similarity_type, num_results, threshold, collections_to_search});
+    const representation = document.getElementById('search_select').value;
+    let search_data = JSON.stringify({codestring, similarity_type, num_results, threshold, collections_to_search, representation});
     if (record) {
         searches.push({search_data: JSON.parse(search_data)});
     }
@@ -218,14 +221,14 @@ function code_search(codestring, similarity_type, num_results, collections_to_se
 }
 
 
-function search_by_active_query_id(load_query_image = false, ngram_search, collections_to_search) {
+function search_by_active_query_id(load_query_image = false) {
     $('#results_table').html('<tr><td><img src="img/ajax-loader.gif" alt="search in progress"></td></tr>');
     query_id = document.getElementById("query_id").value;
     if (load_query_image) {
         load_page_query(query_id);
     }
     update_colls_to_search();
-    search(query_id, similarity_type, num_results, ngram_search, collections_to_search, true);
+    search(query_id, similarity_type, num_results, collections_to_search, true);
 }
 
 function show_tp(tp_url, isquery) {
@@ -272,20 +275,26 @@ function show_results(json) {
     imageSrcs.length = 0; // empty the cache altogether
     var results = json.data.results;
     const provide_judgements = $('#provide_judgements').is(':checked');
+    const ranking = json.data.ranking || similarity_type;
+    const scoreLabel = ranking === 'solr' ? 'BM25 (% of top score)' : 'Match Score';
+    const candidateNote = json.data.candidateLimited && ranking !== 'solr'
+        ? ` — reranked top ${json.data.candidateLimit} BM25 candidates` : '';
 
-    if (results.length < 2) {
+    if (!results.length) {
+        $('#results_table').empty();
         console.log("No results for " + query_id + "!");
         document.getElementById("result_id_msg").innerHTML = "<font color='red'>No results!!</font>";
         return false;
     }
+    document.getElementById('result_id_msg').textContent = '';
 
     num_results = results.length;
     current_page = {library: results[0].library, book: results[0].book, page: results[0].id};
 
     let table_html = "<thead><tr><th colspan=3>" + num_results + " results - "
-        + results[0].num_words + " words in query</th></tr>"
+        + json.data.numQueryWords + " words in query" + candidateNote + "</th></tr>"
         + "<tr><th></th><th>Page ID</th>"
-        + "<th>Match Score</th>";
+        + "<th>" + scoreLabel + "</th>";
     if (provide_judgements) {
         table_html += "<th>Judge Match</th>";
     }
@@ -295,10 +304,14 @@ function show_results(json) {
     for (let q = 0; q < results.length; q++) {
         let rank_factor;
 
-        if (similarity_type === 'jaccard') {
+        if (ranking === 'cosine') {
+            rank_factor = results[q].cosine;
+        } else if (ranking === 'solr') {
+            rank_factor = results[0].score ? results[q].score / results[0].score : 0;
+        } else if (ranking === 'jaccard') {
             rank_factor = 1 - results[q].jaccard;
         } else {
-            rank_factor = results[q].num_matched_words / results[0].num_words;
+            rank_factor = results[q].num_matched_words / json.data.numQueryWords;
         }
 
         matched_words[q] = results[q].num_matched_words;
@@ -808,14 +821,12 @@ function change_num_res() {
 }
 
 function change_search_method() {
-    const search_select = document.getElementById('search_select');
-    const v = search_select.options[search_select.selectedIndex].value;
-    if (v == 1) {
-        ngram_search = true;
-    } else {
-        ngram_search = false;
-    }
-    return ngram_search;
+    const fivegram = document.getElementById('search_select').value === '5gram';
+    const ranking = document.getElementById('ranking_select');
+    ranking.innerHTML = fivegram
+        ? '<option value="cosine">Cosine</option><option value="jaccard">Jaccard</option><option value="solr">Solr BM25</option>'
+        : '<option value="jaccard">Jaccard</option><option value="boolean">Boolean overlap</option><option value="solr">Solr BM25</option>';
+    change_ranking_method();
 }
 
 function change_ranking_method() {

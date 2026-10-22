@@ -88,6 +88,63 @@ export class UnknownSearchTypeError extends Error {
     }
 }
 
+function fivegramCounts(codestring: string): Map<string, number> {
+    const symbols = Array.from(codestring.replace(/\s/g, ''));
+    const counts = new Map<string, number>();
+    for (let i = 0; i + 5 <= symbols.length; i++) {
+        const gram = symbols.slice(i, i + 5).join('');
+        counts.set(gram, (counts.get(gram) ?? 0) + 1);
+    }
+    return counts;
+}
+
+export async function search_fivegrams(codestring: string, collections: string[], numResults: number,
+                                     ranking: 'cosine' | 'jaccard' | 'solr') {
+    if (!['cosine', 'jaccard', 'solr'].includes(ranking)) {
+        throw new Error('5-gram ranking must be cosine, jaccard or solr');
+    }
+    const queryCounts = fivegramCounts(codestring);
+    if (!queryCounts.size) return {numQueryWords: 0, numResults: 0, results: []};
+    const client = solr.createClient(nconf.get('search'));
+    // Exact scores within a bounded BM25 candidate set, not exhaustive cosine/Jaccard retrieval.
+    const candidateLimit = Math.max(1000, numResults);
+    let query = client.query()
+        .q(`intervals_5grams:(${Array.from(queryCounts.keys(), gram => quote(gram.replace(/([\\"])/g, '\\$1'))).join(' ')})`)
+        .fl('siglum,library,book,intervals,titlepage,score')
+        .rows(candidateLimit)
+        .matchFilter('-notmusic', 'true');
+    if (collections.length) query = query.matchFilter('library', `(${collections.map(quote).join(' OR ')})`);
+    const response = await client.search(query);
+    const queryNorm = Math.sqrt(Array.from(queryCounts.values()).reduce((sum, count) => sum + count * count, 0));
+    const results = response.response.docs.map((doc: any) => {
+        const counts = fivegramCounts(doc.intervals ?? '');
+        let intersection = 0, dot = 0, normSquared = 0;
+        for (const [gram, count] of counts) {
+            normSquared += count * count;
+            const queryCount = queryCounts.get(gram) ?? 0;
+            if (queryCount) intersection++;
+            dot += count * queryCount;
+        }
+        const jaccard = intersection / (queryCounts.size + counts.size - intersection);
+        const cosine = normSquared ? dot / (queryNorm * Math.sqrt(normSquared)) : 0;
+        return {
+            id: doc.siglum, library: doc.library, book: doc.book, titlepage: doc.titlepage,
+            codestring: (doc.intervals ?? '').replace(/\s/g, ''),
+            num_words: counts.size, num_matched_words: intersection,
+            jaccard: 1 - jaccard, cosine,
+            score: ranking === 'solr' ? doc.score : ranking === 'cosine' ? cosine : jaccard
+        };
+    });
+    results.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+    return {
+        numQueryWords: queryCounts.size, numResults: Math.min(numResults, results.length),
+        results: results.slice(0, numResults), candidateLimit,
+        candidatesFound: response.response.numFound,
+        candidateLimited: response.response.numFound > candidateLimit,
+        representation: '5gram', ranking
+    };
+}
+
 /**
  * 
  * @param maws A list of maws
@@ -222,6 +279,7 @@ function set_intersection(setA: Set<string>, setB: Set<string>) {
 }
 
 export type SearchResponse = {
+    ranking?: string
     numQueryWords: number
     numResults: number
     results: SearchResult[]
@@ -282,7 +340,8 @@ export async function search(words: string[], collections_to_search: string[], n
     return {
         numQueryWords: search_uniq_words.size,
         numResults: result.length,
-        results: result
+        results: result,
+        ranking: similarity_type
      };
 }
 

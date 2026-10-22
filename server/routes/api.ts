@@ -7,6 +7,7 @@ import {
     search,
     search_by_codestring,
     search_by_id,
+    search_fivegrams,
     search_subsequence,
     get_metadata,
     SearchResponse,
@@ -189,6 +190,21 @@ router.post('/api/query', async function (req, res, next) {
 
     let result: SearchResponse;
     try {
+        if (req.body.representation === '5gram') {
+            const ranking = req.body.similarity_type ?? 'cosine';
+            if (!['cosine', 'jaccard', 'solr'].includes(ranking)) {
+                return res.status(400).json({status: 'error', error: '5-gram ranking must be cosine, jaccard or solr'});
+            }
+            if (!Number.isInteger(num_results) || num_results < 1 || num_results > 1000) {
+                return res.status(400).json({status: 'error', error: 'num_results must be between 1 and 1000'});
+            }
+            const codestring = req.body.id ? await get_codestring(req.body.id) : req.body.codestring;
+            if (typeof codestring !== 'string') {
+                return res.status(400).json({status: 'error', error: '5-gram search requires an indexed id or codestring'});
+            }
+            const data = await search_fivegrams(codestring, collections_to_search, num_results, ranking);
+            return res.json({status: 'ok', data});
+        }
         if (req.body.id) {
             // TODO: result could be an error, should this be an exception?
             result = await search_by_id(req.body.id, collections_to_search, num_results, threshold,  similarity_type);

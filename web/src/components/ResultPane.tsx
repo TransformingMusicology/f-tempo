@@ -13,18 +13,21 @@ type Props = {
     onSearchWith: (id: string) => void;
 };
 
+/** Keeps the pane's header rows so the layout does not jump while there is nothing to show. */
+export function ResultPanePlaceholder({text}: {text: string}) {
+    return (
+        <div className="pane result-pane">
+            <div className="pane-toolbar"><Button size="sm" variant="primary" disabled>Search with this page</Button></div>
+            <div className="pane-heading"><span className="pane-label">Selected result</span></div>
+            <p className="pane-info small text-muted mb-1">{text}</p>
+        </div>
+    );
+}
+
 export default function ResultPane({response, result, isQuery, heldFromList, onSearchWith}: Props) {
     const {held, setHeld} = useTitlePageHold();
 
-    if (!result) {
-        return (
-            <div className="pane result-pane">
-                <div className="pane-toolbar"><Button size="sm" variant="primary" disabled>Search with this page</Button></div>
-                <div className="pane-heading"><span className="pane-label">Selected result</span></div>
-                <p className="pane-info small text-muted mb-1">Select a result to see it here.</p>
-            </div>
-        );
-    }
+    if (!result) return <ResultPanePlaceholder text="Select a result to see it here." />;
 
     const wordKind = response.representation === '5gram' ? '5-grams' : 'MAWs';
     const showTitlePage = (held || heldFromList) && result.titlepage;

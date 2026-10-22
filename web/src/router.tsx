@@ -8,7 +8,7 @@ import ManualSearch from './routes/ManualSearch';
 import NotFound from './routes/NotFound';
 import SearchRoute from './routes/SearchRoute';
 import Upload from './routes/Upload';
-import {codeLoader, pageLoader, revalidateUnlessHashOnly} from './search/loaders';
+import {codeLoader, pageLoader, revalidateUnlessHashOnly, searchLoader} from './search/loaders';
 
 export const router = createBrowserRouter([
     {
@@ -18,6 +18,7 @@ export const router = createBrowserRouter([
         children: [
             {index: true, loader: () => redirect(`/page/${DEFAULT_PAGE_ID}`)},
             {path: 'page/:id', loader: pageLoader, shouldRevalidate: revalidateUnlessHashOnly, Component: SearchRoute, ErrorBoundary: RouteError},
+            {path: 'search/:id', loader: searchLoader, shouldRevalidate: revalidateUnlessHashOnly, Component: SearchRoute, ErrorBoundary: RouteError},
             {path: 'code', loader: codeLoader, shouldRevalidate: revalidateUnlessHashOnly, Component: SearchRoute, ErrorBoundary: RouteError},
             {path: 'search', Component: ManualSearch},
             {path: 'upload', Component: Upload},

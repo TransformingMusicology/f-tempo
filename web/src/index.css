@@ -16,7 +16,8 @@
 .results-column { max-width: 560px; }
 .results-table tbody tr { cursor: pointer; }
 .results-table tr.query-row td.result-id { font-weight: 600; }
-.results-table td { vertical-align: middle; }
+.results-table td { vertical-align: middle; height: 2.1rem; }
+.results-table .title-col { width: 2.4rem; }
 .result-id { font-size: .85rem; word-break: break-all; }
 .score-cell { min-width: 10rem; display: flex; align-items: center; gap: .4rem; }
 .score-bar { position: relative; flex: 1 1 auto; }

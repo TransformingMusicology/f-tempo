@@ -2,7 +2,7 @@ import {useState, type FormEvent} from 'react';
 import {Button, Col, Form, Row} from 'react-bootstrap';
 import {useNavigate} from 'react-router';
 import {ApiError, getMetadata} from '../api/client';
-import {codeUrl, defaultOptions, pageUrl} from '../search/params';
+import {codeUrl, defaultOptions, searchUrl} from '../search/params';
 
 export default function ManualSearch() {
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function ManualSearch() {
         setPageError(null);
         try {
             const page = await getMetadata(id);
-            navigate(pageUrl(page.id, defaultOptions()));
+            navigate(searchUrl(page.id, defaultOptions()));
         } catch (error) {
             setPageError(error instanceof ApiError && error.status === 404
                 ? `No page with the ID "${id}" is indexed.`

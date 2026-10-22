@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {codeUrl, pageUrl, parseSearchOptions, serialiseSearchOptions} from './params';
+import {codeUrl, pageUrl, parseSearchOptions, searchUrl, serialiseSearchOptions} from './params';
 
 const catalogues = ['D-Mbs', 'GB-Lbl', 'F-Pn'];
 
@@ -47,7 +47,8 @@ describe('serialiseSearchOptions', () => {
 
     it('builds page and code URLs with a selection hash', () => {
         const options = {representation: 'maw' as const, ranking: 'solr' as const, numResults: 10, collections: []};
-        expect(pageUrl('GB-Lbl_A1_001_0', options, 'GB-Lbl_A1_002_0')).toBe('/page/GB-Lbl_A1_001_0?rank=solr#GB-Lbl_A1_002_0');
+        expect(pageUrl('GB-Lbl_A1_001_0', options)).toBe('/page/GB-Lbl_A1_001_0?rank=solr');
+        expect(searchUrl('GB-Lbl_A1_001_0', options, 'GB-Lbl_A1_002_0')).toBe('/search/GB-Lbl_A1_001_0?rank=solr#GB-Lbl_A1_002_0');
         expect(codeUrl('aBc', options)).toBe('/code?rank=solr&cs=aBc');
     });
 });

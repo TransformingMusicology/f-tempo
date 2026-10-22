@@ -33,9 +33,9 @@ Set `VITE_IMAGE_BASE_URL` to change where page scans are loaded from (default
 
 ## URLs
 
-- `/page/:id?rep=&rank=&n=&c=` shows a page and its search. Options: `rep` = `maw` | `5gram`,
-  `rank` = `jaccard` | `boolean` | `solr` (MAWs) or `cosine` | `jaccard` | `solr` (5-grams),
-  `n` = 5..30, `c` = comma-separated library sigla. Defaults are omitted. The hash holds the
-  selected result's page ID.
+- `/page/:id?rep=&rank=&n=&c=` shows a page without searching; `/search/:id?…` shows it and
+  runs its search. Options: `rep` = `maw` | `5gram`, `rank` = `jaccard` | `boolean` | `solr`
+  (MAWs) or `cosine` | `jaccard` | `solr` (5-grams), `n` = 5..30, `c` = comma-separated
+  library sigla. Defaults are omitted. On `/search` the hash holds the selected result's page ID.
 - `/code?cs=…` searches with an interval codestring (uploads end up here).
 - `/search`, `/upload`, `/examples`, `/help`.

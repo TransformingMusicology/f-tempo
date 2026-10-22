@@ -14,12 +14,12 @@ export default function Examples() {
                         {EXAMPLES.map(example => (
                             <tr key={example.id}>
                                 <td className="example-thumb">
-                                    <Link to={`/page/${encodeURIComponent(example.id)}`}>
+                                    <Link to={`/search/${encodeURIComponent(example.id)}`}>
                                         <img src={scanImageUrl(example.id)} alt="" loading="lazy" />
                                     </Link>
                                 </td>
                                 <td>
-                                    <Link to={`/page/${encodeURIComponent(example.id)}`}><code>{example.id}</code></Link>
+                                    <Link to={`/search/${encodeURIComponent(example.id)}`}><code>{example.id}</code></Link>
                                     <div>{example.description}</div>
                                 </td>
                             </tr>

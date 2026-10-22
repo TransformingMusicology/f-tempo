@@ -122,9 +122,14 @@ export function serialiseSearchOptions(options: SearchOptions): URLSearchParams 
     return params;
 }
 
-/** Build a page URL that carries the given options. */
-export function pageUrl(pageId: string, options: SearchOptions, hash?: string): string {
-    return withSearch(`/page/${encodeURIComponent(pageId)}`, serialiseSearchOptions(options), hash);
+/** URL that shows a page without searching, carrying the given options. */
+export function pageUrl(pageId: string, options: SearchOptions): string {
+    return withSearch(`/page/${encodeURIComponent(pageId)}`, serialiseSearchOptions(options));
+}
+
+/** URL that shows a page and runs its search. */
+export function searchUrl(pageId: string, options: SearchOptions, hash?: string): string {
+    return withSearch(`/search/${encodeURIComponent(pageId)}`, serialiseSearchOptions(options), hash);
 }
 
 export function codeUrl(codestring: string, options: SearchOptions, hash?: string): string {

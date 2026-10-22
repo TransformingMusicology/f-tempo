@@ -1,6 +1,6 @@
-./get_dataseg_port.sh /storage/ftempo/test_ports/new_ports.json | 
+./get_dataseg_port.sh /storage/ftempo/multiservers/shards.json |
 while read i; 
 	do 
 #		echo "Starting "$i" server"
-		node ../server_new.js /storage/ftempo/data_segments_red/$i &
+		node ../server_new.js /storage/ftempo/multiservers/shards/$i &
 	done

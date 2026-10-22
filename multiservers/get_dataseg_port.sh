@@ -9,4 +9,4 @@
 #  }' | sort -n -k 2
 
 # use with "new_ports.json" - lines like: {"seg" : "DataSeg_2.json", "port" : "8003", "RISM" : "PL-Wn"}
-jq '.[]|.seg+" "+.port'  /storage/ftempo/test_ports/new_ports.json | tr -d '"'
+jq -r '.[] | .seg + " " + .port' "$1"

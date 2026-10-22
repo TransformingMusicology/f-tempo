@@ -303,7 +303,7 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
         for (let i = 0; i < len; i += chunk) {
             const items = inputList.slice(i, i + chunk);
             const batchIndex = i / chunk;
-            const p: Promise<void> = pool.exec('doImport', [items, opts]).then(async (resp: any[]) => {
+            const p: Promise<void> = Promise.resolve(pool.exec('doImport', [items, opts])).then(async (resp: any[]) => {
                 await saveToSolr(resp);
                 if (shouldCommitAfter(batchIndex)) await commit();
                 console.log(`${Math.min(i + chunk, len)}/${len}`);

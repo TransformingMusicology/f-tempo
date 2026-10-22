@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["lib", "server"],
+  "exclude": ["lib/**/*.js", "lib/**/*.test.js"]
+}

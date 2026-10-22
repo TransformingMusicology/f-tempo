@@ -23,7 +23,7 @@ function omrFile(argv: any) {
 
         const data = perform_omr_image(tmpDir, basename);
 
-        const page = parseMeiData(data);
+        const page = parseMeiData(data, basename);
         const intervals = pageToContourList(page)
         console.log(`File: ${basename}`);
         console.log(intervals.join(""));

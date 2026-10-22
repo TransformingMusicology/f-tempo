@@ -9,6 +9,8 @@ import workerpool from 'workerpool';
 import { fileURLToPath } from 'url';
 import type { Input } from '../lib/import_types.js';
 
+const MIN_UNIQUE_MAWS = 10;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -320,12 +322,24 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
     await commit();
 }
 
+function filterDocumentsByMawCount<T extends {maws?: string; nummaws?: number}>(documents: T[]) {
+    return documents.flatMap(doc => {
+        const maws = [...new Set((doc.maws ?? '').split(/\s+/).filter(Boolean))];
+        if (maws.length < MIN_UNIQUE_MAWS) return [];
+        return [{...doc, maws: maws.join(' '), nummaws: maws.length}];
+    });
+}
+
 /**
  * Load a list of documents to solr
  * @param documents
  */
 async function saveToSolr(documents: any[]) {
-    const response = await solrClient.add(documents)
+    const eligible = filterDocumentsByMawCount(documents);
+    const skipped = documents.length - eligible.length;
+    if (skipped) console.log(`Skipping ${skipped} documents with fewer than ${MIN_UNIQUE_MAWS} unique MAWs`);
+    if (!eligible.length) return;
+    const response = await solrClient.add(eligible)
     console.log(response);
     return response;
 }

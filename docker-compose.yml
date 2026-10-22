@@ -9,14 +9,16 @@ services:
     build: .
     command: ./start.sh
     volumes:
-      - "/mnt/storage:/storage"
-      - "/mnt/storage:/mnt/storage"
+      - ${FTEMPO_STORAGE_DIR}:/storage
+      - ${FTEMPO_STORAGE_DIR}:/mnt/storage
+      - ${FTEMPO_STATIC_LINKS_DIR}/jpg:/app/static/img/jpg:ro
+      - ${FTEMPO_STATIC_LINKS_DIR}/mei:/app/static/img/mei:ro
       - run:/app/multiservers/run
       - uploadrun:/app/run
       - log:/app/logs
     environment:
-      - VIRTUAL_HOST=f-tempo.finishthings.com,search.f-tempo.org
+      - VIRTUAL_HOST=search.f-tempo.org
       - VIRTUAL_PORT=8000
-      - LETSENCRYPT_HOST=f-tempo.finishthings.com,search.f-tempo.org
+      - LETSENCRYPT_HOST=search.f-tempo.org
       - LETSENCRYPT_EMAIL=alastair@porter.net.nz
     restart: always

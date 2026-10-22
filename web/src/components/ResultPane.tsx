@@ -17,7 +17,13 @@ export default function ResultPane({response, result, isQuery, heldFromList, onS
     const {held, setHeld} = useTitlePageHold();
 
     if (!result) {
-        return <div className="pane result-pane"><p className="text-muted">Select a result to see it here.</p></div>;
+        return (
+            <div className="pane result-pane">
+                <div className="pane-toolbar"><Button size="sm" variant="primary" disabled>Search with this page</Button></div>
+                <div className="pane-heading"><span className="pane-label">Selected result</span></div>
+                <p className="pane-info small text-muted mb-1">Select a result to see it here.</p>
+            </div>
+        );
     }
 
     const wordKind = response.representation === '5gram' ? '5-grams' : 'MAWs';
@@ -34,7 +40,7 @@ export default function ResultPane({response, result, isQuery, heldFromList, onS
                 <span className="pane-label">{isQuery ? 'Selected result (the query page)' : 'Selected result'}</span> <code>{result.id}</code>
                 <TitlePageButton titlepage={result.titlepage} label={result.id} setHeld={setHeld} />
             </div>
-            <p className="small text-muted mb-1">
+            <p className="pane-info small text-muted mb-1">
                 {result.numMatchedWords} of {result.numWords} {wordKind} in this page match the query
                 ({response.numQueryWords} in the query).
             </p>

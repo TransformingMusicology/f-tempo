@@ -1,6 +1,7 @@
 /* Panes */
 .pane-toolbar { margin-bottom: .5rem; }
-.pane-heading { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .25rem; }
+.pane-heading { display: flex; align-items: center; gap: .5rem; flex-wrap: nowrap; min-height: 1.75rem; margin-bottom: .25rem; overflow: hidden; }
+.pane-info { min-height: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pane-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--bs-secondary-color); }
 .codestring { white-space: pre-wrap; word-break: break-all; font-size: .8rem; background: var(--bs-tertiary-bg); padding: .5rem; border-radius: .25rem; }
 
@@ -12,23 +13,24 @@
 .scan-missing { max-width: 700px; padding: 2rem 1rem; text-align: center; color: var(--bs-secondary-color); background: var(--bs-tertiary-bg); border: 1px dashed var(--bs-border-color); border-radius: .25rem; word-break: break-all; }
 
 /* Results */
-.results-column { max-width: 520px; }
+.results-column { max-width: 560px; }
 .results-table tbody tr { cursor: pointer; }
 .results-table tr.query-row td.result-id { font-weight: 600; }
 .results-table td { vertical-align: middle; }
 .result-id { font-size: .85rem; word-break: break-all; }
-.score-cell { min-width: 9rem; }
-.score-bar { position: relative; }
-.score-bar .progress { height: 1.1rem; font-size: .7rem; }
+.score-cell { min-width: 10rem; display: flex; align-items: center; gap: .4rem; }
+.score-bar { position: relative; flex: 1 1 auto; }
+.score-bar .progress { height: .9rem; }
+.score-text { flex: 0 0 4.2rem; font-size: .75rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .cosine-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: #dc3545; pointer-events: auto; }
 .cosine-marker-legend { display: inline-block; width: 2px; height: .9rem; background: #dc3545; vertical-align: middle; margin-right: .3rem; }
-.title-page-button { padding: 0 .3rem; font-size: .7rem; touch-action: none; user-select: none; }
+.title-page-button { padding: .1rem .3rem; line-height: 1; touch-action: none; user-select: none; }
 .search-options { font-size: .9rem; }
 .collection-checks .form-check { margin-right: .75rem; }
 
 /* Upload and examples */
 .upload-preview img { max-width: 100%; max-height: 60vh; border: 1px solid var(--bs-border-color); }
 .examples-table .example-thumb { width: 110px; }
-.examples-table .example-thumb img { width: 100px; border: 1px solid var(--bs-border-color); }
+.examples-table .example-thumb img { width: 100px; height: 72px; object-fit: cover; object-position: top; border: 1px solid var(--bs-border-color); }
 
 .help kbd { font-size: .85em; }

@@ -1,4 +1,4 @@
-FROM node:24-bookworm
+FROM node:24.22.2-bookworm
 
 RUN apt-get update \
     && apt-get install -y \

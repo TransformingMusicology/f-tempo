@@ -44,6 +44,7 @@ if (hasSentry) {
 const databases = nconf.get('databases')
 console.log(`Databases = ${databases}`);
 
+const localJpgRoot = process.env.NODE_ENV !== 'production' ? nconf.get('config:local_jpg_root') : undefined;
 export const BASE_IMG_URL = nconf.get('config:base_image_url');
 export const BASE_MEI_PATH = nconf.get('config:base_mei_path');
 
@@ -84,6 +85,10 @@ app.engine('html', mustacheExpress()); // render html templates using Mustache
 app.set('view engine', 'html');
 app.set('views', './templates');
 app.set('view cache', false);
+
+if (localJpgRoot) {
+    app.use('/img/jpg', express.static(path.resolve(localJpgRoot), {index: false}));
+}
 
 app.use('/', express.static('static'))
 app.use(fileUpload());

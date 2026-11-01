@@ -1,0 +1,2 @@
+# Shared nginx-proxy's per-domain configuration
+client_max_body_size 20m;

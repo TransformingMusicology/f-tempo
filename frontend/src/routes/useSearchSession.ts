@@ -145,6 +145,27 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
         submitSearchWith(selected.id);
     }
 
+    async function browseSelected() {
+        if (!selected) return;
+        const params = new URLSearchParams(searchParams);
+        try {
+            const request = new URLSearchParams({library: selected.library, book: selected.book, locate: selected.id});
+            const response = await fetch(`/api/browse?${request}`);
+            if (!response.ok) throw new Error('Could not find this result in its book.');
+            const position = await response.json();
+            params.set('library', selected.library);
+            params.set('book', selected.book);
+            params.set('page', selected.id);
+            params.set('pagesPage', String(position.pagesPage));
+            params.set('booksPage', String(position.booksPage));
+            params.set('view', 'browse');
+            params.set('sel', selected.id);
+            navigate(`${basePath}?${params}`);
+        } catch (error) {
+            setNotice(error instanceof Error ? error.message : 'Could not browse this result.');
+        }
+    }
+
     const previous = lastSearch();
     const repeat = previous ? () => navigate(previous) : null;
 
@@ -168,7 +189,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
         draftSettings,
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
-        setViewParam, selectIndex, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, repeat,
+        setViewParam, selectIndex, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, browseSelected, repeat,
         queryTitlepage, selectedScore, revalidate: () => revalidator.revalidate(),
     };
 }

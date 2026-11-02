@@ -93,10 +93,13 @@ export default function ExplorePage() {
                               matches={s.comparison.matchMatches} highlightRanges={s.comparison.matchRanges}
                               onHoverNote={s.comparison.onHoverMatch} showNotes={s.showNotes} zoom={s.zoom}
                               actions={
+                                  <>
                                   <button type="button" className="btn btn-primary btn-sm" onClick={s.searchFromSelected}
                                           title="Search using this result as the query (Shift+Enter)">
                                       Use as query
                                   </button>
+                                  <button type="button" className="btn btn-outline-primary btn-sm ms-2" onClick={s.browseSelected}>Browse this result</button>
+                                  </>
                               }/>
                 ) : (
                     <div className={`card explore-empty ${browsing ? 'd-none' : ''}`}>

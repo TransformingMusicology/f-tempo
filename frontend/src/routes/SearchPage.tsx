@@ -127,7 +127,7 @@ export default function SearchPage() {
     const {
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
-        setViewParam, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, repeat,
+        setViewParam, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, browseSelected, repeat,
         queryTitlepage, selectedScore, revalidate, draftSettings,
     } = useSearchSession(data, '/');
     const compareToolbar = searchData && results.length > 0 ? (
@@ -268,10 +268,13 @@ export default function SearchPage() {
                                   matches={comparison.matchMatches} highlightRanges={comparison.matchRanges}
                                   onHoverNote={comparison.onHoverMatch} showNotes={showNotes} zoom={zoom}
                                   actions={
+                                      <>
                                       <button type="button" className="btn btn-primary btn-sm" onClick={searchFromSelected}
                                               title="Search using this result as the query (Shift+Enter)">
                                           Search from this result
                                       </button>
+                                      <button type="button" className="btn btn-outline-primary btn-sm ms-2" onClick={browseSelected}>Browse this result</button>
+                                      </>
                                   }/>
                     ) : (
                         <div className="card h-100">

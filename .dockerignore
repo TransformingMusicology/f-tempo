@@ -5,3 +5,7 @@ frontend/dist
 run
 logs
 dist
+indexes-hasmusic
+solr-data-10.1
+manifest-backups
+.env

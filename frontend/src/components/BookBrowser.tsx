@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router';
 import type {PageMetadata} from '../api';
 import {pageImageUrl} from '../config';
@@ -8,6 +8,7 @@ type Entry = {id: string; count?: number; first?: string; title?: string; notmus
 export default function BookBrowser({metadata, catalogues, panel}: {metadata: PageMetadata | null; catalogues: string[]; panel?: 'books' | 'pages'}) {
     const [data, setData] = useState<{total: number; entries: Entry[]} | null>(null);
     const [error, setError] = useState('');
+    const browserRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const location = useLocation();
     const params = new URLSearchParams(location.search);
@@ -16,6 +17,17 @@ export default function BookBrowser({metadata, catalogues, panel}: {metadata: Pa
     const book = panel === 'books' ? '' : selectedBook;
     const pageKey = book ? 'pagesPage' : 'booksPage';
     const offset = (listPage(params.get(pageKey)) - 1) * 60;
+    useLayoutEffect(() => {
+        const selected = browserRef.current?.querySelector<HTMLElement>('.book-thumbnail.selected');
+        const pane = browserRef.current?.closest<HTMLElement>('.main-browse > section, .explore-results');
+        if (!selected || !pane) return;
+        const itemBounds = selected.getBoundingClientRect();
+        const paneBounds = pane.getBoundingClientRect();
+        if (itemBounds.top < paneBounds.top || itemBounds.bottom > paneBounds.bottom) {
+            // Scroll only this pane, keeping the selected scan and the window still.
+            pane.scrollTop += itemBounds.top - paneBounds.top - (pane.clientHeight - itemBounds.height) / 2;
+        }
+    }, [data, selectedBook, metadata?.siglum, metadata?.score_id]);
     function browse(update: (next: URLSearchParams) => void) {
         const next = preserveBrowse(new URLSearchParams(location.search), metadata);
         next.set('library', library);
@@ -40,7 +52,7 @@ export default function BookBrowser({metadata, catalogues, panel}: {metadata: Pa
     function openPage(id: string) {
         browse(next => next.set('page', id));
     }
-    return <div className="book-browser p-2">
+    return <div className="book-browser p-2" ref={browserRef}>
         {panel !== 'pages' && <label className="d-block mb-2">Library <select className="form-select form-select-sm" value={library}
             onChange={e => browse(next => {next.set('library', e.target.value); next.delete('book'); next.delete('booksPage'); next.delete('pagesPage');})}>
             {catalogues.map(id => <option key={id}>{id}</option>)}

@@ -77,10 +77,11 @@ test('zero threshold preserves zero-score candidates and stable ties', () => {
     assert.deepEqual(result.results.map(r => r.id), ['a', 'b']);
 });
 
-test('all candidates can be hidden with an explicit filtered count', () => {
+test('all rejected candidates remain inspectable when none pass', () => {
     const result = rerankContinuity('ABCDE', [{codestring: 'xxxxx'}], 10, 1);
     assert.equal(result.numResults, 0);
     assert.equal(result.continuityFiltered, 1);
+    assert.equal(result.results.length, 1);
 });
 
 test('unscored candidates retain original order and bypass the threshold explicitly', () => {
@@ -119,8 +120,15 @@ test('appends only rejected candidates between the first and last displayed matc
     assert.equal(result.continuityFiltered, 3);
 });
 
-test('one passing candidate has no intervening rejected results', () => {
+test('fills a shortfall with rejected candidates in original rank order', () => {
     const result = rerankContinuity('ABCDE', [{codestring:'xxxxx'}, {codestring:'ABCDE'}, {codestring:'yyyyy'}], 10, 50);
-    assert.equal(result.results.length, 1);
+    assert.deepEqual(result.results.map(r => r.codestring), ['ABCDE', 'xxxxx', 'yyyyy']);
     assert.equal(result.numResults, 1);
+});
+
+test('two passing candidates are followed by eight rejected candidates when ten were requested', () => {
+    const candidates = Array.from({length: 20}, (_, i) => ({id: i, codestring: i === 2 || i === 8 ? 'ABCDE' : 'xxxxx'}));
+    const result = rerankContinuity('ABCDE', candidates, 10, 25);
+    assert.deepEqual(result.results.map(r => r.id), [2, 8, 0, 1, 3, 4, 5, 6, 7, 9]);
+    assert.equal(result.numResults, 2);
 });

@@ -98,7 +98,8 @@ export default function ExplorePage() {
                 <footer className="explore-compare">
                     <CompareToolbar showNotes={s.showNotes} onShowNotes={s.setShowNotes} zoom={s.zoom} onZoom={s.setZoom}
                                     ngramLength={s.ngramLength} onNgramLength={n => s.setViewParam('ng', String(n))}/>
-                    <ContinuityDetails result={s.selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}/>
+                    <ContinuityDetails key={s.selected?.id} result={s.selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
+                        cursor={s.comparison.graphIndex} onHover={index => { s.comparison.onGraphHover(index); if (index !== null) s.setShowNotes(true); }}/>
                 </footer>
             )}
         </div>

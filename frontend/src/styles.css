@@ -2,6 +2,9 @@ body {
     background: #f8f9fa;
 }
 
+.below-threshold { opacity: 0.55; }
+.below-threshold:hover, .below-threshold:focus, .below-threshold.selected { opacity: 1; }
+
 .app-main {
     padding: 0.5rem 1rem;
 }

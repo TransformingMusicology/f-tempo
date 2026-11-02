@@ -3,7 +3,7 @@ import {continuity, intervalSymbols, MAX_CONTINUITY_CELLS} from '../../lib/conti
 export const CONTINUITY_CANDIDATES = 100;
 const MAX_BATCH_CELLS = 100_000_000;
 
-/** Keep search ranking; append rejected candidates inside the displayed rank range. */
+/** Keep search ranking; fill a shortfall with rejected candidates, or append intervening rejections when full. */
 export function filterContinuity<T extends {codestring: string}>(query: string, results: T[], count: number, minimum = 0) {
     if (!Number.isFinite(minimum) || minimum < 0 || minimum > 100) throw new RangeError('Minimum continuity must be between 0 and 100');
     const queryLength = intervalSymbols(query).length;
@@ -23,7 +23,10 @@ export function filterContinuity<T extends {codestring: string}>(query: string, 
     const retained = scored.filter(r => !r.belowThreshold).slice(0, count);
     const first = retained[0]?.originalRank ?? 0;
     const last = retained.at(-1)?.originalRank ?? 0;
-    const omitted = scored.filter(r => r.belowThreshold && r.originalRank > first && r.originalRank < last);
+    const rejected = scored.filter(r => r.belowThreshold);
+    const omitted = retained.length < count
+        ? rejected.slice(0, count - retained.length)
+        : rejected.filter(r => r.originalRank > first && r.originalRank < last);
     return {
         results: [...retained, ...omitted], numResults: retained.length,
         continuityApplied: true, continuityCandidates: results.length,

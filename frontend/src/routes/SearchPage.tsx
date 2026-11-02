@@ -115,7 +115,8 @@ export default function SearchPage() {
     const compareToolbar = searchData && results.length > 0 ? (
         <><CompareToolbar showNotes={showNotes} onShowNotes={setShowNotes} zoom={zoom} onZoom={setZoom}
                         ngramLength={ngramLength} onNgramLength={n => setViewParam('ng', String(n))}/>
-            <ContinuityDetails result={selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}/></>
+            <ContinuityDetails key={selected?.id} result={selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
+                cursor={comparison.graphIndex} onHover={index => { comparison.onGraphHover(index); if (index !== null) setShowNotes(true); }}/></>
     ) : null;
 
     return (

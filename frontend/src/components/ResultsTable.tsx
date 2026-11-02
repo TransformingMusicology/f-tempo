@@ -53,15 +53,15 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
                     const selected = result.id === selectedId;
                     return (
                         <Fragment key={result.id}>
-                        {result.belowThreshold && !data.results[index - 1]?.belowThreshold && <tr><th colSpan={3}>Filtered out between these matches</th></tr>}
-                        <tr data-id={result.id} className={selected ? 'selected' : ''}
+                        {result.belowThreshold && !data.results[index - 1]?.belowThreshold && <tr><th colSpan={3}>Below threshold — available for comparison</th></tr>}
+                        <tr data-id={result.id} className={`${selected ? 'selected' : ''}${result.belowThreshold ? ' below-threshold' : ''}`}
                             tabIndex={0} aria-selected={selected}
                             onClick={() => onSelect(result.id)}
                             onKeyDown={event => { if (event.key === ' ') { event.preventDefault(); onSelect(result.id); } }}>
                             <td>{result.originalRank ?? index + 1}</td>
                             <td className="page-id">
                                 {result.id}
-                                {result.belowThreshold && <span className="badge text-bg-warning ms-1">Filtered out</span>}
+                                {result.belowThreshold && <span className="badge text-bg-secondary ms-1">Below threshold</span>}
                                 {result.continuity && <div className="small">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                                 {isQuery && <span className="badge text-bg-info ms-1">query</span>}
                             </td>

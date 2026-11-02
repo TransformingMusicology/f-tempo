@@ -8,7 +8,7 @@ export default function ContinuitySummary({data}: {data: SearchData}) {
     return <p className="small" role="status">
         {kept} results meet the {data.continuityMinimum}% minimum. Checked {data.continuityCandidates} candidates;
         {' '}{data.continuityFiltered} fell below it.
-        {rejected > 0 && <> The {rejected} rejected results between the first and last accepted matches are listed below them for comparison.</>}
+        {rejected > 0 && <> Showing {rejected} other candidates below for comparison, labelled “Below threshold”.</>}
         {kept === 0 && <> Lower the minimum and press Search to see more results.</>}
     </p>;
 }

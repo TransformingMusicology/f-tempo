@@ -2,6 +2,7 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {commonNgramPositions} from '../util/ngrams';
 import type {NoteRange} from './ScoreOverlay';
 import type {SearchResult} from '../api';
+import {continuityHover} from '../util/continuityHover';
 
 type Side = 'query' | 'match';
 
@@ -11,6 +12,7 @@ type Side = 'query' | 'match';
  */
 export function useComparison(queryCodestring: string | null, matchCodestring: string | null, ngramLength: number, evidence?: SearchResult['continuity']) {
     const [hover, setHover] = useState<{side: Side; index: number} | null>(null);
+    const [graphIndex, setGraphIndex] = useState<number | null>(null);
 
     const comparable = queryCodestring !== null && matchCodestring !== null;
     const queryMatches = useMemo(
@@ -21,9 +23,11 @@ export function useComparison(queryCodestring: string | null, matchCodestring: s
         [comparable, queryCodestring, matchCodestring, ngramLength]);
 
     useEffect(() => { setHover(null); }, [queryCodestring, matchCodestring, ngramLength]);
+    useEffect(() => { setGraphIndex(null); }, [queryCodestring, matchCodestring, evidence]);
 
     const ranges = useMemo((): {query: NoteRange[]; match: NoteRange[]} => {
         const empty = {query: [], match: []};
+        if (graphIndex !== null) return continuityHover(evidence, graphIndex);
         if (!hover) return {
             query: evidence?.passages.map(p => [p.queryStart, p.queryStart + p.length] as NoteRange) ?? [],
             match: evidence?.passages.map(p => [p.matchStart, p.matchStart + p.length] as NoteRange) ?? [],
@@ -34,7 +38,7 @@ export function useComparison(queryCodestring: string | null, matchCodestring: s
         const here: NoteRange[] = [[hover.index, hover.index + ngramLength]];
         const there: NoteRange[] = found.map(p => [p, p + ngramLength]);
         return hover.side === 'query' ? {query: here, match: there} : {query: there, match: here};
-    }, [hover, queryMatches, matchMatches, ngramLength, evidence]);
+    }, [hover, queryMatches, matchMatches, ngramLength, evidence, graphIndex]);
 
     const hoverOn = useCallback((side: Side) => (index: number | null) => {
         setHover(prev => {
@@ -45,6 +49,8 @@ export function useComparison(queryCodestring: string | null, matchCodestring: s
     }, []);
 
     return {
+        graphIndex,
+        onGraphHover: setGraphIndex,
         queryMatches,
         matchMatches,
         queryRanges: ranges.query,

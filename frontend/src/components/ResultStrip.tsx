@@ -33,7 +33,7 @@ export default function ResultStrip({data, ranking, queryId, queryCodestring, se
                     : queryCodestring ? ngramCosine(queryCodestring, result.codestring, 5) : null;
                 const selected = result.id === selectedId;
                 return (
-                    <li key={result.id} data-id={result.id} className={`result-card${selected ? ' selected' : ''}`}
+                    <li key={result.id} data-id={result.id} className={`result-card${selected ? ' selected' : ''}${result.belowThreshold ? ' below-threshold' : ''}`}
                         tabIndex={0} aria-current={selected ? 'true' : undefined}
                         onClick={() => onSelect(result.id)}
                         onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); onSelect(result.id); } }}>
@@ -41,7 +41,7 @@ export default function ResultStrip({data, ranking, queryId, queryCodestring, se
                         <div className="result-meta">
                             <div className="result-rank">
                                 {result.originalRank ?? index + 1}
-                                {result.belowThreshold && <span className="badge text-bg-warning ms-1">Filtered out</span>}
+                                {result.belowThreshold && <span className="badge text-bg-secondary ms-1">Below threshold</span>}
                                 {result.id === queryId && <span className="badge text-bg-info ms-1">query</span>}
                             </div>
                             <div className="result-id page-id text-truncate" title={result.id}>{result.id}</div>

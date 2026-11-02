@@ -9,6 +9,7 @@ import {useShortcuts} from '../components/useShortcuts';
 import type {RootData} from './Layout';
 import type {SearchLoaderData} from './SearchPage';
 import {setScoreTarget} from '../util/scoreUrl';
+import {preserveBrowse} from '../util/browseState';
 
 /**
  * Everything a search view needs beyond its markup: the selected result, the
@@ -63,7 +64,9 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
     }
 
     function searchUrl(query: string, settings: SearchSettings, pathname = location.pathname): string {
-        const params = applySettings(new URLSearchParams(), settings);
+        const params = applySettings(preserveBrowse(new URLSearchParams(searchParams), data.metadata), settings);
+        params.delete('sel');
+        params.set('view', 'results');
         if (pathname === '/code') params.set('code', query);
         else setScoreTarget(params, 'q', query, query === data.displayedId ? data.metadata?.part_number : null);
         if (pathname !== '/code' && showTarget) params.set('ids', '1');
@@ -91,8 +94,10 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
     }
 
     function browseTo(pageId: string) {
-        const params = applySettings(new URLSearchParams(), data.settings);
-        setScoreTarget(params, 'page', pageId);
+        const params = applySettings(new URLSearchParams(searchParams), data.settings);
+        params.set('page', pageId);
+        params.set('view', 'browse');
+        for (const key of ['library', 'book', 'booksPage', 'pagesPage']) params.delete(key);
         if (showTarget) params.set('ids', '1');
         navigate(`${basePath}?${params}`);
     }

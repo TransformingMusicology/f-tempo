@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import {useLoaderData, type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs} from 'react-router';
+import {useLoaderData, useSearchParams, type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs} from 'react-router';
+import {preserveBrowse} from '../util/browseState';
 import BookBrowser from '../components/BookBrowser';
 import {
     ApiError, getCodestring, getMetadata, runSearch,
@@ -60,9 +60,12 @@ function requestBody(settings: SearchSettings) {
 export async function idSearchLoader({request}: LoaderFunctionArgs): Promise<SearchLoaderData> {
     const url = new URL(request.url);
     const settings = parseSettings(url.searchParams);
-    const q = url.searchParams.get('q')?.trim() || null;
+    const browsing = url.searchParams.get('view') === 'browse';
+    const savedQuery = url.searchParams.get('q')?.trim() || null;
+    const q = browsing ? null : savedQuery;
     const page = url.searchParams.get('page')?.trim() || null;
-    const target = scoreTarget(q ?? page ?? DEFAULT_PAGE_ID, url.searchParams.get('part'));
+    const target = scoreTarget(q ?? page ?? savedQuery ?? DEFAULT_PAGE_ID,
+        browsing && page ? null : url.searchParams.get('part'));
     const displayedId = target.id;
     const requestedId = target.part ? `${displayedId}_part${target.part}` : displayedId;
 
@@ -114,8 +117,13 @@ function resultSummary(result: SearchResult, data: SearchData): string {
 
 export default function SearchPage() {
     const data = useLoaderData() as SearchLoaderData;
-    const [bookTab, setBookTab] = useState(!data.query);
-    useEffect(() => {setBookTab(!data.query);}, [data.query, data.displayedId]);
+    const [params, setParams] = useSearchParams();
+    const bookTab = params.get('view') === 'browse' || !params.has('q');
+    function setBookTab(browse: boolean) {
+        const next = preserveBrowse(new URLSearchParams(params), data.metadata);
+        next.set('view', browse ? 'browse' : 'results');
+        setParams(next);
+    }
     const {
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
@@ -196,7 +204,7 @@ export default function SearchPage() {
                                             onShowTarget={() => setViewParam('ids', '1')}/>
                             {data.mode === 'id' && <div className="btn-group my-2" aria-label="Browse or search results">
                                 <button className={`btn btn-sm ${bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => setBookTab(true)}>Book pages</button>
-                                <button className={`btn btn-sm ${!bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => setBookTab(false)}>Results</button>
+                                <button className={`btn btn-sm ${!bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} disabled={!params.has('q')} onClick={() => setBookTab(false)}>Results</button>
                             </div>}
                             {data.mode === 'id' && bookTab ? <BookBrowser metadata={data.metadata} catalogues={catalogues}/> : <>
                             {data.search?.status === 'error' && (

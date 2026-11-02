@@ -25,3 +25,19 @@ test('browsing a selected voice does not search', async () => {
     await idSearchLoader({request:new Request(url),url,pattern:'/explore',params:{},context:new RouterContextProvider()});
     expect(runSearch).not.toHaveBeenCalled();
 });
+
+test('Browse displays the saved scan without searching the retained query', async () => {
+    const url = new URL('http://localhost/explore?view=browse&q=cpdl_Lasso_abc&part=2&page=GB-Lbl_A19_002_0&library=GB-Lbl&book=A19&pagesPage=2&sel=match');
+    const data = await idSearchLoader({request:new Request(url),url,pattern:'/explore',params:{},context:new RouterContextProvider()});
+    expect(getMetadata).toHaveBeenCalledWith('GB-Lbl_A19_002_0');
+    expect(data.displayedId).toBe('GB-Lbl_A19_002_0');
+    expect(data.query).toBeNull();
+    expect(runSearch).not.toHaveBeenCalled();
+});
+
+test('Results uses the retained query rather than the newly browsed page', async () => {
+    const url = new URL('http://localhost/explore?view=results&q=cpdl_Lasso_abc&part=2&page=GB-Lbl_A19_002_0&library=GB-Lbl&book=A19&pagesPage=2&sel=match');
+    const data = await idSearchLoader({request:new Request(url),url,pattern:'/explore',params:{},context:new RouterContextProvider()});
+    expect(data.displayedId).toBe('cpdl_Lasso_abc');
+    expect(runSearch).toHaveBeenCalledWith(expect.objectContaining({id:'cpdl_Lasso_abc_part2'}));
+});

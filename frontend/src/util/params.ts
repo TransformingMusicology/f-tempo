@@ -96,7 +96,7 @@ export function validSettings(settings: SearchSettings): boolean {
 }
 
 /** Parameters that only change which result is highlighted; loaders don't need to re-run for them. */
-export const VIEW_ONLY_PARAMS = ['sel', 'ng', 'ids'];
+export const VIEW_ONLY_PARAMS = ['sel', 'ng', 'ids', 'library', 'book', 'booksPage', 'pagesPage'];
 
 export function sameSearchParams(a: URL, b: URL): boolean {
     if (a.pathname !== b.pathname) return false;

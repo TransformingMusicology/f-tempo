@@ -1,4 +1,5 @@
-import {useLoaderData} from 'react-router';
+import {useLoaderData, useSearchParams} from 'react-router';
+import {preserveBrowse} from '../util/browseState';
 import {pageImageUrl} from '../config';
 import {scoreColumnLabel} from '../util/scores';
 import CompareToolbar from '../components/CompareToolbar';
@@ -23,6 +24,13 @@ export default function ExplorePage() {
     const data = useLoaderData() as SearchLoaderData;
     const s = useSearchSession(data, '/explore');
     const searched = data.query !== null;
+    const [params, setParams] = useSearchParams();
+    const browsing = params.get('view') === 'browse' || !params.has('q');
+    function switchView(view: 'browse' | 'results') {
+        const next = preserveBrowse(new URLSearchParams(params), data.metadata);
+        next.set('view', view);
+        setParams(next);
+    }
 
     return (
         <div className="explore">
@@ -33,6 +41,11 @@ export default function ExplorePage() {
                       onSettingsChange={s.changeSettings} onRepeat={s.repeat}/>
 
             <aside className="explore-results">
+                <div className="btn-group p-2" aria-label="Browse or search results">
+                    <button className={`btn btn-sm ${browsing ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => switchView('browse')}>Browse</button>
+                    <button className={`btn btn-sm ${!browsing ? 'btn-secondary' : 'btn-outline-secondary'}`} disabled={!params.has('q')} onClick={() => switchView('results')}>Results</button>
+                </div>
+                {browsing ? <BookBrowser metadata={data.metadata} catalogues={s.catalogues}/> : <>
                 {data.search?.status === 'error' && (
                     <Notice kind="danger" message={data.search.message} action={{label: 'Retry', onClick: s.revalidate}}/>
                 )}
@@ -52,9 +65,7 @@ export default function ExplorePage() {
                                  queryCodestring={data.queryCodestring} selectedId={s.selected?.id ?? null}
                                  onSelect={id => s.setViewParam('sel', id)}/>
                 )}
-                {!s.searchData && data.search?.status !== 'error' && (
-                    <BookBrowser metadata={data.metadata} catalogues={s.catalogues}/>
-                )}
+                </>}
             </aside>
 
             <section className={`explore-panes ${!s.searchData ? 'browse-panes' : ''}`}>

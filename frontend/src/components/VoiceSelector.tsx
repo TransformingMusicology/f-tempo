@@ -1,15 +1,17 @@
 import {useNavigate, useLocation} from 'react-router';
 import type {PageMetadata} from '../api';
 import {setScoreTarget} from '../util/scoreUrl';
+import {preserveBrowse} from '../util/browseState';
 
 export default function VoiceSelector({metadata}: {metadata: PageMetadata | null}) {
     const navigate = useNavigate();
     const location = useLocation();
     if (!metadata?.parts?.length) return null;
     function go(id: string, search = false) {
-        const params = new URLSearchParams(location.search);
-        params.delete('q'); params.delete('page'); params.delete('sel');
-        setScoreTarget(params, search ? 'q' : 'page', id);
+        const params = preserveBrowse(new URLSearchParams(location.search), metadata);
+        params.set('view', search ? 'results' : 'browse');
+        if (search) {params.delete('sel'); setScoreTarget(params, 'q', id);}
+        else params.set('page', id);
         navigate(`${location.pathname}?${params}`);
     }
     return <div className="d-flex gap-2 my-2 align-items-center">

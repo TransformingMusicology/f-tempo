@@ -8,6 +8,7 @@ import nconf from '../lib/config.js';
 import workerpool from 'workerpool';
 import { fileURLToPath } from 'url';
 import type { Input } from '../lib/import_types.js';
+import {notMusicFlag, refreshMusicFlag} from '../lib/music_flags.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -259,9 +260,7 @@ async function processLibrary(librarypath: string, doSaveCache: boolean, readCac
             if ((book as any).titlepage) {
                 input.titlepage = (book as any).titlepage;
             }
-            if (page2.notmusic) {
-                input.notmusic = page2.notmusic;
-            }
+            input.notmusic = notMusicFlag(page2);
             inputList.push(input)
         }
     }
@@ -383,7 +382,7 @@ function readFromCache(files: Input[]) {
             if (entry === exact || (entry.startsWith(prefix) && entry.endsWith('.json'))) {
                 try {
                     const data = JSON.parse(fs.readFileSync(path.join(dirname, entry), 'utf-8'));
-                    response.push(data);
+                    response.push(refreshMusicFlag(data, input));
                 } catch {
                     //console.error(`Cannot read ${entry}`);
                 }

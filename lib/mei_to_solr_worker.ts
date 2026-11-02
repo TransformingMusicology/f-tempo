@@ -51,7 +51,7 @@ function makeDocumentsFromFile(item: Input, opts: ImportOptions) {
             notes: pageToNoteList(pageData).join(' '),
             intervals: intervals.join(' ')
         };
-        if (notmusic) {
+        if (typeof notmusic === 'boolean') {
             data.notmusic = notmusic;
         }
         if (titlepage) {

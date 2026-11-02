@@ -198,7 +198,7 @@ async function search_subsequences_solr(subsequence: string, collections_to_sear
     collections_to_search = collections_to_search.map(quote)
     const client = solr.createClient(nconf.get('search'));
     const qob = interval ? {intervals: quote(subsequence)} : {notes: quote(subsequence)}
-    let query = client.query().q(qob).rows(num_results);
+    let query = client.query().q(qob).rows(num_results).matchFilter('-notmusic', 'true');
     if (collections_to_search.length) {
         query = query.matchFilter("library", "(" + collections_to_search.join(" OR ") + ")")
     }
@@ -212,7 +212,7 @@ async function search_subsequences_solr(subsequence: string, collections_to_sear
 async function search_random_id(timestamp: string) {
     const key = `random_${timestamp}`;
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q("*:*").fl("siglum,library,book").start(0).rows(1).sort({[key]: 'desc'});
+    const query = client.query().q("*:*").fl("siglum,library,book").start(0).rows(1).sort({[key]: 'desc'}).matchFilter('-notmusic', 'true');
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         return result.response.docs[0];

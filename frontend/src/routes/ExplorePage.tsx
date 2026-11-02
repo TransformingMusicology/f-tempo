@@ -67,6 +67,7 @@ export default function ExplorePage() {
                           matches={s.comparison.queryMatches} highlightRanges={s.comparison.queryRanges}
                           onHoverNote={s.comparison.onHoverQuery} showNotes={s.showNotes} zoom={s.zoom}>
                     <Notice message={s.notice} onDismiss={() => s.setNotice(null)}/>
+                    {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
                 </PagePane>
 
                 {s.selected && s.searchData ? (

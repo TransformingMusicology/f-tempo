@@ -12,6 +12,7 @@ interface Props {
     onSettingsChange: (settings: SearchSettings) => void;
     onRepeat: (() => void) | null;
     busy: boolean;
+    searchDisabled?: boolean;
     /** Rendered under the target input, e.g. validation feedback. */
     message?: ReactNode;
     formRef?: React.RefObject<HTMLFormElement | null>;
@@ -22,7 +23,7 @@ interface Props {
 
 export default function SearchControls({
     mode, settings, catalogues, target, onTargetChange, onSubmit, onSettingsChange, onRepeat, busy, message, formRef,
-    showTarget = true, onShowTarget,
+    showTarget = true, onShowTarget, searchDisabled = false,
 }: Props) {
     const ids = useId();
     const noCollections = (settings.collections ?? catalogues).length === 0;
@@ -31,7 +32,7 @@ export default function SearchControls({
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        if (busy || targetEmpty || noCollections || !validSettings(settings)) return;
+        if (searchDisabled || busy || targetEmpty || noCollections || !validSettings(settings)) return;
         // Leave the text box so the arrow-key shortcuts work on the results straight away.
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         onSubmit();
@@ -59,7 +60,7 @@ export default function SearchControls({
             <SettingsFields settings={settings} catalogues={catalogues} onChange={onSettingsChange}/>
 
             <div className="d-flex gap-2 align-items-center flex-wrap">
-                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || targetEmpty || noCollections || !validSettings(settings)}
+                <button type="submit" className="btn btn-primary btn-sm" disabled={searchDisabled || busy || targetEmpty || noCollections || !validSettings(settings)}
                         title={mode === 'id' && !showTarget ? 'Search with the displayed page (Enter)' : undefined}>
                     {mode === 'id' && !showTarget ? 'Search this page' : 'Search'}
                 </button>

@@ -44,7 +44,7 @@ export default function QueryBar({
     function submit(event: FormEvent) {
         event.preventDefault();
         const id = draft.trim();
-        if (!id || busy || !validSettings(settings)) return;
+        if (!id || busy || (id === displayedId && metadata?.notmusic === true) || !validSettings(settings)) return;
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         setEditing(false);
         onSearch(id);
@@ -78,7 +78,7 @@ export default function QueryBar({
                 {metadata && !editing && (
                     <span className="text-muted small d-none d-xl-inline">{metadata.library} · {metadata.book}</span>
                 )}
-                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || noCollections || !draft.trim() || !validSettings(settings)}
+                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || noCollections || !draft.trim() || (draft.trim() === displayedId && metadata?.notmusic === true) || !validSettings(settings)}
                         title="Search with this page (Enter)">
                     {busy ? <span className="spinner-border spinner-border-sm" role="status" aria-label="Searching"/> : 'Search'}
                 </button>

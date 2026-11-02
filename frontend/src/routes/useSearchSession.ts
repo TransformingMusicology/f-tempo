@@ -73,11 +73,13 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
         const query = data.mode === 'code' ? target.replace(/\s+/g, '')
             : showTarget ? target.trim() : data.displayedId ?? '';
         if (!query) return;
+        if (data.mode === 'id' && query === data.displayedId && data.metadata?.notmusic === true) return;
         navigate(searchUrl(query, settings));
     }
 
     /** Search a specific page ID regardless of the target box state. */
     function submitSearchWith(pageId: string) {
+        if (pageId === data.displayedId && data.metadata?.notmusic === true) return;
         if (busy || !validSettings(draftSettings)) return;
         navigate(searchUrl(pageId, draftSettings, basePath));
     }

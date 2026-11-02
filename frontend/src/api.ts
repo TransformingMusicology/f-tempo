@@ -45,6 +45,7 @@ export interface SearchData {
 }
 
 export interface PageMetadata {
+    notmusic?: boolean;
     siglum: string;
     library: string;
     book: string;

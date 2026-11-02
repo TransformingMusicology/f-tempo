@@ -62,11 +62,11 @@ export async function idSearchLoader({request}: LoaderFunctionArgs): Promise<Sea
     const metadataPromise = getMetadata(displayedId)
         .then(metadata => ({metadata, metadataError: null}))
         .catch(error => ({metadata: null, metadataError: error instanceof Error ? error.message : 'Could not load page details'}));
-    const searchPromise = q
+    const searchPromise = metadataPromise.then(({metadata}) => q && metadata?.notmusic !== true
         ? (settings.collections?.length === 0
             ? Promise.resolve<SearchOutcome>({status: 'error', message: 'Select at least one collection to search.'})
             : performSearch({id: q, ...requestBody(settings)}))
-        : Promise.resolve(null);
+        : Promise.resolve(null));
     const codestringPromise = q ? getCodestring(q).catch(() => null) : Promise.resolve(null);
 
     const [{metadata, metadataError}, search, queryCodestring] = await Promise.all([
@@ -151,6 +151,7 @@ export default function SearchPage() {
                                       onHoverNote={comparison.onHoverQuery} showNotes={showNotes} zoom={zoom}
                                       footer={compareToolbar}>
                                 <Notice message={notice} onDismiss={() => setNotice(null)}/>
+                                {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
                             </PagePane>
                         </>
                     ) : (
@@ -180,6 +181,7 @@ export default function SearchPage() {
                                             target={target} onTargetChange={setTarget} onSubmit={() => submitSearch()}
                                             onSettingsChange={changeSettings} onRepeat={repeat} busy={busy} formRef={formRef}
                                             showTarget={showTarget}
+                                            searchDisabled={data.mode === 'id' && data.metadata?.notmusic === true && (!showTarget || target.trim() === data.displayedId)}
                                             onShowTarget={() => setViewParam('ids', '1')}/>
                             {data.search?.status === 'error' && (
                                 <Notice kind="danger" message={data.search.message}

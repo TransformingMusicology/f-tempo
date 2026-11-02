@@ -222,7 +222,7 @@ async function search_random_id(timestamp: string) {
 
 export async function get_metadata(id: string) {
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage").start(0).rows(1);
+    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage,notmusic").start(0).rows(1);
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         return result.response.docs[0];

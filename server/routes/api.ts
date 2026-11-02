@@ -42,7 +42,8 @@ router.get('/api/browse', function(req, res) {
             const normalize = (id: string) => req.query.library === 'cpdl' ? id.replace(/_part\d+$/, '') : id;
             const index = entries.findIndex((page: any) => normalize(page.id) === normalize(String(req.query.locate)));
             if (index < 0) return res.status(404).json({error: 'Page not found in this book'});
-            return res.json({pagesPage: Math.floor(index / 60) + 1, booksPage: Math.floor(library.book_ids.indexOf(bookId) / 60) + 1});
+            return res.json({pagesPage: Math.floor(index / 60) + 1, booksPage: Math.floor(library.book_ids.indexOf(bookId) / 60) + 1,
+                nearby: entries.slice(Math.max(0, index - 3), index + 4).map((page: any) => ({id: page.id, title: page.title, notmusic: page.notmusic}))});
         }
         return res.json({total: entries.length, entries: entries.slice(offset, offset + 60).map((page: any) => ({
             id: page.id, title: page.title, notmusic: page.notmusic,

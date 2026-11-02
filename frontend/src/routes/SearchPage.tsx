@@ -20,6 +20,7 @@ import SearchControls from '../components/SearchControls';
 import {useSearchSession} from './useSearchSession';
 import {scoreTarget} from '../util/scoreUrl';
 import VoiceSelector from '../components/VoiceSelector';
+import NearbyPages from '../components/NearbyPages';
 
 export type SearchOutcome = {status: 'ok'; data: SearchData} | {status: 'error'; message: string};
 
@@ -204,7 +205,7 @@ export default function SearchPage() {
                                       meiId={data.metadata?.siglum ?? data.displayedId} codestring={data.queryCodestring} titlepageUrl={queryTitlepage}
                                       matches={comparison.queryMatches} highlightRanges={comparison.queryRanges}
                                       onHoverNote={comparison.onHoverQuery} showNotes={showNotes} zoom={zoom}
-                                      footer={compareToolbar}>
+                                      footer={<>{compareToolbar}{data.metadata && <NearbyPages id={data.metadata.siglum} library={data.metadata.library} book={data.metadata.book} onSearch={submitSearchWith}/>}</>}>
                                 <VoiceSelector metadata={data.metadata}/>
                                 <Notice message={notice} onDismiss={() => setNotice(null)}/>
                                 {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
@@ -267,6 +268,7 @@ export default function SearchPage() {
                                   meiId={selected.id} codestring={selected.codestring} titlepageUrl={selected.titlepage ?? null}
                                   matches={comparison.matchMatches} highlightRanges={comparison.matchRanges}
                                   onHoverNote={comparison.onHoverMatch} showNotes={showNotes} zoom={zoom}
+                                  footer={<NearbyPages id={selected.id} library={selected.library} book={selected.book} onSearch={submitSearchWith}/>}
                                   actions={
                                       <>
                                       <button type="button" className="btn btn-primary btn-sm" onClick={searchFromSelected}

@@ -8,6 +8,7 @@ import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import VoiceSelector from '../components/VoiceSelector';
+import NearbyPages from '../components/NearbyPages';
 import BookBrowser from '../components/BookBrowser';
 import QueryBar from '../components/QueryBar';
 import ResultStrip from '../components/ResultStrip';
@@ -76,7 +77,8 @@ export default function ExplorePage() {
                           imageAlt={`Scan of page ${data.displayedId}`}
                           meiId={data.metadata?.siglum ?? data.displayedId} codestring={data.queryCodestring} titlepageUrl={s.queryTitlepage}
                           matches={s.comparison.queryMatches} highlightRanges={s.comparison.queryRanges}
-                          onHoverNote={s.comparison.onHoverQuery} showNotes={s.showNotes} zoom={s.zoom}>
+                          onHoverNote={s.comparison.onHoverQuery} showNotes={s.showNotes} zoom={s.zoom}
+                          footer={!browsing && data.metadata && <NearbyPages id={data.metadata.siglum} library={data.metadata.library} book={data.metadata.book} onSearch={s.submitSearchWith}/>}>
                     <VoiceSelector metadata={data.metadata}/>
                     <Notice message={s.notice} onDismiss={() => s.setNotice(null)}/>
                     {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
@@ -92,6 +94,7 @@ export default function ExplorePage() {
                               meiId={s.selected.id} codestring={s.selected.codestring} titlepageUrl={s.selected.titlepage ?? null}
                               matches={s.comparison.matchMatches} highlightRanges={s.comparison.matchRanges}
                               onHoverNote={s.comparison.onHoverMatch} showNotes={s.showNotes} zoom={s.zoom}
+                              footer={<NearbyPages id={s.selected.id} library={s.selected.library} book={s.selected.book} onSearch={s.submitSearchWith}/>}
                               actions={
                                   <>
                                   <button type="button" className="btn btn-primary btn-sm" onClick={s.searchFromSelected}

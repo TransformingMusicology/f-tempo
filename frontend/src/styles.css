@@ -373,3 +373,8 @@ body {
 .main-browse > section {max-height:calc(100vh - 130px);overflow:auto;}
 .main-browse > section:first-child .book-contact-sheet {grid-template-columns:repeat(2,minmax(0,1fr));}
 @media(max-width:991px) {.main-browse {grid-template-columns:1fr;} .main-browse > section {max-height:none;}}
+.nearby-strip {display:flex;gap:.4rem;overflow-x:auto;margin-top:.5rem;}
+.nearby-strip .book-thumbnail {flex:0 0 90px;}
+.nearby-strip .book-thumbnail img {height:90px;}
+.nearby-strip .book-thumbnail span {max-height:3em;overflow:hidden;}
+.nearby-preview {max-height:65vh;overflow:auto;}

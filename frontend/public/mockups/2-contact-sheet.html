@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup 2 · Contact sheet</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#1d1d1b;font:14px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding:.8rem 1.2rem;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:5}
+header h1{font-size:15px;margin:0 1rem 0 0;letter-spacing:.06em;text-transform:uppercase}
+.chip{border:1px solid #cfc9bb;border-radius:999px;padding:.25rem .7rem;font-size:12px;background:#fff}.chip.on{background:#1d1d1b;color:#fff;border-color:#1d1d1b}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap}.grow{flex:1}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;padding:14px 1.2rem}
+.tile{background:#fff;border:1px solid #e3ded3;border-radius:6px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.tile.query{grid-column:span 2;grid-row:span 2;border-color:#1d1d1b;border-width:2px}
+.tile .ph{aspect-ratio:3/4;background:#ebe7de;overflow:hidden}.tile.query .ph{aspect-ratio:auto;flex:1}
+.tile img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform .25s}
+.tile:hover img{transform:scale(1.04)}
+.tile .cap{padding:.55rem .6rem;display:grid;grid-template-columns:1fr auto;gap:.3rem .5rem;align-items:center;font-size:12px}
+.tile .id{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tile .lib{color:#777;grid-column:1}
+.ring{--p:0;width:38px;height:38px;border-radius:50%;background:conic-gradient(#d6336c calc(var(--p)*1%),#eee 0);display:grid;place-items:center;grid-row:span 2;font-size:10px;font-weight:700}
+.ring span{width:28px;height:28px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.rank{position:absolute;top:8px;left:8px;background:#1d1d1b;color:#fff;font-size:11px;font-weight:700;width:22px;height:22px;border-radius:50%;display:grid;place-items:center}
+.tile .hover{position:absolute;inset:auto 0 0 0;background:rgba(29,29,27,.88);color:#fff;font-size:12px;padding:.5rem .6rem;transform:translateY(100%);transition:transform .2s}
+.tile:hover .hover{transform:none}.tile .hover b{color:#ffd166}
+.tile.query .label{position:absolute;top:8px;left:8px;background:#d6336c;color:#fff;font-size:11px;font-weight:700;padding:.2rem .5rem;border-radius:4px}
+.mock-foot{color:#777;font-size:11px;padding:1rem 1.2rem}
+</style></head><body>
+<header><h1>F-Tempo</h1><div class="chips"><span class="chip on">MAWs</span><span class="chip">5-grams</span></div><div class="chips"><span class="chip on">Jaccard</span><span class="chip">Boolean</span><span class="chip">BM25</span></div>
+<div class="chips"><span class="chip on">D-Mbs</span><span class="chip on">D-Bsb</span><span class="chip on">F-Pn</span><span class="chip on">GB-Lbl</span><span class="chip on">PL-Wn</span></div><span class="grow"></span>
+<div class="chips"><span class="chip">‹ page</span><span class="chip">page ›</span><span class="chip">random</span><span class="chip on">search this page</span></div></header>
+<div class="sheet"><div class="tile query"><span class="label">QUERY · GB-Lbl_A103b_025_0</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_A103b_025_0.jpg" alt=""></div><div class="cap"><div class="id">GB-Lbl_A103b_025_0</div><div class="lib">GB-Lbl · A103b · 271 MAWs</div></div></div><div class="tile"><span class="rank">2</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_A103b_025_1.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="GB-Lbl_A103b_025_1">GB-Lbl_A103b_025_1</div><div class="ring" style="--p:15"><span>15</span></div><div class="lib">GB-Lbl · A103b</div></div>
+<div class="hover"><b>78</b> of 331 words match · cosine <b>30%</b> · BM25 <b>29%</b> of top</div></div><div class="tile"><span class="rank">3</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_A249c_079_1.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="GB-Lbl_A249c_079_1">GB-Lbl_A249c_079_1</div><div class="ring" style="--p:15"><span>15</span></div><div class="lib">GB-Lbl · A249c</div></div>
+<div class="hover"><b>67</b> of 257 words match · cosine <b>10%</b> · BM25 <b>25%</b> of top</div></div><div class="tile"><span class="rank">4</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00073089_00143.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00073089_00143">D-Mbs_bsb00073089_00143</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">D-Mbs · bsb00073089</div></div>
+<div class="hover"><b>60</b> of 209 words match · cosine <b>11%</b> · BM25 <b>22%</b> of top · title page</div></div><div class="tile"><span class="rank">5</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00075978_00071.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00075978_00071">D-Mbs_bsb00075978_00071</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">D-Mbs · bsb00075978</div></div>
+<div class="hover"><b>58</b> of 199 words match · cosine <b>24%</b> · BM25 <b>21%</b> of top · title page</div></div><div class="tile"><span class="rank">6</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_D18_059_0.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="GB-Lbl_D18_059_0">GB-Lbl_D18_059_0</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">GB-Lbl · D18</div></div>
+<div class="hover"><b>60</b> of 226 words match · cosine <b>8%</b> · BM25 <b>22%</b> of top</div></div><div class="tile"><span class="rank">7</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00085716_00060.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00085716_00060">D-Mbs_bsb00085716_00060</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">D-Mbs · bsb00085716</div></div>
+<div class="hover"><b>62</b> of 245 words match · cosine <b>8%</b> · BM25 <b>23%</b> of top · title page</div></div><div class="tile"><span class="rank">8</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00072034_00053.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00072034_00053">D-Mbs_bsb00072034_00053</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">D-Mbs · bsb00072034</div></div>
+<div class="hover"><b>68</b> of 295 words match · cosine <b>14%</b> · BM25 <b>25%</b> of top · title page</div></div><div class="tile"><span class="rank">9</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00094084_00521.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00094084_00521">D-Mbs_bsb00094084_00521</div><div class="ring" style="--p:14"><span>14</span></div><div class="lib">D-Mbs · bsb00094084</div></div>
+<div class="hover"><b>62</b> of 249 words match · cosine <b>9%</b> · BM25 <b>23%</b> of top · title page</div></div><div class="tile"><span class="rank">10</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/D-Mbs_bsb00074199_00194.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="D-Mbs_bsb00074199_00194">D-Mbs_bsb00074199_00194</div><div class="ring" style="--p:13"><span>13</span></div><div class="lib">D-Mbs · bsb00074199</div></div>
+<div class="hover"><b>64</b> of 274 words match · cosine <b>16%</b> · BM25 <b>24%</b> of top · title page</div></div><div class="tile"><span class="rank">11</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_K3d12_036_0.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="GB-Lbl_K3d12_036_0">GB-Lbl_K3d12_036_0</div><div class="ring" style="--p:13"><span>13</span></div><div class="lib">GB-Lbl · K3d12</div></div>
+<div class="hover"><b>76</b> of 378 words match · cosine <b>18%</b> · BM25 <b>28%</b> of top</div></div><div class="tile"><span class="rank">12</span><div class="ph"><img src="https://search.f-tempo.org/img/jpg/GB-Lbl_A70n_101_1.jpg" alt="" loading="lazy"></div>
+<div class="cap"><div class="id" title="GB-Lbl_A70n_101_1">GB-Lbl_A70n_101_1</div><div class="ring" style="--p:13"><span>13</span></div><div class="lib">GB-Lbl · A70n</div></div>
+<div class="hover"><b>63</b> of 267 words match · cosine <b>15%</b> · BM25 <b>23%</b> of top</div></div></div>
+<footer class="mock-foot">Mockup 2 of 5 · static HTML with live data for query GB-Lbl_A103b_025_0 (MAW · Jaccard · 12 results) · <a href="index.html">all mockups</a></footer></body></html>

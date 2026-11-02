@@ -104,11 +104,34 @@ To install node dependencies, run
 
 ##### Startup
 
-To run the server
+To run the API server
 
     npm run watch
 
-The app listens at port 8000. Point your browser at localhost:8000
+The app listens at port 8000.
+
+##### Web interface
+
+The interface is a React application in `frontend/` (Vite + React Router). The Express
+server serves the built files from `frontend/dist`, so for a production-style run build it once:
+
+    cd frontend
+    npm install
+    npm run build
+
+and point your browser at localhost:8000. The Docker image runs this build for you.
+
+For development, run the Vite dev server instead, which rebuilds on every change and proxies
+`/api` requests to a running API server:
+
+    cd frontend
+    npm install
+    npm run dev
+
+By default the proxy targets `http://alastairpc.local:8000`; copy `frontend/.env.example` to
+`frontend/.env` and set `FTEMPO_API_PROXY` to use another server. `npm run typecheck`,
+`npm test` and `npm run build` in `frontend/` check the interface; `npm run typecheck` in the
+repository root checks the server.
 
 **TODO** Document how to run a small dataset.
 

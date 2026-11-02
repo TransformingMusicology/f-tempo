@@ -63,6 +63,9 @@ RUN npm install
 
 COPY . ./
 
+# Build the React interface served by the Express server
+RUN cd frontend && npm ci && npm run build
+
 EXPOSE 8000
 
 RUN mkdir -p /app/multiservers/run/codestring_queries

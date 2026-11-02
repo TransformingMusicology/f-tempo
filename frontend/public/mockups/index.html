@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F-TEMPO layout mockups</title><style>
+body{margin:0;font:15px/1.5 system-ui,sans-serif;background:#f6f6f4;color:#222;padding:2rem}h1{margin:0 0 1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+a.m{display:block;background:#fff;border:1px solid #ddd;border-radius:8px;padding:1rem;color:inherit;text-decoration:none}a.m:hover{border-color:#222}
+a.m b{display:block;font-size:17px;margin-bottom:.3rem}a.m span{color:#666;font-size:13px}
+</style></head><body><h1>F-TEMPO layout mockups</h1><p>Static HTML, real results for <code>GB-Lbl_A103b_025_0</code> (MAW · Jaccard · 12), live scans from search.f-tempo.org. Nothing is wired up; they are for looking at.</p><div class="grid">
+<a class="m" href="1-cinema.html"><b>1 · Cinema</b><span>Dark room for the scans. Query and selected result large; a glowing filmstrip of results along the bottom, Jaccard as a neon bar with the cosine tick.</span></a>
+<a class="m" href="2-contact-sheet.html"><b>2 · Contact sheet</b><span>Every result as a page at once, photographer's proof-sheet style. The query is pinned at double size; similarity is a ring; hover reveals the numbers.</span></a>
+<a class="m" href="3-shared-passages.html"><b>3 · Shared passages</b><span>The comparison as a diff. Query and match stacked with their interval codestrings drawn as barcodes and ribbons joining every shared 5-gram, computed from the real data.</span></a>
+<a class="m" href="4-notebook.html"><b>4 · Notebook</b><span>For the scholar who wants numbers. A dense sortable table with every score, a detail panel, notes, CSV export. Serif, print-like.</span></a>
+<a class="m" href="5-constellation.html"><b>5 · Constellation</b><span>Results orbit the query on a golden-angle spiral, line weight by similarity. Pure exploration: click a star to re-centre.</span></a>
+</div><h2 style="margin-top:2rem">Research-oriented set</h2><p>Built for deciding whether a hit is the same music, where it matches, and how far to trust it.</p><div class="grid">
+<a class="m" href="r1-passages.html"><b>R1 · Matching passages</b><span>The shared runs of 6+ notes between the query and a result, boxed on both scans and cropped out side by side at the same scale, longest first.</span></a>
+<a class="m" href="r2-fourup.html"><b>R2 · Four-up judgement board</b><span>Query plus three results in columns with shared passages boxed, both scores, and a same / related / different verdict with a note per column.</span></a>
+<a class="m" href="r3-book.html"><b>R3 · In the book</b><span>Two pages either side of the query and of two hits, each scored against the query, so you can see whether a piece continues or a hit is isolated.</span></a>
+<a class="m" href="r4-sources.html"><b>R4 · Sources</b><span>Every page from both methods grouped by book, with title pages where stored and both scores per page: a list of sources that contain this music.</span></a>
+<a class="m" href="r5-agreement.html"><b>R5 · Method agreement</b><span>MAW and 5-gram rankings side by side with ribbons joining the same page, plus the intersection: the matches you can trust most.</span></a>
+</div></body></html>

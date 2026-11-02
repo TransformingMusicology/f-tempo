@@ -1,5 +1,4 @@
 import express from 'express';
-import fs from 'fs';
 import {
     get_codestring,
     get_random_id, MawsTooShortError, next_id, NextIdNotFound, NoMawsForDocumentError, UnknownSearchTypeError,
@@ -16,6 +15,7 @@ import {
 import {db} from "../server.js"
 import fileUpload from "express-fileupload";
 import {CannotRunMawError} from "../../lib/maw.js";
+import {NoSuchBinaryError, OmrFailedError} from "../services/omr.js";
 
 const router = express.Router();
 
@@ -111,7 +111,7 @@ router.get('/api/get_mei', async function (req, res) {
         res.setHeader('content-type', 'text/xml');
         res.send(searchResult);
     } else {
-        res.status(404).json({status: "error", error: "Codestrings not found"})
+        res.status(404).json({status: "error", error: "MEI not found"})
     }
 });
 
@@ -231,42 +231,26 @@ router.post('/api/query', async function (req, res, next) {
 
 
 router.post('/api/image_query', async function (req, res, next) {
-    if (!req.files) {
-        return res.status(400).json({status: "error", error: 'No files were uploaded.'});
+    const user_image = req.files?.user_image_file;
+    if (!user_image || Array.isArray(user_image)) {
+        return res.status(400).json({status: "error", error: 'Upload exactly one file in the `user_image_file` field'});
+    }
+    if (!user_image.size || !user_image.mimetype.startsWith('image/')) {
+        return res.status(400).json({status: "error", error: 'The uploaded file must be an image'});
     }
 
-    let user_image = req.files.user_image_file as fileUpload.UploadedFile;
-
     try {
-        const result = await run_image_query(user_image);
+        const result = await run_image_query(user_image as fileUpload.UploadedFile);
         return res.json({status: "ok", data: result});
     } catch (e) {
+        if (e instanceof NoSuchBinaryError || e instanceof OmrFailedError) {
+            return res.status(500).json({status: "error", error: e.message});
+        }
+        if (e instanceof MawsTooShortError) {
+            return res.status(404).json({status: "error", error: "Too little music was recognised in the image to search with"});
+        }
         next(e);
     }
-});
-
-router.post('/api/log', function (req, res, next) {
-    const log_entry = req.body.log_entry;
-    const log = req.body.log;
-    if (!log_entry) {
-        return res.status(400).send('No report was provided.');
-    }
-    if (!log) {
-        return res.status(400).send('No log was specified.');
-    }
-
-    try {
-        fs.appendFileSync('./logs/' + log, log_entry);
-        return res.send(
-            `Successfully logged:
-    ${log_entry}
-to log ${log}.`
-        );
-    } catch (err) {
-        next(err);
-    }
-
-
 });
 
 export default router;

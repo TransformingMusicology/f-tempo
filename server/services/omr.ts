@@ -8,6 +8,12 @@ export class NoSuchBinaryError extends Error {
     }
 }
 
+export class OmrFailedError extends Error {
+    constructor(step: string) {
+        super(`Optical music recognition failed while running ${step}`);
+    }
+}
+
 export function perform_omr_image(workingDir: string, imageName: string) {
     const status = cp.spawnSync(
         "convert",
@@ -18,8 +24,9 @@ export function perform_omr_image(workingDir: string, imageName: string) {
         if ((status.error as NodeJS.ErrnoException).code === 'ENOENT') {
             throw new NoSuchBinaryError('convert');
         }
-        console.error(status.stdout)
-        console.error(status.stderr)
+        console.error(status.stdout?.toString())
+        console.error(status.stderr?.toString())
+        throw new OmrFailedError('convert');
     }
 
     const aruspixStatus = cp.spawnSync(
@@ -28,8 +35,12 @@ export function perform_omr_image(workingDir: string, imageName: string) {
         {cwd: workingDir})
     if (aruspixStatus.status !== 0) {
         console.error("Error when running aruspix");
-        console.error(aruspixStatus.stdout);
-        console.error(aruspixStatus.stderr);
+        console.error(aruspixStatus.stdout?.toString());
+        console.error(aruspixStatus.stderr?.toString());
+        if ((aruspixStatus.error as NodeJS.ErrnoException | undefined)?.code === 'ENOENT') {
+            throw new NoSuchBinaryError('aruspix-cmdline');
+        }
+        throw new OmrFailedError('aruspix');
     }
 
     const zipStatus = cp.spawnSync(
@@ -38,8 +49,9 @@ export function perform_omr_image(workingDir: string, imageName: string) {
         {cwd: workingDir})
     if (zipStatus.status !== 0) {
         console.error("Error when uncompressing archive");
-        console.error(zipStatus.stdout);
-        console.error(zipStatus.stderr);
+        console.error(zipStatus.stdout?.toString());
+        console.error(zipStatus.stderr?.toString());
+        throw new OmrFailedError('unzip');
     }
 
         

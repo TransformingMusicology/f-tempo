@@ -3,17 +3,16 @@
  ******************************************************************************/
 import fs from 'fs';
 import path from 'path';
+import {fileURLToPath} from 'url';
 
 import express, {NextFunction, Request, Response} from 'express';
 import fileUpload from 'express-fileupload';
 
-import mustacheExpress from 'mustache-express';
 import cors from 'cors';
 import nconf from '../lib/config.js';
 import * as Sentry from "@sentry/node";
 
 import api from "./routes/api.js";
-import webinterface from "./routes/interface.js";
 
 
 /*******************************************************************************
@@ -23,8 +22,6 @@ import webinterface from "./routes/interface.js";
 interface StringToAny {
     [key: string]: any;
 }
-
-export const ngr_len = 5;
 
 const app = express();
 const hasSentry = process.env.FTEMPO_SENTRY_DSN !== undefined;
@@ -47,12 +44,6 @@ console.log(`Databases = ${databases}`);
 const localJpgRoot = process.env.NODE_ENV !== 'production' ? nconf.get('config:local_jpg_root') : undefined;
 export const BASE_IMG_URL = nconf.get('config:base_image_url');
 export const BASE_MEI_PATH = nconf.get('config:base_mei_path');
-
-let base_route =  nconf.get('config:base_route')
-if (base_route === undefined) {
-    base_route = "";
-}
-export const SERVER_BASE_ROUTE = base_route;
 
 /*******************************************************************************
  * Setup
@@ -81,16 +72,9 @@ for (const key of databases) {
     }
 }
 
-app.engine('html', mustacheExpress()); // render html templates using Mustache
-app.set('view engine', 'html');
-app.set('views', './templates');
-app.set('view cache', false);
-
 if (localJpgRoot) {
     app.use('/img/jpg', express.static(path.resolve(localJpgRoot), {index: false}));
 }
-
-app.use('/', express.static('static'))
 app.use(fileUpload());
 app.use(express.json());
 app.use(function(error: Error, request: Request, response: Response, next: NextFunction) {
@@ -104,7 +88,19 @@ app.use(express.urlencoded({extended: true})); // for parsing application/x-www-
 app.use(cors());
 
 app.use('/', api);
-app.use('/', webinterface);
+
+// The React interface is built into frontend/dist (see README). Anything that
+// isn't an API route falls through to its index.html so client-side routes work.
+const frontendDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend', 'dist');
+const frontendIndex = path.join(frontendDist, 'index.html');
+app.use(express.static(frontendDist, {index: false}));
+app.get(/^(?!\/api(\/|$)).*/, (request: Request, response: Response) => {
+    if (!fs.existsSync(frontendIndex)) {
+        return response.status(503).type('text/plain')
+            .send('The web interface has not been built. Run `npm run build` in frontend/ (or `npm run dev` there for development).');
+    }
+    return response.sendFile(frontendIndex);
+});
 
 if (hasSentry) {
     app.use(Sentry.Handlers.errorHandler());

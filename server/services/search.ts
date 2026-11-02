@@ -222,7 +222,7 @@ async function search_random_id(timestamp: string) {
 
 export async function get_metadata(id: string) {
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q(`siglum:${id}`).fl("siglum,library,book").start(0).rows(1);
+    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage").start(0).rows(1);
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         return result.response.docs[0];
@@ -494,36 +494,25 @@ export function next_id(library: string, book_id: string, page_id: string | null
 
 
 export async function run_image_query(image: fileUpload.UploadedFile) {
-    const jaccard = true; // TODO(ra) should probably get this setting through the POST request, too...
-    const num_results = 20; // TODO(ra) should probably get this setting through the POST request, too...
-    const threshold = 0; // TODO(ra) should probably get this setting through the POST request, too...
+    // Uploads always search MAWs ranked by Jaccard across every collection.
+    const num_results = 20;
+    const threshold = 0;
 
-    // TODO: Check if we have all of the required programs installed
-    // TODO: Check each spawn call in case there was an error and don't continue
-
-    let tmpDir;
-    const appPrefix = 'emo-upload';
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emo-upload'));
     try {
-        tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
         await image.mv(path.join(tmpDir, image.name));
 
         const data = perform_omr_image(tmpDir, image.name);
 
         const page = parseMeiData(data, '');
-        const intervals = pageToContourList(page)
+        const codestring = pageToContourList(page).join("");
 
-        return search_by_codestring(intervals.join(""), [], num_results, threshold, 'jaccard');
-    }
-    catch (e) {
-        console.error(`error when running stuff ${e}`);
-        // handle error
+        const result = await search_by_codestring(codestring, [], num_results, threshold, 'jaccard');
+        return {...result, query_codestring: codestring};
     } finally {
         try {
-            if (tmpDir) {
-                fs.rmdirSync(tmpDir, { recursive: true });
-            }
-        }
-        catch (e) {
+            fs.rmSync(tmpDir, {recursive: true, force: true});
+        } catch (e) {
             console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`);
         }
     }
@@ -549,10 +538,10 @@ export async function get_mei(id: string) {
         const meiPath = doc.mei_path;
         const fullMeiPath = path.join(meiRoot, meiPath);
         try {
-            const data = fs.readFileSync(fullMeiPath, 'utf-8');
-            return data;
-        } catch {
-            return "Exception when reading file";
+            return fs.readFileSync(fullMeiPath, 'utf-8');
+        } catch (e) {
+            console.error(`Cannot read MEI file ${fullMeiPath}: ${e}`);
+            return undefined;
         }
     }
     return undefined;

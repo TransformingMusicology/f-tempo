@@ -1,0 +1,358 @@
+body {
+    background: #f8f9fa;
+}
+
+.app-main {
+    padding: 0.5rem 1rem;
+}
+
+.pane-col {
+    min-width: 0;
+}
+
+.results-col {
+    flex: 0 0 460px;
+    max-width: 460px;
+}
+
+@media (max-width: 1200px) {
+    .results-col {
+        flex: 1 1 100%;
+        max-width: none;
+    }
+}
+
+.score-pane {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.score-pane img.scan {
+    width: 100%;
+    display: block;
+}
+
+.score-pane .scan-missing {
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.score-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.score-overlay.in-flow {
+    position: relative;
+}
+
+.score-overlay svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+
+.score-highlights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+}
+
+.zoom-lens {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background-repeat: no-repeat;
+    background-color: #fff;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.results-table {
+    font-size: 0.85rem;
+}
+
+.results-table tbody tr {
+    cursor: pointer;
+}
+
+.results-table tbody tr.selected {
+    --bs-table-bg: #ffe0e6;
+    --bs-table-accent-bg: #ffe0e6;
+    box-shadow: inset 3px 0 0 #d63384;
+}
+
+.results-table tbody tr:focus-visible {
+    outline: 2px solid #0d6efd;
+}
+
+.results-table .progress {
+    position: relative;
+    height: 18px;
+    min-width: 110px;
+    overflow: visible;
+}
+
+.results-table .progress-bar {
+    background-color: #9ec5fe;
+}
+
+.results-table .score-text {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    line-height: 18px;
+    font-size: 0.7rem;
+    color: #212529;
+    white-space: nowrap;
+}
+
+.cosine-marker {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    background: red;
+}
+
+.page-id {
+    color: #0d47a1;
+}
+
+.examples-table td {
+    font-size: 0.85rem;
+}
+
+.help-page h2 {
+    margin-top: 1.5rem;
+}
+
+.pane-toolbar .btn {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Switches sit on the same centre line as the selects beside them. */
+.compare-toolbar .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 0;
+    padding-left: 0;
+}
+
+.compare-toolbar .form-check-input {
+    float: none;
+    margin: 0;
+}
+
+.compare-toolbar .form-check + .form-check,
+.compare-toolbar > div + .form-check {
+    margin-top: 0.35rem;
+}
+
+/* ---------- Explore layout ---------- */
+.explore {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "bar bar"
+        "results panes"
+        "results compare";
+    gap: 0.5rem;
+    height: calc(100vh - 56px - 1rem);
+}
+
+.query-bar {
+    grid-area: bar;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.4rem 0.6rem;
+}
+
+.query-id-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.query-id-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.query-id-text:hover {
+    text-decoration: underline dotted;
+}
+
+.query-id-input {
+    width: 22rem;
+    max-width: 100%;
+}
+
+.query-options {
+    position: relative;
+    margin-left: auto;
+}
+
+.query-options-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.25rem);
+    width: 30rem;
+    max-width: 90vw;
+    z-index: 20;
+}
+
+.explore-results {
+    grid-area: results;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.25rem;
+}
+
+.explore-results-head {
+    padding: 0.25rem 0.5rem 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.result-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 0.25rem;
+}
+
+.result-card {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.3rem;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.result-card:hover {
+    background: #f1f3f5;
+}
+
+.result-card.selected {
+    background: #ffe0e6;
+    border-color: #f5a3b8;
+}
+
+.result-card:focus-visible {
+    outline: 2px solid #0d6efd;
+}
+
+.result-thumb {
+    width: 72px;
+    height: 96px;
+    object-fit: cover;
+    object-position: top;
+    border: 1px solid #ced4da;
+    background: #e9ecef;
+}
+
+.result-meta {
+    min-width: 0;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.result-rank {
+    font-weight: 600;
+}
+
+.result-meta .progress {
+    position: relative;
+    height: 16px;
+    margin-top: auto;
+    overflow: visible;
+}
+
+.result-meta .progress-bar {
+    background-color: #9ec5fe;
+}
+
+.result-meta .score-text {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    line-height: 16px;
+    font-size: 0.7rem;
+    color: #212529;
+}
+
+.explore-panes {
+    grid-area: panes;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    overflow-y: auto;
+    align-items: start;
+}
+
+.explore-panes .score-pane {
+    max-width: none;
+}
+
+.explore-empty {
+    min-height: 12rem;
+}
+
+.explore-compare {
+    grid-area: compare;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.4rem 0.6rem;
+}
+
+@media (max-width: 992px) {
+    .explore {
+        height: auto;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "bar"
+            "panes"
+            "compare"
+            "results";
+    }
+
+    .explore-panes {
+        grid-template-columns: minmax(0, 1fr);
+        overflow: visible;
+    }
+
+    .explore-results {
+        max-height: 60vh;
+    }
+}

@@ -36,7 +36,8 @@ function makeDocumentsFromFile(item: Input, opts: ImportOptions) {
         const intervals = pageToContourList(pageData)
 
         // We use this label when running the maws binary, and it can only accept letters/numbers
-        const label = pageData.label ? `_${pageData.label.replaceAll(/[^A-Za-z-_]/g, '_')}` : '';
+        const label = type === 'mxml' ? `_part${pageData.partNumber}`
+            : pageData.label ? `_${pageData.label.replaceAll(/[^A-Za-z-_]/g, '_')}` : '';
         // TODO: Type for this
         const data: any = {
             part_number: pageData.partNumber,

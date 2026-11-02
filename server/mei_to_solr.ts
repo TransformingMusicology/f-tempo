@@ -146,7 +146,7 @@ async function processMeiLibrary(librarypath: string, skipMissing: boolean) {
             // Scores are always in an "mei" subdirectory, either in the library dir, or the book dir
             const book_directory = directory_per_book ? book_id : "";
             const filePath = path.join(libraryCode, book_directory, "mei", page2.mei);
-            const input: Input = {filePath, library: libraryCode, id: page2.id, book: book_id, page: page2.id, type: 'mxml'}
+            const input: Input = {filePath, library: libraryCode, id: page2.id, book: book_id, page: page2.id, type: 'mxml', notmusic: false}
             inputList.push(input)
         }
     }

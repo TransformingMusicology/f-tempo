@@ -118,7 +118,7 @@ function resultSummary(result: SearchResult, data: SearchData): string {
 export default function SearchPage() {
     const data = useLoaderData() as SearchLoaderData;
     const [params, setParams] = useSearchParams();
-    const bookTab = params.get('view') === 'browse' || !params.has('q');
+    const bookTab = params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
     function setBookTab(browse: boolean) {
         const next = preserveBrowse(new URLSearchParams(params), data.metadata);
         next.set('view', browse ? 'browse' : 'results');
@@ -139,7 +139,7 @@ export default function SearchPage() {
 
     const modeTabs = data.mode === 'id' && <div className="btn-group mb-2" aria-label="Interface mode">
         <button className={`btn btn-sm ${bookTab ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setBookTab(true)}>Browse</button>
-        <button className={`btn btn-sm ${!bookTab ? 'btn-primary' : 'btn-outline-primary'}`} disabled={!params.has('q')} onClick={() => setBookTab(false)}>Search / compare</button>
+        <button className={`btn btn-sm ${!bookTab ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setBookTab(false)}>Search / compare</button>
     </div>;
 
     if (data.mode === 'id' && bookTab) {

@@ -25,7 +25,7 @@ export default function ExplorePage() {
     const s = useSearchSession(data, '/explore');
     const searched = data.query !== null;
     const [params, setParams] = useSearchParams();
-    const browsing = params.get('view') === 'browse' || !params.has('q');
+    const browsing = params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
     function switchView(view: 'browse' | 'results') {
         const next = preserveBrowse(new URLSearchParams(params), data.metadata);
         next.set('view', view);
@@ -43,7 +43,7 @@ export default function ExplorePage() {
             <aside className="explore-results">
                 <div className="btn-group p-2" aria-label="Browse or search results">
                     <button className={`btn btn-sm ${browsing ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => switchView('browse')}>Browse</button>
-                    <button className={`btn btn-sm ${!browsing ? 'btn-secondary' : 'btn-outline-secondary'}`} disabled={!params.has('q')} onClick={() => switchView('results')}>Results</button>
+                    <button className={`btn btn-sm ${!browsing ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => switchView('results')}>Results</button>
                 </div>
                 {browsing ? <BookBrowser metadata={data.metadata} catalogues={s.catalogues}/> : <>
                 {data.search?.status === 'error' && (
@@ -68,7 +68,7 @@ export default function ExplorePage() {
                 </>}
             </aside>
 
-            <section className={`explore-panes ${!s.searchData ? 'browse-panes' : ''}`}>
+            <section className={`explore-panes ${browsing ? 'browse-panes' : ''}`}>
                 <PagePane key={`query-${data.displayedId}`}
                           heading={<>{searched ? 'Query' : 'Page'} <ResultIdentity id={data.displayedId ?? ''} {...data.metadata}/></>}
                           subheading={data.metadata ? undefined : data.metadataError ?? 'This page ID is not in the index.'}
@@ -99,9 +99,9 @@ export default function ExplorePage() {
                                   </button>
                               }/>
                 ) : (
-                    <div className={`card explore-empty ${!s.searchData ? 'd-none' : ''}`}>
+                    <div className={`card explore-empty ${browsing ? 'd-none' : ''}`}>
                         <div className="card-body small text-muted">
-                            {s.searchData ? 'No result to show.' : 'The selected result is shown here, beside the query.'}
+                            {s.searchData ? 'No result to show.' : 'Click Search to find matches for this page.'}
                         </div>
                     </div>
                 )}

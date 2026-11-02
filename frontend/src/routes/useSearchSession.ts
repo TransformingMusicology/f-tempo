@@ -115,8 +115,14 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
                 setNotice(`Already at the ${direction === 'prev' ? 'first' : 'last'} ${unit === 'page' ? 'page of this book' : 'book of this library'}.`);
                 return;
             }
-            if (searchParams.has('q') && searchParams.get('view') !== 'browse') {
-                navigate(searchUrl(result.page.id, data.settings, basePath));
+            if (searchParams.get('view') === 'results' || (searchParams.has('q') && searchParams.get('view') !== 'browse')) {
+                const params = applySettings(new URLSearchParams(searchParams), data.settings);
+                params.delete('q');
+                params.delete('sel');
+                setScoreTarget(params, 'page', result.page.id);
+                params.set('view', 'results');
+                for (const key of ['library', 'book', 'booksPage', 'pagesPage']) params.delete(key);
+                navigate(`${basePath}?${params}`);
             } else {
                 browseTo(result.page.id);
             }

@@ -35,6 +35,11 @@ function resultSummary(result: SearchResult): string {
 export default function ImageSearchPage() {
     const fetcher = useFetcher<UploadOutcome>();
     const navigate = useNavigate();
+    function searchFromResult(id: string) {
+        const params = new URLSearchParams();
+        setScoreTarget(params, 'q', id);
+        navigate(`/?${params}`);
+    }
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [validation, setValidation] = useState<string | null>(null);
@@ -78,7 +83,7 @@ export default function ImageSearchPage() {
     useShortcuts({
         up: () => { const r = results[Math.max(0, selectedIndex - 1)]; if (r) setSelectedId(r.id); },
         down: () => { const r = results[selectedIndex + 1 < results.length ? selectedIndex + 1 : 0]; if (r) setSelectedId(r.id); },
-        shiftEnter: () => { if (selected) navigate(`/?q=${encodeURIComponent(selected.id)}`); },
+        shiftEnter: () => { if (selected) searchFromResult(selected.id); },
     });
 
     const selectedScore = selected && searchData ? resultScore(selected, 'jaccard', searchData) : null;
@@ -145,7 +150,7 @@ export default function ImageSearchPage() {
                               onHoverNote={comparison.onHoverMatch} showNotes={showNotes} zoom={zoom}
                               actions={
                                   <button type="button" className="btn btn-primary btn-sm"
-                                          onClick={() => navigate(`/?q=${encodeURIComponent(selected.id)}`)}
+                                          onClick={() => searchFromResult(selected.id)}
                                           title="Search the corpus using this result as the query (Shift+Enter)">
                                       Search from this result
                                   </button>
@@ -159,3 +164,4 @@ export default function ImageSearchPage() {
         </div>
     );
 }
+import {setScoreTarget} from '../util/scoreUrl';

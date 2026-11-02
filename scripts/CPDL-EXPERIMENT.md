@@ -1,5 +1,18 @@
 # CPDL local experiment
 
+The local preview now accepts score URLs such as
+`/?q=cpdl_Orlando_di_Lasso_08b68b758e88e361&part=1`. Metadata resolves the
+indexed voice; selecting another voice browses without searching. Both main
+and Explore views share this control. Legacy `_partN` URLs remain valid.
+
+Both views also browse the loaded manifests through `/api/browse`: library
+books, then page contact sheets, in batches of 60. CPDL groups voices into
+scores under composers. This does not need a new metadata database or reindex.
+The test backend's updated `server/routes/api.ts` and `server/services/search.ts`
+were copied into the running container and it was restarted; the same source
+is staged under `solr-10.1-validation/app/`. Rebuild the image before deploying
+or recreating that container. The frontend remains the laptop Vite preview.
+
 Nothing in this experiment is deployed or pushed. It uses the isolated pc Solr
 that already holds the 557,490 historical documents; the stopped deployment
 snapshot and porter data are separate and unchanged.

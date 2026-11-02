@@ -242,6 +242,14 @@ export async function get_metadata(id: string) {
         const doc = result.response.docs[0];
         return {...doc, ...scoreDetails(doc), ...(scoreId ? {score_id: scoreId, parts} : {})};
     }
+    // Missing MEI excludes some scans from Solr, not from book browsing.
+    for (const [library, index] of Object.entries(db)) {
+        if (!id.startsWith(`${library}_`)) continue;
+        for (const [book, value] of Object.entries((index as any).books)) {
+            const page = (value as any).pages[id];
+            if (page) return {siglum: id, library, book, notmusic: page.notmusic ?? page.hasmusic === false};
+        }
+    }
     return {};
 }
 

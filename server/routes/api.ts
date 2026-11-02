@@ -20,6 +20,35 @@ import {NoSuchBinaryError, OmrFailedError} from "../services/omr.js";
 
 const router = express.Router();
 
+// Browse the manifests, including scans which have no searchable MEI.
+router.get('/api/browse', function(req, res) {
+    const library = db[String(req.query.library ?? '')];
+    if (!library) return res.status(404).json({error: 'Library not found'});
+    const offset = Math.max(0, Math.floor(Number(req.query.offset) || 0));
+    const bookId = String(req.query.book ?? '');
+    if (bookId) {
+        const book = library.books[bookId];
+        if (!book) return res.status(404).json({error: 'Book not found'});
+        const pages = book.page_ids.map((id: string) => book.pages[id]);
+        // CPDL indexes voices; browsing lists each score once.
+        const seen = new Set<string>();
+        const entries = pages.filter((page: any) => {
+            if (req.query.library !== 'cpdl') return true;
+            const score = page.id.replace(/_part\d+$/, '');
+            if (seen.has(score)) return false;
+            seen.add(score); return true;
+        });
+        return res.json({total: entries.length, entries: entries.slice(offset, offset + 60).map((page: any) => ({
+            id: page.id, title: page.title, notmusic: page.notmusic,
+        }))});
+    }
+    return res.json({total: library.book_ids.length,
+        entries: library.book_ids.slice(offset, offset + 60).map((id: string) => {
+            const book = library.books[id];
+            return {id, count: book.page_ids.length, first: book.page_ids[0]};
+        })});
+});
+
 // Get a list of all catalogues loaded in the server
 router.get('/api/catalogues', async function(req, res) {
     return res.status(200).json({status: "ok", data: Object.keys(db)});

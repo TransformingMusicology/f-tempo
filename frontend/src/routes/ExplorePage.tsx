@@ -7,6 +7,7 @@ import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import VoiceSelector from '../components/VoiceSelector';
+import BookBrowser from '../components/BookBrowser';
 import QueryBar from '../components/QueryBar';
 import ResultStrip from '../components/ResultStrip';
 import ResultIdentity from '../components/ResultIdentity';
@@ -52,14 +53,11 @@ export default function ExplorePage() {
                                  onSelect={id => s.setViewParam('sel', id)}/>
                 )}
                 {!s.searchData && data.search?.status !== 'error' && (
-                    <div className="small text-muted p-2">
-                        Browse to a page, or click its ID to type one, then press Enter or Search. Results appear here
-                        as thumbnails; use ↑ and ↓ to move through them.
-                    </div>
+                    <BookBrowser metadata={data.metadata} catalogues={s.catalogues}/>
                 )}
             </aside>
 
-            <section className="explore-panes">
+            <section className={`explore-panes ${!s.searchData ? 'browse-panes' : ''}`}>
                 <PagePane key={`query-${data.displayedId}`}
                           heading={<>{searched ? 'Query' : 'Page'} <ResultIdentity id={data.displayedId ?? ''} {...data.metadata}/></>}
                           subheading={data.metadata ? undefined : data.metadataError ?? 'This page ID is not in the index.'}
@@ -90,7 +88,7 @@ export default function ExplorePage() {
                                   </button>
                               }/>
                 ) : (
-                    <div className="card explore-empty">
+                    <div className={`card explore-empty ${!s.searchData ? 'd-none' : ''}`}>
                         <div className="card-body small text-muted">
                             {s.searchData ? 'No result to show.' : 'The selected result is shown here, beside the query.'}
                         </div>

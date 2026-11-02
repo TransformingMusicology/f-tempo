@@ -1,4 +1,6 @@
+import {useEffect, useState} from 'react';
 import {useLoaderData, type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs} from 'react-router';
+import BookBrowser from '../components/BookBrowser';
 import {
     ApiError, getCodestring, getMetadata, runSearch,
     type PageMetadata, type SearchData, type SearchResult,
@@ -79,7 +81,7 @@ export async function idSearchLoader({request}: LoaderFunctionArgs): Promise<Sea
         metadataPromise, searchPromise, codestringPromise,
     ]);
     if (q) rememberSearch(url);
-    return {mode: 'id', displayedId, metadata, metadataError, query: q, queryCodestring, search, settings};
+    return {mode: 'id', displayedId, metadata, metadataError, query: q ? metadata?.siglum ?? requestedId : null, queryCodestring, search, settings};
 }
 
 export async function codeSearchLoader({request}: LoaderFunctionArgs): Promise<SearchLoaderData> {
@@ -112,6 +114,8 @@ function resultSummary(result: SearchResult, data: SearchData): string {
 
 export default function SearchPage() {
     const data = useLoaderData() as SearchLoaderData;
+    const [bookTab, setBookTab] = useState(!data.query);
+    useEffect(() => {setBookTab(!data.query);}, [data.query, data.displayedId]);
     const {
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
@@ -190,6 +194,11 @@ export default function SearchPage() {
                                             showTarget={showTarget}
                                             searchDisabled={data.mode === 'id' && data.metadata?.notmusic === true && (!showTarget || target.trim() === data.displayedId)}
                                             onShowTarget={() => setViewParam('ids', '1')}/>
+                            {data.mode === 'id' && <div className="btn-group my-2" aria-label="Browse or search results">
+                                <button className={`btn btn-sm ${bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => setBookTab(true)}>Book pages</button>
+                                <button className={`btn btn-sm ${!bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => setBookTab(false)}>Results</button>
+                            </div>}
+                            {data.mode === 'id' && bookTab ? <BookBrowser metadata={data.metadata} catalogues={catalogues}/> : <>
                             {data.search?.status === 'error' && (
                                 <Notice kind="danger" message={data.search.message}
                                         action={{label: 'Retry', onClick: revalidate}}/>
@@ -204,6 +213,7 @@ export default function SearchPage() {
                                               queryCodestring={data.queryCodestring} selectedId={selected?.id ?? null}
                                               onSelect={id => setViewParam('sel', id)}/>
                             )}
+                            </>}
                         </div>
                     </div>
                 </div>

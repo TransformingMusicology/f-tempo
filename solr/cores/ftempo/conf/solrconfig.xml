@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>9.10.1</luceneMatchVersion>
+  <luceneMatchVersion>10.4.0</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -122,7 +122,7 @@
   -->
   <codecFactory class="solr.SchemaCodecFactory"/>
 
-  ​<schemaFactory class="ClassicIndexSchemaFactory"/>
+  <schemaFactory class="ClassicIndexSchemaFactory"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
        Index Config - These settings control low-level behavior of indexing
@@ -259,7 +259,6 @@
 
        For more details see http://wiki.apache.org/solr/SolrJmx
     -->
-  <jmx />
   <!-- If you want to connect to a particular server, specify the
        agentId
     -->
@@ -286,7 +285,6 @@
     -->
     <updateLog>
       <str name="dir">${solr.ulog.dir:}</str>
-      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>
     </updateLog>
 
     <!-- AutoCommit

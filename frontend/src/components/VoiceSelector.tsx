@@ -9,9 +9,15 @@ export default function VoiceSelector({metadata}: {metadata: PageMetadata | null
     if (!metadata?.parts?.length) return null;
     function go(id: string, search = false) {
         const params = preserveBrowse(new URLSearchParams(location.search), metadata);
-        params.set('view', search ? 'results' : 'browse');
-        if (search) {params.delete('sel'); setScoreTarget(params, 'q', id);}
-        else params.set('page', id);
+        const browsing = params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
+        params.set('view', search || !browsing ? 'results' : 'browse');
+        params.delete('sel');
+        if (search) setScoreTarget(params, 'q', id);
+        else {
+            params.delete('q');
+            params.delete('part');
+            params.set('page', id);
+        }
         navigate(`${location.pathname}?${params}`);
     }
     return <div className="d-flex gap-2 my-2 align-items-center">

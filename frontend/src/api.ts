@@ -48,6 +48,8 @@ export interface SearchData {
 }
 
 export interface PageMetadata {
+    score_id?: string;
+    parts?: {id: string; part_number: string; part_name: string}[];
     title?: string;
     part_number?: string;
     part_name?: string;

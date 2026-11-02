@@ -229,12 +229,18 @@ async function search_random_id(timestamp: string) {
 }
 
 export async function get_metadata(id: string) {
+    const scoreId = id.startsWith('cpdl_') ? id.replace(/_part\d+$/, '') : null;
+    const parts = scoreId ? Object.values(db.cpdl?.books ?? {}).flatMap((book: any) =>
+        Object.values(book.pages).filter((page: any) => page.id.startsWith(`${scoreId}_part`)))
+        .map((page: any) => ({id: page.id, part_number: String(page.part_number), part_name: page.part_name}))
+        .sort((a, b) => Number(a.part_number) - Number(b.part_number)) : [];
+    if (id === scoreId && parts.length) id = parts[0].id;
     const client = solr.createClient(nconf.get('search'));
     const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage,notmusic,part_number,part_name").start(0).rows(1);
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
         const doc = result.response.docs[0];
-        return {...doc, ...scoreDetails(doc)};
+        return {...doc, ...scoreDetails(doc), ...(scoreId ? {score_id: scoreId, parts} : {})};
     }
     return {};
 }

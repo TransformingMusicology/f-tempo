@@ -8,6 +8,7 @@ import {useComparison} from '../components/useComparison';
 import {useShortcuts} from '../components/useShortcuts';
 import type {RootData} from './Layout';
 import type {SearchLoaderData} from './SearchPage';
+import {setScoreTarget} from '../util/scoreUrl';
 
 /**
  * Everything a search view needs beyond its markup: the selected result, the
@@ -63,7 +64,8 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     function searchUrl(query: string, settings: SearchSettings, pathname = location.pathname): string {
         const params = applySettings(new URLSearchParams(), settings);
-        params.set(pathname === '/code' ? 'code' : 'q', query);
+        if (pathname === '/code') params.set('code', query);
+        else setScoreTarget(params, 'q', query, query === data.displayedId ? data.metadata?.part_number : null);
         if (pathname !== '/code' && showTarget) params.set('ids', '1');
         return `${pathname}?${params}`;
     }
@@ -90,7 +92,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     function browseTo(pageId: string) {
         const params = applySettings(new URLSearchParams(), data.settings);
-        params.set('page', pageId);
+        setScoreTarget(params, 'page', pageId);
         if (showTarget) params.set('ids', '1');
         navigate(`${basePath}?${params}`);
     }

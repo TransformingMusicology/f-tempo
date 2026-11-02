@@ -6,6 +6,7 @@ import ContinuityDetails from '../components/ContinuityDetails';
 import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
+import VoiceSelector from '../components/VoiceSelector';
 import QueryBar from '../components/QueryBar';
 import ResultStrip from '../components/ResultStrip';
 import ResultIdentity from '../components/ResultIdentity';
@@ -64,9 +65,10 @@ export default function ExplorePage() {
                           subheading={data.metadata ? undefined : data.metadataError ?? 'This page ID is not in the index.'}
                           imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
                           imageAlt={`Scan of page ${data.displayedId}`}
-                          meiId={data.displayedId} codestring={data.queryCodestring} titlepageUrl={s.queryTitlepage}
+                          meiId={data.metadata?.siglum ?? data.displayedId} codestring={data.queryCodestring} titlepageUrl={s.queryTitlepage}
                           matches={s.comparison.queryMatches} highlightRanges={s.comparison.queryRanges}
                           onHoverNote={s.comparison.onHoverQuery} showNotes={s.showNotes} zoom={s.zoom}>
+                    <VoiceSelector metadata={data.metadata}/>
                     <Notice message={s.notice} onDismiss={() => s.setNotice(null)}/>
                     {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
                 </PagePane>

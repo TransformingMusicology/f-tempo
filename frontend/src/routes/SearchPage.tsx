@@ -16,6 +16,8 @@ import ResultsTable from '../components/ResultsTable';
 import ResultIdentity from '../components/ResultIdentity';
 import SearchControls from '../components/SearchControls';
 import {useSearchSession} from './useSearchSession';
+import {scoreTarget} from '../util/scoreUrl';
+import VoiceSelector from '../components/VoiceSelector';
 
 export type SearchOutcome = {status: 'ok'; data: SearchData} | {status: 'error'; message: string};
 
@@ -58,17 +60,20 @@ export async function idSearchLoader({request}: LoaderFunctionArgs): Promise<Sea
     const settings = parseSettings(url.searchParams);
     const q = url.searchParams.get('q')?.trim() || null;
     const page = url.searchParams.get('page')?.trim() || null;
-    const displayedId = q ?? page ?? DEFAULT_PAGE_ID;
+    const target = scoreTarget(q ?? page ?? DEFAULT_PAGE_ID, url.searchParams.get('part'));
+    const displayedId = target.id;
+    const requestedId = target.part ? `${displayedId}_part${target.part}` : displayedId;
 
-    const metadataPromise = getMetadata(displayedId)
+    const metadataPromise = getMetadata(requestedId)
         .then(metadata => ({metadata, metadataError: null}))
         .catch(error => ({metadata: null, metadataError: error instanceof Error ? error.message : 'Could not load page details'}));
     const searchPromise = metadataPromise.then(({metadata}) => q && metadata?.notmusic !== true
         ? (settings.collections?.length === 0
             ? Promise.resolve<SearchOutcome>({status: 'error', message: 'Select at least one collection to search.'})
-            : performSearch({id: q, ...requestBody(settings)}))
+            : performSearch({id: metadata?.siglum ?? requestedId, ...requestBody(settings)}))
         : Promise.resolve(null));
-    const codestringPromise = q ? getCodestring(q).catch(() => null) : Promise.resolve(null);
+    const codestringPromise = metadataPromise.then(({metadata}) => q
+        ? getCodestring(metadata?.siglum ?? requestedId).catch(() => null) : null);
 
     const [{metadata, metadataError}, search, queryCodestring] = await Promise.all([
         metadataPromise, searchPromise, codestringPromise,
@@ -147,10 +152,11 @@ export default function SearchPage() {
                                       }
                                       imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
                                       imageAlt={`Scan of page ${data.displayedId}`}
-                                      meiId={data.displayedId} codestring={data.queryCodestring} titlepageUrl={queryTitlepage}
+                                      meiId={data.metadata?.siglum ?? data.displayedId} codestring={data.queryCodestring} titlepageUrl={queryTitlepage}
                                       matches={comparison.queryMatches} highlightRanges={comparison.queryRanges}
                                       onHoverNote={comparison.onHoverQuery} showNotes={showNotes} zoom={zoom}
                                       footer={compareToolbar}>
+                                <VoiceSelector metadata={data.metadata}/>
                                 <Notice message={notice} onDismiss={() => setNotice(null)}/>
                                 {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
                             </PagePane>

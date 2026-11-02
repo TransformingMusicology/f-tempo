@@ -369,3 +369,7 @@ body {
 .book-thumbnail span,.book-thumbnail small {display:block;font-size:.8rem;}
 .book-thumbnail.selected {border:2px solid #0d6efd;background:#edf4ff;}
 .explore-panes.browse-panes {grid-template-columns:minmax(0,1fr);}
+.main-browse {display:grid;grid-template-columns:minmax(200px,1fr) minmax(260px,1.3fr) minmax(0,2.7fr);gap:.5rem;align-items:start;}
+.main-browse > section {max-height:calc(100vh - 130px);overflow:auto;}
+.main-browse > section:first-child .book-contact-sheet {grid-template-columns:repeat(2,minmax(0,1fr));}
+@media(max-width:991px) {.main-browse {grid-template-columns:1fr;} .main-browse > section {max-height:none;}}

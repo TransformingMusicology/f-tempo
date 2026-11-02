@@ -127,7 +127,7 @@ export default function SearchPage() {
     const {
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
-        setViewParam, submitSearch, changeSettings, step, random, searchFromSelected, repeat,
+        setViewParam, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, repeat,
         queryTitlepage, selectedScore, revalidate, draftSettings,
     } = useSearchSession(data, '/');
     const compareToolbar = searchData && results.length > 0 ? (
@@ -137,8 +137,45 @@ export default function SearchPage() {
                 cursor={comparison.graphIndex} onHover={comparison.onGraphHover}/>}</>
     ) : null;
 
+    const modeTabs = data.mode === 'id' && <div className="btn-group mb-2" aria-label="Interface mode">
+        <button className={`btn btn-sm ${bookTab ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setBookTab(true)}>Browse</button>
+        <button className={`btn btn-sm ${!bookTab ? 'btn-primary' : 'btn-outline-primary'}`} disabled={!params.has('q')} onClick={() => setBookTab(false)}>Search / compare</button>
+    </div>;
+
+    if (data.mode === 'id' && bookTab) {
+        const library = params.get('library') ?? data.metadata?.library;
+        const book = params.has('library') ? params.get('book') : data.metadata?.book;
+        const pageInBook = data.metadata?.library === library && data.metadata?.book === book;
+        return <>
+            {modeTabs}
+            <div className="main-browse">
+                <section className="card" aria-label="Library books">
+                    <BookBrowser metadata={data.metadata} catalogues={catalogues} panel="books"/>
+                </section>
+                <section className="card" aria-label="Book pages">
+                    <BookBrowser metadata={data.metadata} catalogues={catalogues} panel="pages"/>
+                </section>
+                <section aria-label="Selected page">
+                    {pageInBook ? <PagePane key={data.metadata?.siglum}
+                        heading={<ResultIdentity id={data.displayedId ?? ''} {...data.metadata}/>}
+                        imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
+                        imageAlt={`Scan of page ${data.displayedId}`}
+                        meiId={data.metadata?.siglum ?? data.displayedId} codestring={null}
+                        matches={[]} highlightRanges={[]} onHoverNote={() => {}}
+                        titlepageUrl={queryTitlepage} showNotes={false} zoom={zoom}
+                        actions={<button className="btn btn-primary btn-sm" disabled={busy || data.metadata?.notmusic === true}
+                            onClick={() => {if (data.displayedId) submitSearchWith(data.displayedId);}}>Search {data.metadata?.part_name || 'this page'}</button>}>
+                        <VoiceSelector metadata={data.metadata}/>
+                        {data.metadata?.notmusic === true && <Notice kind="warning" message="This page is identified as not music. Search is disabled."/>}
+                    </PagePane> : <div className="card p-3 text-muted">Select a page to view or search it.</div>}
+                </section>
+            </div>
+        </>;
+    }
+
     return (
         <>
+            {modeTabs}
             <div className="row g-2">
                 <div className="col-lg pane-col">
                     {data.mode === 'id' ? (
@@ -202,11 +239,6 @@ export default function SearchPage() {
                                             showTarget={showTarget}
                                             searchDisabled={data.mode === 'id' && data.metadata?.notmusic === true && (!showTarget || target.trim() === data.displayedId)}
                                             onShowTarget={() => setViewParam('ids', '1')}/>
-                            {data.mode === 'id' && <div className="btn-group my-2" aria-label="Browse or search results">
-                                <button className={`btn btn-sm ${bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => setBookTab(true)}>Book pages</button>
-                                <button className={`btn btn-sm ${!bookTab ? 'btn-secondary' : 'btn-outline-secondary'}`} disabled={!params.has('q')} onClick={() => setBookTab(false)}>Results</button>
-                            </div>}
-                            {data.mode === 'id' && bookTab ? <BookBrowser metadata={data.metadata} catalogues={catalogues}/> : <>
                             {data.search?.status === 'error' && (
                                 <Notice kind="danger" message={data.search.message}
                                         action={{label: 'Retry', onClick: revalidate}}/>
@@ -221,7 +253,6 @@ export default function SearchPage() {
                                               queryCodestring={data.queryCodestring} selectedId={selected?.id ?? null}
                                               onSelect={id => setViewParam('sel', id)}/>
                             )}
-                            </>}
                         </div>
                     </div>
                 </div>

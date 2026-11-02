@@ -63,3 +63,23 @@ test('selecting a scan retains page two of a shared book contact sheet', async (
         expect(new URLSearchParams(path).get('page')).toBe('GB-Lbl_A19_045_1');
     } finally {act(() => root.unmount()); vi.unstubAllGlobals();}
 });
+
+test('paging the books column keeps the selected book and scan', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok:true, json:async () => ({total:212, entries:[{id:'A19',count:120}]})}));
+    const host = document.createElement('div');
+    const root = createRoot(host);
+    let path = '';
+    function Probe() {path = useLocation().search; return null;}
+    try {
+        await act(async () => root.render(<MemoryRouter initialEntries={['/?library=GB-Lbl&book=A19&page=GB-Lbl_A19_045_1&pagesPage=2']}>
+            <BookBrowser panel="books" metadata={null} catalogues={['GB-Lbl']}/><Probe/>
+        </MemoryRouter>));
+        const next = Array.from(host.querySelectorAll('button')).find(button => button.textContent === 'Next')!;
+        await act(async () => next.click());
+        const params = new URLSearchParams(path);
+        expect(params.get('booksPage')).toBe('2');
+        expect(params.get('book')).toBe('A19');
+        expect(params.get('pagesPage')).toBe('2');
+        expect(params.get('page')).toBe('GB-Lbl_A19_045_1');
+    } finally {act(() => root.unmount()); vi.unstubAllGlobals();}
+});

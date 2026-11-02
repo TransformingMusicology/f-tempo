@@ -60,6 +60,8 @@ export default function ResultList({response, queryId, queryCodestring, selected
 
     return (
         <>
+            {response.continuityApplied && <p className="small">Continuity order · {response.continuityCandidates} candidates compared using 5-interval anchors; {response.continuityFiltered} below the {response.continuityMinimum}% minimum. Original similarity scores are retained below.</p>}
+            {response.continuityNotice && <p role="status" className="small text-warning-emphasis">{response.continuityNotice}</p>}
             <Table size="sm" hover className="results-table">
                 <thead>
                     <tr>
@@ -93,6 +95,7 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                 <td className="result-id">
                                     <span className="text-muted">{index + 1}.</span> {result.id}
                                     {isQuery && <> <Badge bg="info" text="dark" title="This result is the query page itself">query</Badge></>}
+                                    {result.continuity && <div className="small text-muted">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                                 </td>
                                 <td className="score-cell">
                                     <div className="score-bar" title={`${score.label}: ${score.text}`}>

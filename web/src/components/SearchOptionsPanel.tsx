@@ -24,11 +24,13 @@ type Props = {
 export default function SearchOptionsPanel({options, catalogues, buildUrl, onSearch, searchLabel, disabled}: Props) {
     const navigate = useNavigate();
     const [collectionError, setCollectionError] = useState<string | null>(null);
+    const [minimum, setMinimum] = useState(String(options.continuityMinimum ?? 0));
     const selected = options.collections.length ? new Set(options.collections) : new Set(catalogues);
 
     const apply = (next: SearchOptions) => {
         if (!disabled) navigate(buildUrl(next));
     };
+    const validMinimum = minimum.trim() !== '' && Number.isFinite(Number(minimum)) && Number(minimum) >= 0 && Number(minimum) <= 100;
 
     const setRepresentation = (representation: Representation) => {
         const ranking = isRankingFor(representation, options.ranking) ? options.ranking : defaultRanking(representation);
@@ -48,7 +50,12 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl, onSea
     };
 
     return (
-        <Form className="search-options" onSubmit={event => { event.preventDefault(); onSearch(); }}>
+        <Form className="search-options" onSubmit={event => {
+            event.preventDefault();
+            if (options.continuity && Number(minimum) !== (options.continuityMinimum ?? 0)) {
+                if (validMinimum) apply({...options, continuityMinimum: Number(minimum) || undefined});
+            } else onSearch();
+        }}>
             <div className="d-grid mb-2">
                 <Button type="submit" variant="primary" size="sm" title="Search with the query page (Enter)" disabled={disabled}>{searchLabel}</Button>
             </div>
@@ -74,6 +81,21 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl, onSea
                     {NUM_RESULTS_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
                 </Form.Select>
             </Form.Group>
+            <Form.Check className="mb-2 small" id="opt-continuity" label="Rank by continuity (experimental)"
+                checked={!!options.continuity} onChange={e => apply({...options, continuity: e.target.checked || undefined})} />
+            {options.continuity && <>
+                <p className="small text-muted">Compares up to 100 candidates using shared passages in sequence.</p>
+                <Form.Group className="mb-2" controlId="opt-continuity-minimum">
+                    <Form.Label className="small mb-0">Minimum continuity (%)</Form.Label>
+                    <div className="d-flex gap-1">
+                        <Form.Control size="sm" type="number" min={0} max={100} step="any" value={minimum}
+                            onChange={e => setMinimum(e.target.value)} aria-describedby="continuity-threshold-help" />
+                        <Button size="sm" type="button" disabled={!validMinimum}
+                            onClick={() => apply({...options, continuityMinimum: Number(minimum) || undefined})}>Apply</Button>
+                    </div>
+                    <Form.Text id="continuity-threshold-help">0 keeps every candidate. Higher values may hide genuine matches with OMR errors or partial overlap. This is a score, not a probability.</Form.Text>
+                </Form.Group>
+            </>}
             <fieldset className="mb-2">
                 <legend className="small mb-0">Collections to search</legend>
                 <div className="collection-checks">

@@ -38,6 +38,8 @@ export function isRankingFor(representation: Representation, ranking: string): r
 }
 
 export type SearchOptions = {
+    continuity?: boolean;
+    continuityMinimum?: number;
     representation: Representation;
     ranking: Ranking;
     numResults: number;
@@ -67,6 +69,14 @@ export function defaultOptions(): SearchOptions {
 export function parseSearchOptions(params: URLSearchParams, catalogues: readonly string[]): ParsedSearchOptions {
     const notices: string[] = [];
     const options = defaultOptions();
+    if (params.get('continuity') === '1') options.continuity = true;
+    else if (params.has('continuity')) notices.push('Unknown continuity option; using the original ranking.');
+    if (params.has('minContinuity')) {
+        const minimum = Number(params.get('minContinuity'));
+        if (Number.isFinite(minimum) && minimum >= 0 && minimum <= 100) {
+            if (options.continuity && minimum > 0) options.continuityMinimum = minimum;
+        } else notices.push('Minimum continuity must be between 0 and 100; using 0.');
+    }
 
     const rep = params.get('rep');
     if (rep !== null) {
@@ -115,6 +125,8 @@ export function parseSearchOptions(params: URLSearchParams, catalogues: readonly
 /** Serialise options, omitting defaults. */
 export function serialiseSearchOptions(options: SearchOptions): URLSearchParams {
     const params = new URLSearchParams();
+    if (options.continuity) params.set('continuity', '1');
+    if (options.continuity && options.continuityMinimum) params.set('minContinuity', String(options.continuityMinimum));
     if (options.representation !== DEFAULT_REPRESENTATION) params.set('rep', options.representation);
     if (options.ranking !== defaultRanking(options.representation)) params.set('rank', options.ranking);
     if (options.numResults !== DEFAULT_NUM_RESULTS) params.set('n', String(options.numResults));

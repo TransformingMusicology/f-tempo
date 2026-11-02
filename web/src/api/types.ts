@@ -1,4 +1,5 @@
 import type {Ranking, Representation} from '../search/params';
+import type {Continuity} from '../../../lib/continuity';
 
 export type PageMetadata = {
     id: string;
@@ -8,6 +9,7 @@ export type PageMetadata = {
 };
 
 export type SearchResult = {
+    continuity?: Continuity;
     id: string;
     library: string;
     book: string;
@@ -27,6 +29,11 @@ export type SearchResult = {
 };
 
 export type SearchResponse = {
+    continuityApplied?: boolean;
+    continuityCandidates?: number;
+    continuityNotice?: string;
+    continuityFiltered?: number;
+    continuityMinimum?: number;
     representation: Representation;
     ranking: Ranking;
     numQueryWords: number;

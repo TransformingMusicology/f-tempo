@@ -85,10 +85,13 @@ export async function getMei(pageId: string, signal?: AbortSignal): Promise<stri
 export type QueryInput = {id: string} | {codestring: string};
 
 type RawResult = {
+    continuity?: SearchResult['continuity'];
     id: string; library: string; book: string; titlepage?: string; codestring: string;
     num_words: number; num_matched_words: number; jaccard: number; cosine?: number; score?: number;
 };
 type RawSearchResponse = {
+    continuityApplied?: boolean; continuityCandidates?: number; continuityNotice?: string;
+    continuityFiltered?: number; continuityMinimum?: number;
     numQueryWords: number; numResults: number; results: RawResult[];
     ranking?: string; representation?: string;
     candidateLimit?: number; candidatesFound?: number; candidateLimited?: boolean;
@@ -98,6 +101,8 @@ type RawSearchResponse = {
 export async function runQuery(input: QueryInput, options: SearchOptions, signal?: AbortSignal): Promise<SearchResponse> {
     const body = {
         ...input,
+        continuity: options.continuity,
+        continuity_minimum: options.continuityMinimum,
         num_results: options.numResults,
         collections_to_search: options.collections,
         similarity_type: options.ranking,
@@ -105,6 +110,7 @@ export async function runQuery(input: QueryInput, options: SearchOptions, signal
     };
     const raw = await postJson<ApiEnvelope<RawSearchResponse>>('/api/query', body, signal).then(unwrap);
     const results: SearchResult[] = raw.results.map(r => ({
+        continuity: r.continuity,
         id: r.id,
         library: r.library,
         book: r.book,
@@ -118,6 +124,11 @@ export async function runQuery(input: QueryInput, options: SearchOptions, signal
     }));
     return {
         representation: options.representation,
+        continuityApplied: raw.continuityApplied,
+        continuityCandidates: raw.continuityCandidates,
+        continuityNotice: raw.continuityNotice,
+        continuityFiltered: raw.continuityFiltered,
+        continuityMinimum: raw.continuityMinimum,
         ranking: options.ranking,
         numQueryWords: raw.numQueryWords,
         results,

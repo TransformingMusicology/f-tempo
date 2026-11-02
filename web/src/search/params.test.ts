@@ -3,6 +3,20 @@ import {codeUrl, pageUrl, parseSearchOptions, searchUrl, serialiseSearchOptions}
 
 const catalogues = ['D-Mbs', 'GB-Lbl', 'F-Pn'];
 
+it('preserves an experimental threshold in a shareable search URL', () => {
+    const {options, notices} = parseSearchOptions(new URLSearchParams('continuity=1&minContinuity=42.5'), catalogues);
+    expect(options.continuity).toBe(true);
+    expect(options.continuityMinimum).toBe(42.5);
+    expect(notices).toEqual([]);
+    expect(serialiseSearchOptions(options).toString()).toBe('continuity=1&minContinuity=42.5');
+});
+
+it('replaces an invalid threshold with zero', () => {
+    const {options, notices} = parseSearchOptions(new URLSearchParams('continuity=1&minContinuity=101'), catalogues);
+    expect(options.continuityMinimum).toBeUndefined();
+    expect(notices).toHaveLength(1);
+});
+
 describe('parseSearchOptions', () => {
     it('returns defaults for an empty query string', () => {
         const {options, notices} = parseSearchOptions(new URLSearchParams(), catalogues);

@@ -9,6 +9,7 @@ import QueryPane, {usePageNavigation, type QueryDescription} from './QueryPane';
 import ResultList, {ResultListSkeleton} from './ResultList';
 import ResultPane, {ResultPanePlaceholder} from './ResultPane';
 import SearchOptionsPanel from './SearchOptionsPanel';
+import ContinuityComparison from './ContinuityComparison';
 
 type Props = {data: SearchLoaderData};
 
@@ -95,7 +96,7 @@ export default function PageView({data}: Props) {
             <Col xs={12} lg={4}>
                 {data.search ? (
                     <Suspense fallback={<ResultPanePlaceholder text="Searching…" />}>
-                        <ResultPaneColumn {...shared} search={data.search} heldTitlePageId={heldTitlePageId} />
+                        <ResultPaneColumn {...shared} search={data.search} heldTitlePageId={heldTitlePageId} queryCodestringPromise={data.queryCodestring} />
                     </Suspense>
                 ) : (
                     <ResultPanePlaceholder text="Results appear here after a search." />
@@ -153,6 +154,10 @@ function ResultsColumn({search, queryCodestringPromise, queryId, options, hashId
 
     if (!outcome.ok) return <SearchFailure outcome={outcome} options={options} />;
     if (!results.length) {
+        if (outcome.response.continuityApplied) return <Alert variant="secondary" className="small">
+            No results meet the {outcome.response.continuityMinimum}% minimum continuity.
+            {' '}{outcome.response.continuityFiltered} of {outcome.response.continuityCandidates} candidates were hidden. Try a lower minimum or 0 to keep all candidates.
+        </Alert>;
         return <Alert variant="secondary" className="small">No results. Try another search type or ranking, or more collections.</Alert>;
     }
     return (
@@ -171,11 +176,14 @@ function ResultsColumn({search, queryCodestringPromise, queryId, options, hashId
     );
 }
 
-function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith}: SharedProps & {heldTitlePageId: string | null}) {
+function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith, queryCodestringPromise}: SharedProps & {heldTitlePageId: string | null; queryCodestringPromise: Promise<string | null>}) {
     const outcome = use(search);
+    const queryCodestring = use(queryCodestringPromise);
     if (!outcome.ok) return <ResultPanePlaceholder text="" />;
     const {result} = selectedResult(outcome.response.results, hashId);
     return (
+        <>
+        {result && queryCodestring && <ContinuityComparison key={result.id} query={queryCodestring} match={result.codestring} />}
         <ResultPane
             response={outcome.response}
             result={result}
@@ -183,6 +191,7 @@ function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith}
             heldFromList={result !== null && heldTitlePageId === result.id}
             onSearchWith={searchWith}
         />
+        </>
     );
 }
 

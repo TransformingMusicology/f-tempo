@@ -1,5 +1,41 @@
 # EMO_search
 
+## Trying continuity ranking in the React interface
+
+Enable **Rank by continuity (experimental)** in the search options, enter a
+**Minimum continuity (%)**, and click **Apply** (or press Enter). Start at 0 to
+retain every candidate, then compare values such as 25, 50 and 75 on known matches
+and high-ranking negatives. These are trial values, not calibrated cutoffs.
+The settings are saved in the URL (`continuity=1&minContinuity=50`).
+
+Continuity reranks up to 100 candidates from the selected search type and ranking,
+then removes scores below the minimum before taking the requested result count.
+The page reports the number compared and hidden. Setting the minimum back to 0
+restores the candidate list. This is bounded reranking, not an exhaustive search:
+it cannot recover a page outside that candidate pool. Five-gram retrieval itself
+uses the existing bounded BM25 pool before selecting those 100 candidates.
+
+The selected result includes an image-independent comparison plot. Pink points
+show shared n-grams; blue segments show the strongest coherent chain. Use the
+slider to scan either sequence and inspect the matching positions in the other.
+The comparison n-gram selector changes this view only; search ranking and filtering
+always use five-interval anchors.
+
+The score counts newly covered intervals in a chain, subtracts half a point for
+each skipped interval in either sequence, and divides by the shorter sequence's
+length. Coverage of each sequence is also shown. It is not a probability of musical
+identity: short excerpts and repeated patterns can score highly, while OMR errors
+and partial overlap can reduce the score. Check which known positives disappear
+as well as which negatives are removed before adopting a default threshold.
+
+Computations are bounded to two million position pairs per comparison and one
+hundred million across a search batch. If either limit is exceeded, the original
+ranking is returned with a notice that continuity ranking and filtering were not
+applied. No candidate is rejected simply because it could not be scored.
+
+Validation: `npm test`, `npm run typecheck`, and, from `web/`, `npm test`,
+`npm run build`, and `npm run lint`.
+
 ## Setup
 
 ### Automated setup with Docker

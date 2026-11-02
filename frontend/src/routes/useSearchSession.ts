@@ -111,11 +111,15 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
         try {
             const result = await nextId(data.metadata.library, data.metadata.book,
                 unit === 'page' ? data.metadata.siglum : null, direction);
-            if (result.page.id === data.displayedId) {
+            if (result.page.id === data.metadata.siglum) {
                 setNotice(`Already at the ${direction === 'prev' ? 'first' : 'last'} ${unit === 'page' ? 'page of this book' : 'book of this library'}.`);
                 return;
             }
-            browseTo(result.page.id);
+            if (searchParams.has('q') && searchParams.get('view') !== 'browse') {
+                navigate(searchUrl(result.page.id, data.settings, basePath));
+            } else {
+                browseTo(result.page.id);
+            }
         } catch (error) {
             setNotice(error instanceof Error ? error.message : 'Could not find the next page');
         }

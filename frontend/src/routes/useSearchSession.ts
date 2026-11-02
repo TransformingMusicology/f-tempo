@@ -65,7 +65,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     function searchUrl(query: string, settings: SearchSettings, pathname = location.pathname): string {
         const params = applySettings(preserveBrowse(new URLSearchParams(searchParams), data.metadata), settings);
-        if (data.mode === 'id' && isBrowsing(searchParams)) params.delete('coll');
+        if (data.mode === 'id' && isBrowsing(searchParams, location.pathname)) params.delete('coll');
         params.delete('sel');
         params.set('view', 'results');
         if (pathname === '/code') params.set('code', query);
@@ -116,7 +116,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
                 setNotice(`Already at the ${direction === 'prev' ? 'first' : 'last'} ${unit === 'page' ? 'page of this book' : 'book of this library'}.`);
                 return;
             }
-            if (searchParams.get('view') === 'results' || (searchParams.has('q') && searchParams.get('view') !== 'browse')) {
+            if (!isBrowsing(searchParams, location.pathname)) {
                 const params = applySettings(new URLSearchParams(searchParams), data.settings);
                 params.delete('q');
                 params.delete('sel');

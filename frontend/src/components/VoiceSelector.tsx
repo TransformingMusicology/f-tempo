@@ -9,7 +9,7 @@ export default function VoiceSelector({metadata}: {metadata: PageMetadata | null
     if (!metadata?.parts?.length) return null;
     function go(id: string, search = false) {
         const params = preserveBrowse(new URLSearchParams(location.search), metadata);
-        const browsing = isBrowsing(params);
+        const browsing = isBrowsing(params, location.pathname);
         params.set('view', search || !browsing ? 'results' : 'browse');
         params.delete('sel');
         if (search) {

@@ -1,5 +1,5 @@
 import {useLoaderData, useSearchParams, type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs} from 'react-router';
-import {preserveBrowse} from '../util/browseState';
+import {isBrowsing, preserveBrowse} from '../util/browseState';
 import BookBrowser from '../components/BookBrowser';
 import {
     ApiError, getCodestring, getMetadata, runSearch,
@@ -119,7 +119,7 @@ function resultSummary(result: SearchResult, data: SearchData): string {
 export default function SearchPage() {
     const data = useLoaderData() as SearchLoaderData;
     const [params, setParams] = useSearchParams();
-    const bookTab = params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
+    const bookTab = isBrowsing(params);
     function setBookTab(browse: boolean) {
         const next = preserveBrowse(new URLSearchParams(params), data.metadata);
         next.set('view', browse ? 'browse' : 'results');

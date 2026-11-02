@@ -8,6 +8,7 @@ import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import QueryBar from '../components/QueryBar';
 import ResultStrip from '../components/ResultStrip';
+import ResultIdentity from '../components/ResultIdentity';
 import type {SearchLoaderData} from './SearchPage';
 import {useSearchSession} from './useSearchSession';
 
@@ -59,7 +60,7 @@ export default function ExplorePage() {
 
             <section className="explore-panes">
                 <PagePane key={`query-${data.displayedId}`}
-                          heading={<>{searched ? 'Query' : 'Page'} <span className="page-id">{data.displayedId}</span></>}
+                          heading={<>{searched ? 'Query' : 'Page'} <ResultIdentity id={data.displayedId ?? ''} {...data.metadata}/></>}
                           subheading={data.metadata ? undefined : data.metadataError ?? 'This page ID is not in the index.'}
                           imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
                           imageAlt={`Scan of page ${data.displayedId}`}
@@ -72,7 +73,7 @@ export default function ExplorePage() {
 
                 {s.selected && s.searchData ? (
                     <PagePane key={`result-${s.selected.id}`}
-                              heading={<>{s.selected.belowThreshold ? 'Filtered-out result' : 'Result'} {s.selected.originalRank ?? s.selectedIndex + 1} <span className="page-id">{s.selected.id}</span></>}
+                              heading={<>{s.selected.belowThreshold ? 'Filtered-out result' : 'Result'} {s.selected.originalRank ?? s.selectedIndex + 1} <ResultIdentity {...s.selected}/></>}
                               subheading={<>{s.selected.num_matched_words} of {s.selected.num_words}{' '}
                                   {s.searchData.representation === '5gram' ? '5-grams' : 'words'} match the query
                                   {s.selectedScore && <> · {scoreColumnLabel(s.ranking)} {s.selectedScore.text}</>}</>}
@@ -99,8 +100,8 @@ export default function ExplorePage() {
                 <footer className="explore-compare">
                     <CompareToolbar showNotes={s.showNotes} onShowNotes={s.setShowNotes} zoom={s.zoom} onZoom={s.setZoom}
                                     ngramLength={s.ngramLength} onNgramLength={n => s.setViewParam('ng', String(n))}/>
-                    <ContinuityDetails key={s.selected?.id} result={s.selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
-                        cursor={s.comparison.graphIndex} onHover={index => { s.comparison.onGraphHover(index); if (index !== null) s.setShowNotes(true); }}/>
+                    {s.showNotes && <ContinuityDetails key={s.selected?.id} result={s.selected} evidence={s.comparison.evidence} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
+                        cursor={s.comparison.graphIndex} onHover={s.comparison.onGraphHover}/>}
                 </footer>
             )}
         </div>

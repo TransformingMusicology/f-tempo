@@ -1,5 +1,6 @@
 import {useState, type ReactNode} from 'react';
 import ScoreOverlay, {type NoteRange} from './ScoreOverlay';
+import PartScore from './PartScore';
 
 interface Props {
     heading: ReactNode;
@@ -36,6 +37,7 @@ export default function PagePane({
 
     const titlePageActive = showTitlePage && !!titlepageUrl;
     const scanVisible = showImage || !showNotes;
+    const isScore = meiId?.startsWith('cpdl_') === true;
 
     return (
         <div className="card h-100">
@@ -44,7 +46,7 @@ export default function PagePane({
                 {subheading && <div className="small text-muted">{subheading}</div>}
                 <div className="pane-toolbar my-1">
                     {actions}
-                    {imageUrl && showNotes && (
+                    {!isScore && imageUrl && showNotes && (
                         <button type="button" className="btn btn-outline-secondary btn-sm"
                                 onClick={() => setShowImage(v => !v)}>
                             {showImage ? 'Hide scan' : 'Show scan'}
@@ -63,6 +65,9 @@ export default function PagePane({
                     <div className="score-pane">
                         <img className="scan" src={titlepageUrl} alt="Title page of the book"/>
                     </div>
+                ) : isScore && meiId ? (
+                    <PartScore key={meiId} id={meiId} codestring={codestring} matches={matches} compare={showNotes}
+                               ranges={highlightRanges} onHoverNote={onHoverNote}/>
                 ) : (
                     <ScoreOverlay imageUrl={imageUrl} imageAlt={imageAlt} meiId={meiId} codestring={codestring} matches={matches}
                                   highlightRanges={highlightRanges} onHoverNote={onHoverNote}

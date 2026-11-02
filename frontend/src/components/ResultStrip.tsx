@@ -3,6 +3,7 @@ import type {Ranking, SearchData} from '../api';
 import {pageImageUrl} from '../config';
 import {ngramCosine} from '../util/ngrams';
 import {resultScore, scoreColumnLabel} from '../util/scores';
+import ResultIdentity from './ResultIdentity';
 
 interface Props {
     data: SearchData;
@@ -37,15 +38,17 @@ export default function ResultStrip({data, ranking, queryId, queryCodestring, se
                         tabIndex={0} aria-current={selected ? 'true' : undefined}
                         onClick={() => onSelect(result.id)}
                         onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); onSelect(result.id); } }}>
-                        <img className="result-thumb" src={pageImageUrl(result.id)} alt="" loading="lazy"/>
+                        {result.library === 'cpdl'
+                            ? <div className="result-thumb d-flex align-items-center justify-content-center small text-center">Score<br/>{result.part_name || `Part ${result.part_number ?? ''}`}</div>
+                            : <img className="result-thumb" src={pageImageUrl(result.id)} alt="" loading="lazy"/>}
                         <div className="result-meta">
                             <div className="result-rank">
                                 {result.originalRank ?? index + 1}
                                 {result.belowThreshold && <span className="badge text-bg-secondary ms-1">Below threshold</span>}
                                 {result.id === queryId && <span className="badge text-bg-info ms-1">query</span>}
                             </div>
-                            <div className="result-id page-id text-truncate" title={result.id}>{result.id}</div>
-                            <div className="result-lib text-muted text-truncate">{result.library} · {result.book}</div>
+                            <div className="result-id"><ResultIdentity {...result}/></div>
+                            {result.library !== 'cpdl' && <div className="result-lib text-muted text-truncate">{result.library} · {result.book}</div>}
                             {result.continuity && <div className="small">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                             <div className="progress" title={`${scoreColumnLabel(ranking)}: ${score.text}`}>
                                 <div className="progress-bar" role="progressbar" style={{width: `${score.fraction * 100}%`}}

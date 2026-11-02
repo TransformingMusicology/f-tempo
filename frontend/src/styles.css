@@ -359,3 +359,7 @@ body {
         max-height: 60vh;
     }
 }
+.cpdl-score svg {
+    width: 100%;
+    height: auto;
+}

@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {commonNgramPositions} from '../util/ngrams';
 import type {NoteRange} from './ScoreOverlay';
-import type {SearchResult} from '../api';
 import {continuityHover} from '../util/continuityHover';
+import {continuity} from '../../../lib/continuity';
 
 type Side = 'query' | 'match';
 
@@ -10,11 +10,13 @@ type Side = 'query' | 'match';
  * Shared-passage state for the two panes: which notes to colour on each side
  * and, while a note is hovered, which passages to outline on both sides.
  */
-export function useComparison(queryCodestring: string | null, matchCodestring: string | null, ngramLength: number, evidence?: SearchResult['continuity']) {
+export function useComparison(queryCodestring: string | null, matchCodestring: string | null, ngramLength: number) {
     const [hover, setHover] = useState<{side: Side; index: number} | null>(null);
     const [graphIndex, setGraphIndex] = useState<number | null>(null);
 
     const comparable = queryCodestring !== null && matchCodestring !== null;
+    const evidence = useMemo(() => comparable ? continuity(queryCodestring, matchCodestring, ngramLength) : undefined,
+        [comparable, queryCodestring, matchCodestring, ngramLength]);
     const queryMatches = useMemo(
         () => comparable ? commonNgramPositions(queryCodestring, matchCodestring, ngramLength) : null,
         [comparable, queryCodestring, matchCodestring, ngramLength]);
@@ -49,6 +51,7 @@ export function useComparison(queryCodestring: string | null, matchCodestring: s
     }, []);
 
     return {
+        evidence,
         graphIndex,
         onGraphHover: setGraphIndex,
         queryMatches,

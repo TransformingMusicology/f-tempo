@@ -48,7 +48,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
     const [zoom, setZoom] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
-    const comparison = useComparison(data.queryCodestring, selected?.codestring ?? null, ngramLength, selected?.continuity);
+    const comparison = useComparison(data.queryCodestring, selected?.codestring ?? null, ngramLength);
 
     function setViewParam(key: 'sel' | 'ng' | 'ids', value: string) {
         const next = new URLSearchParams(searchParams);

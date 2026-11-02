@@ -2,6 +2,7 @@ import {Fragment, useEffect, useRef} from 'react';
 import type {Ranking, SearchData} from '../api';
 import {ngramCosine} from '../util/ngrams';
 import {resultScore, scoreColumnLabel} from '../util/scores';
+import ResultIdentity from './ResultIdentity';
 
 interface Props {
     data: SearchData;
@@ -39,7 +40,7 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
                 </tr>
                 <tr>
                     <th scope="col">{data.continuityApplied ? 'Original rank' : '#'}</th>
-                    <th scope="col">Page ID</th>
+                    <th scope="col">Page / score</th>
                     <th scope="col">{scoreColumnLabel(ranking)}</th>
                 </tr>
             </thead>
@@ -59,8 +60,8 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
                             onClick={() => onSelect(result.id)}
                             onKeyDown={event => { if (event.key === ' ') { event.preventDefault(); onSelect(result.id); } }}>
                             <td>{result.originalRank ?? index + 1}</td>
-                            <td className="page-id">
-                                {result.id}
+                            <td>
+                                <ResultIdentity {...result}/>
                                 {result.belowThreshold && <span className="badge text-bg-secondary ms-1">Below threshold</span>}
                                 {result.continuity && <div className="small">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                                 {isQuery && <span className="badge text-bg-info ms-1">query</span>}

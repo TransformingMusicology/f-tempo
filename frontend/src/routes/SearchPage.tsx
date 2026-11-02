@@ -13,6 +13,7 @@ import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import ResultsTable from '../components/ResultsTable';
+import ResultIdentity from '../components/ResultIdentity';
 import SearchControls from '../components/SearchControls';
 import {useSearchSession} from './useSearchSession';
 
@@ -115,8 +116,8 @@ export default function SearchPage() {
     const compareToolbar = searchData && results.length > 0 ? (
         <><CompareToolbar showNotes={showNotes} onShowNotes={setShowNotes} zoom={zoom} onZoom={setZoom}
                         ngramLength={ngramLength} onNgramLength={n => setViewParam('ng', String(n))}/>
-            <ContinuityDetails key={selected?.id} result={selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
-                cursor={comparison.graphIndex} onHover={index => { comparison.onGraphHover(index); if (index !== null) setShowNotes(true); }}/></>
+            {showNotes && <ContinuityDetails key={selected?.id} result={selected} evidence={comparison.evidence} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}
+                cursor={comparison.graphIndex} onHover={comparison.onGraphHover}/>}</>
     ) : null;
 
     return (
@@ -126,7 +127,7 @@ export default function SearchPage() {
                     {data.mode === 'id' ? (
                         <>
                             <PagePane key={data.displayedId}
-                                      heading={<>{data.query ? 'Query page' : 'Page'}: <span className="page-id">{data.displayedId}</span></>}
+                                      heading={<>{data.query ? 'Query' : 'Page'}: <ResultIdentity id={data.displayedId ?? ''} {...data.metadata}/></>}
                                       subheading={data.metadata
                                           ? <>Library {data.metadata.library} · book {data.metadata.book}</>
                                           : data.metadataError ?? 'This page ID is not in the index.'}
@@ -204,7 +205,7 @@ export default function SearchPage() {
                 <div className="col-lg pane-col">
                     {selected && searchData ? (
                         <PagePane key={selected.id}
-                                  heading={<>{selected.belowThreshold ? 'Filtered-out result' : 'Result'} {selected.originalRank ?? selectedIndex + 1}: <span className="page-id">{selected.id}</span></>}
+                                  heading={<>{selected.belowThreshold ? 'Filtered-out result' : 'Result'} {selected.originalRank ?? selectedIndex + 1}: <ResultIdentity {...selected}/></>}
                                   subheading={<>{resultSummary(selected, searchData)}
                                       {selectedScore && <> · {scoreColumnLabel(ranking)} {selectedScore.text}</>}</>}
                                   imageUrl={pageImageUrl(selected.id)} imageAlt={`Scan of page ${selected.id}`}

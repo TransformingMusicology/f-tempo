@@ -1,18 +1,17 @@
 import type {SearchResult} from '../api';
 
-export default function ContinuityDetails({result, queryLength, cursor, onHover}: {
+export default function ContinuityDetails({result, evidence, queryLength, cursor, onHover}: {
+    evidence?: SearchResult['continuity'];
     result: SearchResult | null; queryLength: number; cursor: number | null; onHover: (index: number | null) => void;
 }) {
-    const evidence = result?.continuity;
     if (!evidence || !result) return null;
     const matchLength = result.codestring.replace(/\s/g, '').length;
     return <div className="small mt-2">
-        <p className="mb-1">Continuity {(evidence.score * 100).toFixed(1)}%
-            {result.belowThreshold ? ' · below the search minimum' : ''} · original rank {result.originalRank}.</p>
-        <p className="mb-1">Turn on comparison to see the matching notes on the scans. Orange outlines show the passages used by the filter; hover a pink note to compare its matches.</p>
+        <p className="mb-1">Pink: shared patterns. Teal: other notes. Orange: corresponding passages. Hover a pink note to compare its matches.</p>
+        {evidence.status === 'too-large' && <p>The pair is too large for the passage graph; note comparison remains available.</p>}
         <details onToggle={event => { if (!event.currentTarget.open) onHover(null); }}>
-            <summary>Continuity graph and scoring</summary>
-            <svg viewBox="0 0 440 230" role="img" aria-label="Positions of the passages used by the continuity filter" style={{width: '100%', maxWidth: 440}}
+            <summary>Matching passage graph</summary>
+            <svg viewBox="0 0 440 230" role="img" aria-label="Positions of matching passages" style={{width: '100%', maxWidth: 440}}
                  onMouseLeave={() => onHover(null)}
                  onMouseMove={event => {
                      const matrix = event.currentTarget.getScreenCTM();
@@ -31,8 +30,8 @@ export default function ContinuityDetails({result, queryLength, cursor, onHover}
                 {cursor !== null && <line x1={35 + 390 * cursor / Math.max(1, queryLength)} x2={35 + 390 * cursor / Math.max(1, queryLength)} y1={10} y2={200} stroke="deeppink" strokeWidth={1.5}/>}
                 <text transform="translate(12 160) rotate(-90)" fontSize={12}>Position in result</text>
             </svg>
-            <p>Move across the graph to highlight the corresponding notes on both scans. Gaps have no matching passage.</p>
-            <p>The filter uses 5-interval matches in the same order on both pages, subtracts a penalty for gaps, and compares the total with the shorter page. Changing the comparison n-gram length only changes the pink highlights; it does not change the search score.</p>
+            <p>Move across the graph to highlight corresponding notes in either scans or scores. Gaps have no matching passage.</p>
+            <p>This comparison uses {evidence.n}-interval patterns. Changing it does not filter or reorder search results.</p>
         </details>
     </div>;
 }

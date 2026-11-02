@@ -19,7 +19,7 @@ export default function CompareToolbar({showNotes, onShowNotes, zoom, onZoom, ng
                 <div className="form-check form-switch mb-0">
                     <input className="form-check-input" type="checkbox" id={`${id}-notes`} checked={showNotes}
                            onChange={e => onShowNotes(e.target.checked)}/>
-                    <label className="form-check-label" htmlFor={`${id}-notes`}>Compare recognised notes</label>
+                    <label className="form-check-label" htmlFor={`${id}-notes`}>Compare notes</label>
                 </div>
                 <div className="d-flex align-items-center gap-1">
                     <label htmlFor={`${id}-ng`} className={`mb-0${showNotes ? '' : ' text-muted'}`}>n-gram length</label>

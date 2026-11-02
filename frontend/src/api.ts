@@ -7,6 +7,9 @@ export type Representation = 'maw' | '5gram';
 export type Ranking = 'jaccard' | 'boolean' | 'solr' | 'cosine';
 
 export interface SearchResult {
+    title?: string;
+    part_name?: string;
+    part_number?: string;
     continuity?: {status: 'ok' | 'too-large'; n: number; score: number; coveredIntervals: number;
         passages: {queryStart: number; matchStart: number; length: number}[]};
     originalRank?: number;
@@ -45,6 +48,9 @@ export interface SearchData {
 }
 
 export interface PageMetadata {
+    title?: string;
+    part_number?: string;
+    part_name?: string;
     notmusic?: boolean;
     siglum: string;
     library: string;

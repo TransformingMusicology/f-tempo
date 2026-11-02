@@ -35,20 +35,20 @@ export function continuity(query: string, match: string, n = 5): Continuity {
     for (let i = 1; i <= a.length; i++) {
         let previousRun = 0;
         for (let j = 1; j <= b.length; j++) {
-            const oldRun = runs[j];
+            const oldRun = runs[j]!;
             runs[j] = a[i - 1] === b[j - 1] ? previousRun + 1 : 0;
             previousRun = oldRun;
             const k = i * width + j;
-            const up = scores[k - width] - 0.5, left = scores[k - 1] - 0.5;
+            const up = scores[k - width]! - 0.5, left = scores[k - 1]! - 0.5;
             if (up > 0) { scores[k] = up; directions[k] = 1; }
-            if (left > scores[k]) { scores[k] = left; directions[k] = 2; }
-            if (runs[j] >= n) {
-                const seed = scores[k - n * (width + 1)] + n;
-                const extend = anchors[k - width - 1] > 0 ? anchors[k - width - 1] + 1 : 0;
+            if (left > scores[k]!) { scores[k] = left; directions[k] = 2; }
+            if (runs[j]! >= n) {
+                const seed = scores[k - n * (width + 1)]! + n;
+                const extend = anchors[k - width - 1]! > 0 ? anchors[k - width - 1]! + 1 : 0;
                 anchors[k] = Math.max(seed, extend);
                 overlap[k] = extend >= seed ? 1 : 0;
-                if (anchors[k] >= scores[k]) { scores[k] = anchors[k]; directions[k] = 3; }
-                if (anchors[k] > best) { best = anchors[k]; bestIndex = k; }
+                if (anchors[k]! >= scores[k]!) { scores[k] = anchors[k]!; directions[k] = 3; }
+                if (anchors[k]! > best) { best = anchors[k]!; bestIndex = k; }
             }
         }
     }

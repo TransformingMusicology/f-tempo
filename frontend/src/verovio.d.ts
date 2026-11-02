@@ -3,6 +3,9 @@
 interface VerovioToolkit {
     setOptions(options: Record<string, unknown>): void;
     renderData(mei: string, options: Record<string, unknown>): string;
+    getPageCount(): number;
+    renderToSVG(page: number, options?: Record<string, unknown>): string;
+    destroy(): void;
 }
 
 interface Window {

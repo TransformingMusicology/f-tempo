@@ -11,6 +11,12 @@ import { perform_omr_image } from './omr.js';
 
 const meiRoot = nconf.get('config:base_mei_path');
 
+function scoreDetails(doc: {library?: string; book?: string; siglum?: string}) {
+    if (doc.library !== 'cpdl') return {};
+    const page = db.cpdl?.books[doc.book ?? '']?.pages[doc.siglum ?? ''];
+    return page?.title ? {title: page.title} : {};
+}
+
 type SubsequenceSearchResponse = {
     part_name?: string
     part_number?: string
@@ -110,7 +116,7 @@ export async function search_fivegrams(codestring: string, collections: string[]
     const candidateLimit = Math.max(1000, numResults);
     let query = client.query()
         .q(`intervals_5grams:(${Array.from(queryCounts.keys(), gram => quote(gram.replace(/([\\"])/g, '\\$1'))).join(' ')})`)
-        .fl('siglum,library,book,intervals,titlepage,score')
+        .fl('siglum,library,book,intervals,titlepage,part_name,part_number,score')
         .rows(candidateLimit)
         .matchFilter('-notmusic', 'true');
     if (collections.length) query = query.matchFilter('library', `(${collections.map(quote).join(' OR ')})`);
@@ -129,6 +135,8 @@ export async function search_fivegrams(codestring: string, collections: string[]
         const cosine = normSquared ? dot / (queryNorm * Math.sqrt(normSquared)) : 0;
         return {
             id: doc.siglum, library: doc.library, book: doc.book, titlepage: doc.titlepage,
+            ...scoreDetails(doc),
+            part_name: doc.part_name, part_number: doc.part_number,
             codestring: (doc.intervals ?? '').replace(/\s/g, ''),
             num_words: counts.size, num_matched_words: intersection,
             jaccard: 1 - jaccard, cosine,
@@ -222,10 +230,11 @@ async function search_random_id(timestamp: string) {
 
 export async function get_metadata(id: string) {
     const client = solr.createClient(nconf.get('search'));
-    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage,notmusic").start(0).rows(1);
+    const query = client.query().q(`siglum:${quote(id)}`).fl("siglum,library,book,titlepage,notmusic,part_number,part_name").start(0).rows(1);
     const result: any = await client.search(query);
     if (result.response.numFound >= 1) {
-        return result.response.docs[0];
+        const doc = result.response.docs[0];
+        return {...doc, ...scoreDetails(doc)};
     }
     return {};
 }
@@ -313,12 +322,13 @@ export async function search(words: string[], collections_to_search: string[], n
     const search_uniq_words = new Set(words);
 
     const maws_results = await search_maws_solr(Array.from(search_uniq_words), collections_to_search, num_results * 2, similarity_type);
-    const maws_with_scores: SearchResult[] = maws_results.map((doc: { score: number; maws: string; siglum: string; intervals: string; book: string; library: string; titlepage?: string;}) => {
+    const maws_with_scores: SearchResult[] = maws_results.map((doc: { score: number; maws: string; siglum: string; intervals: string; book: string; library: string; titlepage?: string; part_name?: string; part_number?: string;}) => {
         const unique_maws = new Set(doc.maws.split(" "));
         const num_matched_words = set_intersection(unique_maws, search_uniq_words).size;
         return {
             // ID of the document
             id: doc.siglum,
+            ...scoreDetails(doc),
             book: doc.book,
             library: doc.library,
             score: doc.score,
@@ -329,7 +339,8 @@ export async function search(words: string[], collections_to_search: string[], n
             num_words: unique_maws.size,
             // Jaccard similarity
             jaccard: 1 - (num_matched_words / (unique_maws.size + search_uniq_words.size - num_matched_words)),
-            titlepage: doc.titlepage
+            titlepage: doc.titlepage,
+            part_name: doc.part_name, part_number: doc.part_number
         };
     });
 
@@ -476,8 +487,8 @@ export function next_id(library: string, book_id: string, page_id: string | null
         let new_position = book_position + (direction === "prev" ? -1 : 1);
         if (new_position < 0) {
             new_position = 0;
-        } else if (new_position >= db_library.books.length) {
-            new_position = db_library.books.length - 1;
+        } else if (new_position >= db_library.book_ids.length) {
+            new_position = db_library.book_ids.length - 1;
         }
         const new_book_id = db_library.book_ids[new_position];
         const new_book = db_library.books[new_book_id];

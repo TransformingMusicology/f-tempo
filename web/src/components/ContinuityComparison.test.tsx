@@ -18,5 +18,5 @@ it('changing comparison n-gram length updates the evidence', () => {
     render(<ContinuityComparison query="ABCDE" match="ABCDE" />);
     fireEvent.change(screen.getByLabelText('N-gram length'), {target: {value: '6'}});
     expect(screen.getByText('0.0%', {selector: 'strong'})).toBeInTheDocument();
-    expect(screen.getByRole('slider')).toBeDisabled();
+    expect(screen.getByRole('slider', {hidden: true})).toBeDisabled();
 });

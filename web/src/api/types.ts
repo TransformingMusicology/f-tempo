@@ -9,6 +9,8 @@ export type PageMetadata = {
 };
 
 export type SearchResult = {
+    originalRank?: number;
+    belowThreshold?: boolean;
     continuity?: Continuity;
     id: string;
     library: string;

@@ -16,7 +16,7 @@ import {
 import {db} from "../server.js"
 import fileUpload from "express-fileupload";
 import {CannotRunMawError} from "../../lib/maw.js";
-import {CONTINUITY_CANDIDATES, rerankContinuity} from '../services/continuity.js';
+import {CONTINUITY_CANDIDATES, filterContinuity} from '../services/continuity.js';
 
 const router = express.Router();
 
@@ -197,7 +197,7 @@ router.post('/api/query', async function (req, res, next) {
             return res.status(400).json({status: 'error', error: 'continuity must be a boolean'});
         }
         if (req.body.continuity) {
-            const minimum = req.body.continuity_minimum ?? 0;
+            const minimum = req.body.continuity_minimum ?? 25;
             if (typeof minimum !== 'number' || !Number.isFinite(minimum) || minimum < 0 || minimum > 100) {
                 return res.status(400).json({status: 'error', error: 'Minimum continuity must be a number between 0 and 100'});
             }
@@ -222,7 +222,7 @@ router.post('/api/query', async function (req, res, next) {
                     ? await search_by_id(req.body.id, collections_to_search, CONTINUITY_CANDIDATES, 0, ranking)
                     : await search_by_codestring(codestring, collections_to_search, CONTINUITY_CANDIDATES, 0, ranking);
             return res.json({status: 'ok', data: {
-                ...candidates, ...rerankContinuity<(typeof candidates.results)[number]>(codestring, candidates.results, num_results, minimum),
+                ...candidates, ...filterContinuity<(typeof candidates.results)[number]>(codestring, candidates.results, num_results, minimum),
             }});
         }
         if (req.body.representation === '5gram') {

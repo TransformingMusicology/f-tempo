@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {continuity} from '../../lib/continuity.ts';
-import {rerankContinuity} from './continuity.ts';
+import {filterContinuity as rerankContinuity} from './continuity.ts';
 
 test('includes an exact n-gram at the final position', () => {
     const result = continuity('ABCDE', 'xxxABCDE');
@@ -67,7 +67,7 @@ test('threshold filters the pool before truncation and retains equality', () => 
         {codestring: 'ABCDEyyyyy', id: 'partial'},
         {codestring: 'ABCDEFGHIJ', id: 'exact'},
     ], 2, 50);
-    assert.deepEqual(result.results.map(r => r.id), ['exact', 'partial']);
+    assert.deepEqual(result.results.map(r => r.id), ['partial', 'exact']);
     assert.equal(result.continuityFiltered, 1);
     assert.equal(result.numResults, 2);
 });
@@ -101,4 +101,26 @@ test('invalid threshold values are rejected', () => {
     assert.throws(() => rerankContinuity('ABCDE', [], 10, NaN), RangeError);
     assert.throws(() => rerankContinuity('ABCDE', [], 10, 101), RangeError);
     assert.throws(() => rerankContinuity('ABCDE', [], 10, -1), RangeError);
+});
+
+test('appends only rejected candidates between the first and last displayed matches', () => {
+    const result = rerankContinuity('ABCDEFGHIJ', [
+        {id: 'before', codestring: 'xxxxx'},
+        {id: 'first', codestring: 'ABCDEyyyyy'},
+        {id: 'gap', codestring: 'xxxxx'},
+        {id: 'last', codestring: 'ABCDEFGHIJ'},
+        {id: 'after', codestring: 'xxxxx'},
+        {id: 'later-pass', codestring: 'ABCDEFGHIJ'},
+    ], 2, 50);
+    assert.deepEqual(result.results.map(r => r.id), ['first', 'last', 'gap']);
+    assert.deepEqual(result.results.map(r => 'originalRank' in r ? r.originalRank : null), [2, 4, 3]);
+    assert.deepEqual(result.results.map(r => 'belowThreshold' in r ? r.belowThreshold : null), [false, false, true]);
+    assert.equal(result.numResults, 2);
+    assert.equal(result.continuityFiltered, 3);
+});
+
+test('one passing candidate has no intervening rejected results', () => {
+    const result = rerankContinuity('ABCDE', [{codestring:'xxxxx'}, {codestring:'ABCDE'}, {codestring:'yyyyy'}], 10, 50);
+    assert.equal(result.results.length, 1);
+    assert.equal(result.numResults, 1);
 });

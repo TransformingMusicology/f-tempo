@@ -2,24 +2,31 @@
 
 ## Trying continuity ranking in the React interface
 
-Enable **Rank by continuity (experimental)** in the search options, enter a
-**Minimum continuity (%)**, and click **Apply** (or press Enter). Start at 0 to
-retain every candidate, then compare values such as 25, 50 and 75 on known matches
-and high-ranking negatives. These are trial values, not calibrated cutoffs.
+Enable **Filter scattered matches** in the search options, enter a
+**Minimum continuity (%)**, and click **Search** (or press Enter). All options
+are submitted together; editing them does not run a search. The starting value
+is 25, a trial value rather than a calibrated cutoff. Compare it with 0 (no
+filtering), 50 and 75 on known matches and high-ranking negatives.
 The settings are saved in the URL (`continuity=1&minContinuity=50`).
 
-Continuity reranks up to 100 candidates from the selected search type and ranking,
-then removes scores below the minimum before taking the requested result count.
-The page reports the number compared and hidden. Setting the minimum back to 0
-restores the candidate list. This is bounded reranking, not an exhaustive search:
+Continuity scores up to 100 candidates while preserving the selected search ranking,
+then takes the requested number that pass the minimum. Rejected candidates between
+the first and last passing result in the original ranking are appended afterwards,
+labelled **Filtered out**, with their original ranks. They remain selectable for
+comparison. If fewer candidates pass, all passing results are shown; with zero or
+one passing result there is no intervening range to append.
+The page reports the number compared and rejected. Setting the minimum back to 0
+restores the original candidate list. This is a bounded filter, not an exhaustive search:
 it cannot recover a page outside that candidate pool. Five-gram retrieval itself
 uses the existing bounded BM25 pool before selecting those 100 candidates.
 
-The selected result includes an image-independent comparison plot. Pink points
-show shared n-grams; blue segments show the strongest coherent chain. Use the
-slider to scan either sequence and inspect the matching positions in the other.
-The comparison n-gram selector changes this view only; search ranking and filtering
-always use five-interval anchors.
+The selected result has a side-by-side Verovio notation comparison. Hover or focus
+a pink note to highlight the n-gram in both scores; n intervals cover n+1 notes.
+Legacy Aruspix page-based MEI is converted for engraving only, retaining the notes,
+durations and IDs. Highlights are disabled when the notation does not agree with
+the indexed intervals. Codestring-only queries have no source notation.
+The position graph is underneath in a collapsed disclosure. The comparison n-gram
+selector changes the highlights only; search filtering always uses five intervals.
 
 The score counts newly covered intervals in a chain, subtracts half a point for
 each skipped interval in either sequence, and divides by the shorter sequence's
@@ -30,7 +37,7 @@ as well as which negatives are removed before adopting a default threshold.
 
 Computations are bounded to two million position pairs per comparison and one
 hundred million across a search batch. If either limit is exceeded, the original
-ranking is returned with a notice that continuity ranking and filtering were not
+ranking is returned with a notice that continuity filtering was not
 applied. No candidate is rejected simply because it could not be scored.
 
 Validation: `npm test`, `npm run typecheck`, and, from `web/`, `npm test`,

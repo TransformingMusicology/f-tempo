@@ -28,6 +28,7 @@ export const NUM_RESULTS_OPTIONS = [5, 10, 15, 20, 25, 30] as const;
 
 export const DEFAULT_REPRESENTATION: Representation = 'maw';
 export const DEFAULT_NUM_RESULTS = 10;
+export const DEFAULT_CONTINUITY_MINIMUM = 25;
 
 export function defaultRanking(representation: Representation): Ranking {
     return RANKINGS[representation][0];
@@ -69,13 +70,16 @@ export function defaultOptions(): SearchOptions {
 export function parseSearchOptions(params: URLSearchParams, catalogues: readonly string[]): ParsedSearchOptions {
     const notices: string[] = [];
     const options = defaultOptions();
-    if (params.get('continuity') === '1') options.continuity = true;
+    if (params.get('continuity') === '1') {
+        options.continuity = true;
+        options.continuityMinimum = DEFAULT_CONTINUITY_MINIMUM;
+    }
     else if (params.has('continuity')) notices.push('Unknown continuity option; using the original ranking.');
     if (params.has('minContinuity')) {
         const minimum = Number(params.get('minContinuity'));
         if (Number.isFinite(minimum) && minimum >= 0 && minimum <= 100) {
-            if (options.continuity && minimum > 0) options.continuityMinimum = minimum;
-        } else notices.push('Minimum continuity must be between 0 and 100; using 0.');
+            if (options.continuity) options.continuityMinimum = minimum;
+        } else notices.push('Minimum continuity must be between 0 and 100; using 25.');
     }
 
     const rep = params.get('rep');
@@ -126,7 +130,7 @@ export function parseSearchOptions(params: URLSearchParams, catalogues: readonly
 export function serialiseSearchOptions(options: SearchOptions): URLSearchParams {
     const params = new URLSearchParams();
     if (options.continuity) params.set('continuity', '1');
-    if (options.continuity && options.continuityMinimum) params.set('minContinuity', String(options.continuityMinimum));
+    if (options.continuity) params.set('minContinuity', String(options.continuityMinimum ?? DEFAULT_CONTINUITY_MINIMUM));
     if (options.representation !== DEFAULT_REPRESENTATION) params.set('rep', options.representation);
     if (options.ranking !== defaultRanking(options.representation)) params.set('rank', options.ranking);
     if (options.numResults !== DEFAULT_NUM_RESULTS) params.set('n', String(options.numResults));

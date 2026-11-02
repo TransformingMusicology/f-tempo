@@ -11,10 +11,16 @@ it('preserves an experimental threshold in a shareable search URL', () => {
     expect(serialiseSearchOptions(options).toString()).toBe('continuity=1&minContinuity=42.5');
 });
 
-it('replaces an invalid threshold with zero', () => {
+it('replaces an invalid threshold with the trial default', () => {
     const {options, notices} = parseSearchOptions(new URLSearchParams('continuity=1&minContinuity=101'), catalogues);
-    expect(options.continuityMinimum).toBeUndefined();
+    expect(options.continuityMinimum).toBe(25);
     expect(notices).toHaveLength(1);
+});
+
+it('round-trips zero rather than replacing it with the trial default', () => {
+    const {options} = parseSearchOptions(new URLSearchParams('continuity=1&minContinuity=0'), catalogues);
+    expect(options.continuityMinimum).toBe(0);
+    expect(serialiseSearchOptions(options).get('minContinuity')).toBe('0');
 });
 
 describe('parseSearchOptions', () => {

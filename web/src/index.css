@@ -35,3 +35,7 @@
 .examples-table .example-thumb img { width: 100px; height: 72px; object-fit: cover; object-position: top; border: 1px solid var(--bs-border-color); }
 
 .help kbd { font-size: .85em; }
+/* Keep re-engraved notation legible in each comparison pane. */
+.notation-svg { max-height: 65vh; overflow: auto; }
+.notation-svg > svg { width: 100%; height: auto; }
+.notation-svg g.note:focus { outline: 2px solid #b45b00; }

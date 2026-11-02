@@ -3,7 +3,7 @@ import {Alert, Col, Row} from 'react-bootstrap';
 import {useLocation, useNavigate, useNavigation} from 'react-router';
 import type {SearchResult} from '../api/types';
 import type {SearchLoaderData, SearchOutcome} from '../search/loaders';
-import {codeUrl, pageUrl, searchUrl, type SearchOptions} from '../search/params';
+import {codeUrl, searchUrl, type SearchOptions} from '../search/params';
 import {useKeyboardShortcuts, type ShortcutHandlers} from './keyboard';
 import QueryPane, {usePageNavigation, type QueryDescription} from './QueryPane';
 import ResultList, {ResultListSkeleton} from './ResultList';
@@ -39,27 +39,22 @@ export default function PageView({data}: Props) {
     const query = useMemo(() => describeQuery(data), [data]);
     const queryId = data.kind === 'page' ? data.page.id : null;
     const [heldTitlePageId, setHeldTitlePageId] = useState<string | null>(null);
-
-    /** URL for the same query with different options; keeps viewing or searching as it is now. */
-    const buildUrl = useCallback((options: SearchOptions) => {
-        if (data.kind === 'code') return codeUrl(data.codestring, options);
-        return data.search ? searchUrl(data.page.id, options) : pageUrl(data.page.id, options);
-    }, [data]);
+    const [draftOptions, setDraftOptions] = useState(data.options);
 
     const hashId = location.hash ? decodeURIComponent(location.hash.slice(1)) : null;
     const select = useCallback((id: string | null) => {
         navigate({pathname: location.pathname, search: location.search, hash: id ? `#${encodeURIComponent(id)}` : ''}, {replace: true});
     }, [navigate, location.pathname, location.search]);
 
-    const navigation = usePageNavigation(query, data.options);
+    const navigation = usePageNavigation(query, draftOptions);
     const searchWith = useCallback((id: string) => {
         if (!inFlight) navigate(searchUrl(id, data.options));
     }, [navigate, data.options, inFlight]);
     const searchQueryPage = useCallback(() => {
-        if (inFlight) return;
-        if (data.kind === 'page') navigate(searchUrl(data.page.id, data.options));
-        else navigate(codeUrl(data.codestring, data.options));
-    }, [navigate, data, inFlight]);
+        if (inFlight || (draftOptions.continuity && !Number.isFinite(draftOptions.continuityMinimum))) return;
+        if (data.kind === 'page') navigate(searchUrl(data.page.id, draftOptions));
+        else navigate(codeUrl(data.codestring, draftOptions));
+    }, [navigate, data, draftOptions, inFlight]);
 
     const shared = {queryId, options: data.options, hashId, searchWith};
 
@@ -70,9 +65,9 @@ export default function PageView({data}: Props) {
             </Col>
             <Col xs={12} lg={4} className="results-column">
                 <SearchOptionsPanel
-                    options={data.options}
+                    options={draftOptions}
                     catalogues={data.catalogues}
-                    buildUrl={buildUrl}
+                    onChange={setDraftOptions}
                     onSearch={searchQueryPage}
                     searchLabel={inFlight ? 'Searching…' : data.search ? 'Search again' : 'Search'}
                     disabled={inFlight}
@@ -96,12 +91,17 @@ export default function PageView({data}: Props) {
             <Col xs={12} lg={4}>
                 {data.search ? (
                     <Suspense fallback={<ResultPanePlaceholder text="Searching…" />}>
-                        <ResultPaneColumn {...shared} search={data.search} heldTitlePageId={heldTitlePageId} queryCodestringPromise={data.queryCodestring} />
+                        <ResultPaneColumn {...shared} search={data.search} heldTitlePageId={heldTitlePageId} />
                     </Suspense>
                 ) : (
                     <ResultPanePlaceholder text="Results appear here after a search." />
                 )}
             </Col>
+            {data.search && <Col xs={12}>
+                <Suspense fallback={<p className="small">Loading comparison…</p>}>
+                    <ComparisonColumn search={data.search} queryId={queryId} hashId={hashId} queryCodestringPromise={data.queryCodestring} />
+                </Suspense>
+            </Col>}
         </Row>
     );
 }
@@ -176,14 +176,12 @@ function ResultsColumn({search, queryCodestringPromise, queryId, options, hashId
     );
 }
 
-function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith, queryCodestringPromise}: SharedProps & {heldTitlePageId: string | null; queryCodestringPromise: Promise<string | null>}) {
+function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith}: SharedProps & {heldTitlePageId: string | null}) {
     const outcome = use(search);
-    const queryCodestring = use(queryCodestringPromise);
     if (!outcome.ok) return <ResultPanePlaceholder text="" />;
     const {result} = selectedResult(outcome.response.results, hashId);
     return (
         <>
-        {result && queryCodestring && <ContinuityComparison key={result.id} query={queryCodestring} match={result.codestring} />}
         <ResultPane
             response={outcome.response}
             result={result}
@@ -193,6 +191,14 @@ function ResultPaneColumn({search, queryId, hashId, heldTitlePageId, searchWith,
         />
         </>
     );
+}
+
+function ComparisonColumn({search, queryId, hashId, queryCodestringPromise}: Pick<SharedProps, 'search' | 'queryId' | 'hashId'> & {queryCodestringPromise: Promise<string | null>}) {
+    const outcome = use(search);
+    const query = use(queryCodestringPromise);
+    if (!outcome.ok || !query) return null;
+    const {result} = selectedResult(outcome.response.results, hashId);
+    return result ? <ContinuityComparison key={result.id} query={query} match={result.codestring} queryId={queryId} matchId={result.id} /> : null;
 }
 
 function SearchFailure({outcome, options}: {outcome: Extract<SearchOutcome, {ok: false}>; options: SearchOptions}) {

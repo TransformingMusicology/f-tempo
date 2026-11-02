@@ -85,6 +85,7 @@ export async function getMei(pageId: string, signal?: AbortSignal): Promise<stri
 export type QueryInput = {id: string} | {codestring: string};
 
 type RawResult = {
+    originalRank?: number; belowThreshold?: boolean;
     continuity?: SearchResult['continuity'];
     id: string; library: string; book: string; titlepage?: string; codestring: string;
     num_words: number; num_matched_words: number; jaccard: number; cosine?: number; score?: number;
@@ -110,6 +111,8 @@ export async function runQuery(input: QueryInput, options: SearchOptions, signal
     };
     const raw = await postJson<ApiEnvelope<RawSearchResponse>>('/api/query', body, signal).then(unwrap);
     const results: SearchResult[] = raw.results.map(r => ({
+        originalRank: r.originalRank,
+        belowThreshold: r.belowThreshold,
         continuity: r.continuity,
         id: r.id,
         library: r.library,

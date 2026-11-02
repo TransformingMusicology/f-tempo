@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import {Fragment, useEffect, useRef} from 'react';
 import {Badge, Placeholder, ProgressBar, Table} from 'react-bootstrap';
 import type {SearchResponse} from '../api/types';
 import {cosineMarker, describeScore, scoreLabel} from '../search/score';
@@ -46,6 +46,8 @@ export function ResultListSkeleton({rows, options}: {rows: number; options: Sear
 export default function ResultList({response, queryId, queryCodestring, selectedId, onSelect, onHoldTitlePage}: Props) {
     const selectedRow = useRef<HTMLTableRowElement>(null);
     const {results} = response;
+    const keptCount = results.filter(r => !r.belowThreshold).length;
+    const omittedCount = results.length - keptCount;
     const topScore = results.reduce((max, r) => Math.max(max, r.score), 0);
 
     useEffect(() => {
@@ -60,13 +62,15 @@ export default function ResultList({response, queryId, queryCodestring, selected
 
     return (
         <>
-            {response.continuityApplied && <p className="small">Continuity order · {response.continuityCandidates} candidates compared using 5-interval anchors; {response.continuityFiltered} below the {response.continuityMinimum}% minimum. Original similarity scores are retained below.</p>}
+            {response.continuityApplied && <p className="small">{keptCount} matches meet the {response.continuityMinimum}% minimum.
+                {omittedCount > 0 && <> The {omittedCount} filtered-out results between the first and last match are listed afterwards.</>}
+                {' '}Checked {response.continuityCandidates} candidates; {response.continuityFiltered} were below the minimum.</p>}
             {response.continuityNotice && <p role="status" className="small text-warning-emphasis">{response.continuityNotice}</p>}
             <Table size="sm" hover className="results-table">
                 <thead>
                     <tr>
                         <th colSpan={3} className="fw-normal small">
-                            {results.length} result{results.length === 1 ? '' : 's'} · {response.numQueryWords} words in query.{candidateNote}
+                            {keptCount} result{keptCount === 1 ? '' : 's'}{omittedCount > 0 && ` + ${omittedCount} filtered out`} · {response.numQueryWords} words in query.{candidateNote}
                         </th>
                     </tr>
                     <tr>
@@ -82,6 +86,8 @@ export default function ResultList({response, queryId, queryCodestring, selected
                         const isQuery = result.id === queryId;
                         const marker = markers[index];
                         return (
+                            <Fragment key={result.id}>
+                            {index === keptCount && <tr><th colSpan={3}>Filtered out between the displayed matches</th></tr>}
                             <tr
                                 key={result.id}
                                 ref={isSelected ? selectedRow : undefined}
@@ -93,7 +99,8 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                     <TitlePageButton titlepage={result.titlepage} label={result.id} setHeld={held => onHoldTitlePage(held ? result.id : null)} />
                                 </td>
                                 <td className="result-id">
-                                    <span className="text-muted">{index + 1}.</span> {result.id}
+                                    <span className="text-muted">{result.originalRank ? `Original #${result.originalRank}` : `${index + 1}.`}</span> {result.id}
+                                    {result.belowThreshold && <> <Badge bg="secondary">Filtered out</Badge></>}
                                     {isQuery && <> <Badge bg="info" text="dark" title="This result is the query page itself">query</Badge></>}
                                     {result.continuity && <div className="small text-muted">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                                 </td>
@@ -111,6 +118,7 @@ export default function ResultList({response, queryId, queryCodestring, selected
                                     <span className="score-text">{score.text}</span>
                                 </td>
                             </tr>
+                            </Fragment>
                         );
                     })}
                 </tbody>

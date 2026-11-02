@@ -1,6 +1,7 @@
 import {useMemo, useState} from 'react';
 import {Form} from 'react-bootstrap';
 import {continuity, intervalSymbols} from '../../../lib/continuity';
+import NotationPane from './NotationPane';
 
 function positions(symbols: string[], n: number) {
     const index = new Map<string, number[]>();
@@ -13,7 +14,7 @@ function positions(symbols: string[], n: number) {
 }
 
 /** Image-independent view of the same interval positions used by the server scorer. */
-export default function ContinuityComparison({query, match}: {query: string; match: string}) {
+export default function ContinuityComparison({query, match, queryId, matchId}: {query: string; match: string; queryId?: string | null; matchId?: string}) {
     const [n, setN] = useState(5);
     const [side, setSide] = useState<'query' | 'match'>('query');
     const [position, setPosition] = useState(0);
@@ -44,17 +45,27 @@ export default function ContinuityComparison({query, match}: {query: string; mat
     const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
     return <section className="continuity-comparison border rounded p-2 mb-2" aria-label="Continuity comparison">
-        <h2 className="h6">Shared passage continuity</h2>
+        <h2 className="h6">Compare matching music</h2>
         <Form.Group controlId="comparison-ngram" className="d-flex align-items-center gap-2 mb-1">
             <Form.Label className="small mb-0">N-gram length</Form.Label>
             <Form.Select size="sm" style={{width: 'auto'}} value={n} onChange={e => setN(Number(e.target.value))}>
                 {Array.from({length: 10}, (_, i) => i + 3).map(value => <option key={value}>{value}</option>)}
             </Form.Select>
         </Form.Group>
-        <p className="small text-muted mb-1">Comparison only; search ranking and its minimum use 5 intervals.</p>
+        <p className="small text-muted mb-1">Hover over a pink note to highlight that fragment in both scores. Tab through pink notes to compare with the keyboard.</p>
+        <p className="small text-muted mb-1">This n-gram length changes the highlights only. The search filter uses 5 intervals.</p>
+        <div className="row g-3">
+            <div className="col-12 col-lg-6"><NotationPane key={`query:${queryId ?? ''}`} pageId={queryId} label="Query" codestring={query} n={n}
+                commonStarts={Array.from(ai).filter(([gram]) => bi.has(gram)).flatMap(([, starts]) => starts)}
+                followSelection={side === 'match'} selectedStarts={side === 'query' ? [start] : matches} onSelect={i => {setSide('query'); setPosition(i);}} /></div>
+            <div className="col-12 col-lg-6"><NotationPane key={`match:${matchId ?? ''}`} pageId={matchId} label="Result" codestring={match} n={n}
+                commonStarts={Array.from(bi).filter(([gram]) => ai.has(gram)).flatMap(([, starts]) => starts)}
+                followSelection={side === 'query'} selectedStarts={side === 'match' ? [start] : matches} onSelect={i => {setSide('match'); setPosition(i);}} /></div>
+        </div>
         {result.status === 'too-large' ? <p role="status">This pair is too large for interactive continuity scoring.</p> : <>
             <p className="small mb-1">Continuity <strong>{percent(result.score)}</strong> · {result.coveredIntervals} matched intervals.
                 {' '}Query coverage {percent(result.queryCoverage)}; result coverage {percent(result.matchCoverage)}.</p>
+            <details className="mt-2"><summary>Show match-position graph</summary>
             <svg viewBox="0 0 600 180" role="img" aria-label="Shared n-gram positions: query left to right, result top to bottom. Blue segments show the strongest coherent chain."
                 style={{width: '100%', background: '#fafafa'}}>
                 <path d="M30 15V155H570" stroke="#777" fill="none" />
@@ -86,6 +97,7 @@ export default function ContinuityComparison({query, match}: {query: string; mat
                 Matching anchors contribute only newly covered intervals. Each skipped interval on either side costs half a point.
                 The strongest chain’s score is divided by the shorter sequence length. This is experimental evidence of continuity, not a probability of identity.
                 Repeated fragments may have many pink matches; the blue chain chooses a coherent sequence.
+            </details>
             </details>
         </>}
     </section>;

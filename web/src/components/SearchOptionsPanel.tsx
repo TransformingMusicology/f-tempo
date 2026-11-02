@@ -1,16 +1,14 @@
 import {useState} from 'react';
 import {Button, Form} from 'react-bootstrap';
-import {useNavigate} from 'react-router';
 import {
     NUM_RESULTS_OPTIONS, RANKINGS, RANKING_LABELS, REPRESENTATIONS, REPRESENTATION_LABELS,
-    defaultRanking, isRankingFor, type Representation, type SearchOptions,
+    DEFAULT_CONTINUITY_MINIMUM, defaultRanking, isRankingFor, type Representation, type SearchOptions,
 } from '../search/params';
 
 type Props = {
     options: SearchOptions;
     catalogues: string[];
-    /** Builds the URL for the same query with different options. */
-    buildUrl: (options: SearchOptions) => string;
+    onChange: (options: SearchOptions) => void;
     onSearch: () => void;
     searchLabel: string;
     /** True while a search is in flight: changes are ignored instead of starting another search. */
@@ -18,19 +16,17 @@ type Props = {
 };
 
 /**
- * Search options. Any change navigates to the same query with the new options; when a search is
- * showing, that re-runs it. The Search button runs (or repeats) the search for the query page.
+ * Edit options locally; submit them together with Search.
  */
-export default function SearchOptionsPanel({options, catalogues, buildUrl, onSearch, searchLabel, disabled}: Props) {
-    const navigate = useNavigate();
+export default function SearchOptionsPanel({options, catalogues, onChange, onSearch, searchLabel, disabled}: Props) {
     const [collectionError, setCollectionError] = useState<string | null>(null);
-    const [minimum, setMinimum] = useState(String(options.continuityMinimum ?? 0));
+    const minimum = options.continuityMinimum ?? DEFAULT_CONTINUITY_MINIMUM;
     const selected = options.collections.length ? new Set(options.collections) : new Set(catalogues);
 
     const apply = (next: SearchOptions) => {
-        if (!disabled) navigate(buildUrl(next));
+        if (!disabled) onChange(next);
     };
-    const validMinimum = minimum.trim() !== '' && Number.isFinite(Number(minimum)) && Number(minimum) >= 0 && Number(minimum) <= 100;
+    const validMinimum = Number.isFinite(minimum) && minimum >= 0 && minimum <= 100;
 
     const setRepresentation = (representation: Representation) => {
         const ranking = isRankingFor(representation, options.ranking) ? options.ranking : defaultRanking(representation);
@@ -52,12 +48,10 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl, onSea
     return (
         <Form className="search-options" onSubmit={event => {
             event.preventDefault();
-            if (options.continuity && Number(minimum) !== (options.continuityMinimum ?? 0)) {
-                if (validMinimum) apply({...options, continuityMinimum: Number(minimum) || undefined});
-            } else onSearch();
+            if (!disabled && (!options.continuity || validMinimum)) onSearch();
         }}>
             <div className="d-grid mb-2">
-                <Button type="submit" variant="primary" size="sm" title="Search with the query page (Enter)" disabled={disabled}>{searchLabel}</Button>
+                <Button type="submit" variant="primary" size="sm" title="Search with the query page (Enter)" disabled={disabled || (!!options.continuity && !validMinimum)}>{searchLabel}</Button>
             </div>
             <fieldset disabled={disabled}>
             <Form.Group className="mb-2" controlId="opt-representation">
@@ -81,19 +75,14 @@ export default function SearchOptionsPanel({options, catalogues, buildUrl, onSea
                     {NUM_RESULTS_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
                 </Form.Select>
             </Form.Group>
-            <Form.Check className="mb-2 small" id="opt-continuity" label="Rank by continuity (experimental)"
-                checked={!!options.continuity} onChange={e => apply({...options, continuity: e.target.checked || undefined})} />
+            <Form.Check className="mb-2 small" id="opt-continuity" label="Filter scattered matches"
+                checked={!!options.continuity} onChange={e => apply({...options, continuity: e.target.checked || undefined, continuityMinimum: minimum})} />
             {options.continuity && <>
-                <p className="small text-muted">Compares up to 100 candidates using shared passages in sequence.</p>
                 <Form.Group className="mb-2" controlId="opt-continuity-minimum">
                     <Form.Label className="small mb-0">Minimum continuity (%)</Form.Label>
-                    <div className="d-flex gap-1">
-                        <Form.Control size="sm" type="number" min={0} max={100} step="any" value={minimum}
-                            onChange={e => setMinimum(e.target.value)} aria-describedby="continuity-threshold-help" />
-                        <Button size="sm" type="button" disabled={!validMinimum}
-                            onClick={() => apply({...options, continuityMinimum: Number(minimum) || undefined})}>Apply</Button>
-                    </div>
-                    <Form.Text id="continuity-threshold-help">0 keeps every candidate. Higher values may hide genuine matches with OMR errors or partial overlap. This is a score, not a probability.</Form.Text>
+                    <Form.Control size="sm" type="number" min={0} max={100} step="any" required value={Number.isFinite(minimum) ? minimum : ''}
+                        onChange={e => apply({...options, continuityMinimum: e.target.value === '' ? NaN : Number(e.target.value)})} aria-describedby="continuity-threshold-help" />
+                    <Form.Text id="continuity-threshold-help">0 keeps all results. Increase this to filter out matches that jump around the music.</Form.Text>
                 </Form.Group>
             </>}
             <fieldset className="mb-2">

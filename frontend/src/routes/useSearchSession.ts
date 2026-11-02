@@ -9,7 +9,7 @@ import {useShortcuts} from '../components/useShortcuts';
 import type {RootData} from './Layout';
 import type {SearchLoaderData} from './SearchPage';
 import {setScoreTarget} from '../util/scoreUrl';
-import {preserveBrowse} from '../util/browseState';
+import {isBrowsing, preserveBrowse} from '../util/browseState';
 
 /**
  * Everything a search view needs beyond its markup: the selected result, the
@@ -65,6 +65,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     function searchUrl(query: string, settings: SearchSettings, pathname = location.pathname): string {
         const params = applySettings(preserveBrowse(new URLSearchParams(searchParams), data.metadata), settings);
+        if (data.mode === 'id' && isBrowsing(searchParams)) params.delete('coll');
         params.delete('sel');
         params.set('view', 'results');
         if (pathname === '/code') params.set('code', query);

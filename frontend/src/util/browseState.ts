@@ -1,5 +1,9 @@
 import type {PageMetadata} from '../api';
 
+export function isBrowsing(params: URLSearchParams) {
+    return params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
+}
+
 export function listPage(value: string | null) {
     const n = Number(value);
     return Number.isSafeInteger(n) && n > 0 ? n : 1;

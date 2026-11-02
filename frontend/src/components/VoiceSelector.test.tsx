@@ -5,6 +5,34 @@ import {MemoryRouter, useLocation} from 'react-router';
 import {expect, test} from 'vitest';
 import VoiceSelector from './VoiceSelector';
 
+async function searchVoice(url: string) {
+    const host = document.createElement('div');
+    const root = createRoot(host);
+    let path = '';
+    function Probe() {path = useLocation().search; return null;}
+    try {
+        await act(async () => root.render(<MemoryRouter initialEntries={[url]}>
+            <VoiceSelector metadata={{siglum:'cpdl_Lasso_abc_part1',library:'cpdl',book:'Lasso',parts:[
+                {id:'cpdl_Lasso_abc_part1',part_number:'1',part_name:'Soprano'},
+            ]}}/><Probe/>
+        </MemoryRouter>));
+        await act(async () => host.querySelector('button')!.click());
+        return new URLSearchParams(path);
+    } finally {act(() => root.unmount());}
+}
+
+test('a new voice search from Browse drops the previous collection restriction', async () => {
+    const params = await searchVoice('/?view=browse&page=cpdl_Lasso_abc_part1&q=old&coll=cpdl');
+    expect(params.has('coll')).toBe(false);
+    expect(params.get('q')).toBe('cpdl_Lasso_abc');
+    expect(params.get('part')).toBe('1');
+});
+
+test('a voice search within Search/compare retains its collection selection', async () => {
+    const params = await searchVoice('/?view=results&page=cpdl_Lasso_abc_part1&coll=GB-Lbl');
+    expect(params.get('coll')).toBe('GB-Lbl');
+});
+
 test('changing a query voice stays in search mode despite a previous scan browse location', async () => {
     const host = document.createElement('div');
     const root = createRoot(host);

@@ -1,7 +1,7 @@
 import {useNavigate, useLocation} from 'react-router';
 import type {PageMetadata} from '../api';
 import {setScoreTarget} from '../util/scoreUrl';
-import {preserveBrowse} from '../util/browseState';
+import {isBrowsing, preserveBrowse} from '../util/browseState';
 
 export default function VoiceSelector({metadata}: {metadata: PageMetadata | null}) {
     const navigate = useNavigate();
@@ -9,10 +9,13 @@ export default function VoiceSelector({metadata}: {metadata: PageMetadata | null
     if (!metadata?.parts?.length) return null;
     function go(id: string, search = false) {
         const params = preserveBrowse(new URLSearchParams(location.search), metadata);
-        const browsing = params.get('view') === 'browse' || (params.get('view') !== 'results' && !params.has('q'));
+        const browsing = isBrowsing(params);
         params.set('view', search || !browsing ? 'results' : 'browse');
         params.delete('sel');
-        if (search) setScoreTarget(params, 'q', id);
+        if (search) {
+            if (browsing) params.delete('coll');
+            setScoreTarget(params, 'q', id);
+        }
         else {
             params.delete('q');
             params.delete('part');

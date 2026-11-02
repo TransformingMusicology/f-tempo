@@ -1,5 +1,37 @@
 # CPDL local experiment
 
+## Dev deployment — 2026-11-02
+
+Deployed application commit `8ca5da0b` to `https://dev.f-tempo.org` from
+`new-ui`, at `/home/alastair/webapps/f-tempo-dev` on porter.net.nz.
+Production was not changed. Dev Solr contains 557,490 historical documents
+plus 3,840 CPDL voices, representing 904 scores. Both MAW and 5-gram searches
+return the verified Bonjour scan first; the reverse MAW search also passes.
+
+`scripts/transfer_cpdl_index.py export CORE_URL DIRECTORY` exports only stored
+CPDL documents and the required MEI file list. `import CORE_URL DIRECTORY`
+upserts them and verifies IDs; schema copy fields regenerate the search fields.
+The export is in `cpdl-transfer/`; the 904 source files are in `cpdl-scores/`,
+mounted over the CPDL score path in the dev container only. The browse manifest
+is `indexes-hasmusic/index-cpdl-browse.json`. No complete Solr copy was needed.
+
+For subsequent Compose operations on this host, use the existing dev paths:
+
+```sh
+cd /home/alastair/webapps/f-tempo-dev
+export FTEMPO_DEV_INDEX_DIR="$PWD/indexes-hasmusic"
+export FTEMPO_DEV_SOLR_DATA_DIR="$PWD/solr-data-10.1"
+export FTEMPO_STORAGE_DIR=/mnt/storage
+export FTEMPO_STATIC_LINKS_DIR=/home/alastair/webapps/ftempo-static-links
+docker compose -f compose.preview.solr10.yaml build react-ui
+docker compose -f compose.preview.solr10.yaml up -d --no-deps react-ui
+```
+
+Update the checkout first (`ssh -A porter.net.nz` provides the GitHub agent).
+The previous application image is retained as
+`f-tempo-dev-react-ui:before-cpdl-20261102`. The paragraphs below record the
+earlier isolated pc experiment, not the current dev deployment.
+
 The local preview now accepts score URLs such as
 `/?q=cpdl_Orlando_di_Lasso_08b68b758e88e361&part=1`. Metadata resolves the
 indexed voice; selecting another voice browses without searching. Both main
@@ -13,7 +45,7 @@ were copied into the running container and it was restarted; the same source
 is staged under `solr-10.1-validation/app/`. Rebuild the image before deploying
 or recreating that container. The frontend remains the laptop Vite preview.
 
-Nothing in this experiment is deployed or pushed. It uses the isolated pc Solr
+The initial experiment used the isolated pc Solr
 that already holds the 557,490 historical documents; the stopped deployment
 snapshot and porter data are separate and unchanged.
 

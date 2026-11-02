@@ -9,3 +9,5 @@ indexes-hasmusic
 solr-data-10.1
 manifest-backups
 .env
+cpdl-scores
+cpdl-transfer

@@ -62,3 +62,5 @@ nosetests.xml
 # PyCharm
 .idea/
 node_modules
+/cpdl-scores/
+/cpdl-transfer/

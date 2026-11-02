@@ -19,6 +19,7 @@ services:
       FTEMPO_CONFIG: config/dev_solr10_config.json
     volumes:
       - ${FTEMPO_STORAGE_DIR}:/storage:ro
+      - ./cpdl-scores:/storage/ftempo/scores/cpdl:ro
       - type: bind
         source: ${FTEMPO_DEV_INDEX_DIR:?Set the dev-only directory containing updated index JSON files}
         target: /dev-indexes

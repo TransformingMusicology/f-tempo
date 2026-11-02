@@ -1,13 +1,14 @@
 {
   "search": {"host": "solr", "port": 8983, "core": "ftempo"},
   "server": {"host": "0.0.0.0", "port": 8000},
-  "databases": ["D-Mbs", "D-Bsb", "F-Pn", "GB-Lbl", "PL-Wn"],
+  "databases": ["D-Mbs", "D-Bsb", "F-Pn", "GB-Lbl", "PL-Wn", "cpdl"],
   "database_files": {
     "D-Mbs": "index-D-Mbs.json",
     "D-Bsb": "index-D-Bsb.json",
     "F-Pn": "index-F-Pn.json",
     "GB-Lbl": "index-GB-Lbl.json",
-    "PL-Wn": "index-PL-Wn.json"
+    "PL-Wn": "index-PL-Wn.json",
+    "cpdl": "index-cpdl-browse.json"
   },
   "config": {
     "import": {"threads": 4},

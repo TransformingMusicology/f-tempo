@@ -135,6 +135,29 @@ repository root checks the server.
 
 **TODO** Document how to run a small dataset.
 
+### Continuity filtering and comparison
+
+Choose **Filter scattered matches**, enter a minimum (initially 25), then press
+**Search**. Settings are drafts until Search is pressed. The server checks up to
+100 candidates in the selected ranking, keeps the requested number that meet
+the minimum, and appends rejected candidates between the first and last retained
+ranks. Original ranks, scores, and rejected labels remain visible. If fewer
+matches qualify, the interface reports that rather than filling with rejected hits.
+
+The filter chains exact 5-interval matches in order, penalising unmatched gaps.
+The minimum is experimental: 25 is a starting value for evaluation, not a calibrated
+cutoff. Oversized searches explicitly bypass filtering rather than silently
+discarding unscored results. Run `npm run test:continuity` to check the scorer and
+result selection.
+
+**Compare recognised notes** uses the bundled Verovio renderer over the scans.
+Pink notes start shared n-grams; hovering links their occurrences in both panes.
+Orange outlines show the passages used by the filter when no note is hovered.
+The comparison n-gram selector changes the hover evidence only, not the server's
+5-interval score. The continuity graph is collapsed under the comparison controls.
+MEI IDs map the rendered notes to the indexed order; highlights are disabled if
+the MEI pitches no longer reproduce the indexed intervals.
+
 #### Search index
 
 You can download and run solr directly on your computer without using docker. You will require java.

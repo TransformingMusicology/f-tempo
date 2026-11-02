@@ -2,6 +2,8 @@ import {useLoaderData} from 'react-router';
 import {pageImageUrl} from '../config';
 import {scoreColumnLabel} from '../util/scores';
 import CompareToolbar from '../components/CompareToolbar';
+import ContinuityDetails from '../components/ContinuityDetails';
+import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import QueryBar from '../components/QueryBar';
@@ -22,7 +24,7 @@ export default function ExplorePage() {
     return (
         <div className="explore">
             <QueryBar displayedId={data.displayedId} metadata={data.metadata} searched={searched}
-                      settings={data.settings} catalogues={s.catalogues} busy={s.busy}
+                      settings={s.draftSettings} catalogues={s.catalogues} busy={s.busy}
                       onStep={s.step} onRandom={s.random}
                       onSearch={id => { s.setTarget(id); s.submitSearchWith(id); }}
                       onSettingsChange={s.changeSettings} onRepeat={s.repeat}/>
@@ -33,14 +35,15 @@ export default function ExplorePage() {
                 )}
                 {s.searchData && (
                     <div className="explore-results-head small text-muted">
-                        {s.results.length} results · {s.searchData.numQueryWords} {s.searchData.representation === '5gram' ? '5-grams' : 'words'} in query
+                        {s.searchData.continuityApplied ? `${s.searchData.numResults} accepted · ${s.results.length - s.searchData.numResults} rejected shown` : `${s.results.length} results`} · {s.searchData.numQueryWords} {s.searchData.representation === '5gram' ? '5-grams' : 'words'} in query
                         {s.searchData.candidateLimited && s.ranking !== 'solr' && (
                             <> · reranked top {s.searchData.candidateLimit} of {s.searchData.candidatesFound} BM25 candidates</>
                         )}
                         <div>{scoreColumnLabel(s.ranking)}</div>
                     </div>
                 )}
-                {s.searchData && s.results.length === 0 && <Notice kind="info" message="No results for this query."/>}
+                {s.searchData && <ContinuitySummary data={s.searchData}/>}
+                {s.searchData && !s.searchData.continuityApplied && s.results.length === 0 && <Notice kind="info" message="No results for this query."/>}
                 {s.searchData && s.results.length > 0 && (
                     <ResultStrip data={s.searchData} ranking={s.ranking} queryId={data.query}
                                  queryCodestring={data.queryCodestring} selectedId={s.selected?.id ?? null}
@@ -60,7 +63,7 @@ export default function ExplorePage() {
                           subheading={data.metadata ? undefined : data.metadataError ?? 'This page ID is not in the index.'}
                           imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
                           imageAlt={`Scan of page ${data.displayedId}`}
-                          meiId={data.displayedId} titlepageUrl={s.queryTitlepage}
+                          meiId={data.displayedId} codestring={data.queryCodestring} titlepageUrl={s.queryTitlepage}
                           matches={s.comparison.queryMatches} highlightRanges={s.comparison.queryRanges}
                           onHoverNote={s.comparison.onHoverQuery} showNotes={s.showNotes} zoom={s.zoom}>
                     <Notice message={s.notice} onDismiss={() => s.setNotice(null)}/>
@@ -68,12 +71,12 @@ export default function ExplorePage() {
 
                 {s.selected && s.searchData ? (
                     <PagePane key={`result-${s.selected.id}`}
-                              heading={<>Result {s.selectedIndex + 1} <span className="page-id">{s.selected.id}</span></>}
+                              heading={<>{s.selected.belowThreshold ? 'Filtered-out result' : 'Result'} {s.selected.originalRank ?? s.selectedIndex + 1} <span className="page-id">{s.selected.id}</span></>}
                               subheading={<>{s.selected.num_matched_words} of {s.selected.num_words}{' '}
                                   {s.searchData.representation === '5gram' ? '5-grams' : 'words'} match the query
                                   {s.selectedScore && <> · {scoreColumnLabel(s.ranking)} {s.selectedScore.text}</>}</>}
                               imageUrl={pageImageUrl(s.selected.id)} imageAlt={`Scan of page ${s.selected.id}`}
-                              meiId={s.selected.id} titlepageUrl={s.selected.titlepage ?? null}
+                              meiId={s.selected.id} codestring={s.selected.codestring} titlepageUrl={s.selected.titlepage ?? null}
                               matches={s.comparison.matchMatches} highlightRanges={s.comparison.matchRanges}
                               onHoverNote={s.comparison.onHoverMatch} showNotes={s.showNotes} zoom={s.zoom}
                               actions={
@@ -95,6 +98,7 @@ export default function ExplorePage() {
                 <footer className="explore-compare">
                     <CompareToolbar showNotes={s.showNotes} onShowNotes={s.setShowNotes} zoom={s.zoom} onZoom={s.setZoom}
                                     ngramLength={s.ngramLength} onNgramLength={n => s.setViewParam('ng', String(n))}/>
+                    <ContinuityDetails result={s.selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}/>
                 </footer>
             )}
         </div>

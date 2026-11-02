@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import {Fragment, useEffect, useRef} from 'react';
 import type {Ranking, SearchData} from '../api';
 import {ngramCosine} from '../util/ngrams';
 import {resultScore, scoreColumnLabel} from '../util/scores';
@@ -34,11 +34,11 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
             <thead>
                 <tr>
                     <th colSpan={3} className="fw-normal small">
-                        {data.results.length} results · {data.numQueryWords} {unit} in query{candidateNote}
+                        {data.continuityApplied ? `${data.numResults} accepted · ${data.results.length - data.numResults} rejected shown` : `${data.results.length} results`} · {data.numQueryWords} {unit} in query{candidateNote}
                     </th>
                 </tr>
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col">{data.continuityApplied ? 'Original rank' : '#'}</th>
                     <th scope="col">Page ID</th>
                     <th scope="col">{scoreColumnLabel(ranking)}</th>
                 </tr>
@@ -52,13 +52,17 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
                     const isQuery = result.id === queryId;
                     const selected = result.id === selectedId;
                     return (
-                        <tr key={result.id} data-id={result.id} className={selected ? 'selected' : ''}
+                        <Fragment key={result.id}>
+                        {result.belowThreshold && !data.results[index - 1]?.belowThreshold && <tr><th colSpan={3}>Filtered out between these matches</th></tr>}
+                        <tr data-id={result.id} className={selected ? 'selected' : ''}
                             tabIndex={0} aria-selected={selected}
                             onClick={() => onSelect(result.id)}
                             onKeyDown={event => { if (event.key === ' ') { event.preventDefault(); onSelect(result.id); } }}>
-                            <td>{index + 1}</td>
+                            <td>{result.originalRank ?? index + 1}</td>
                             <td className="page-id">
                                 {result.id}
+                                {result.belowThreshold && <span className="badge text-bg-warning ms-1">Filtered out</span>}
+                                {result.continuity && <div className="small">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                                 {isQuery && <span className="badge text-bg-info ms-1">query</span>}
                             </td>
                             <td>
@@ -75,6 +79,7 @@ export default function ResultsTable({data, ranking, queryId, queryCodestring, s
                                 </div>
                             </td>
                         </tr>
+                        </Fragment>
                     );
                 })}
             </tbody>

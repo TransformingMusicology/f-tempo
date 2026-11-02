@@ -1,4 +1,5 @@
-import {useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState, type MouseEvent} from 'react';
+import {prepareOverlay} from '../util/overlay';
 import {getMei} from '../api';
 import {loadVerovio} from '../util/verovio';
 
@@ -9,6 +10,7 @@ interface Props {
     imageAlt: string;
     /** Page whose MEI is rendered over the scan; null when no MEI can exist (uploads). */
     meiId: string | null;
+    codestring?: string | null;
     /** For each interval index, positions of that n-gram on the other page. Colours the notes. */
     matches: number[][] | null;
     /** Note index ranges (inclusive) to outline. */
@@ -78,9 +80,12 @@ function boxesForNotes(svg: SVGSVGElement, notes: Element[]): Box[] {
 }
 
 export default function ScoreOverlay({
-    imageUrl, imageAlt, meiId, matches, highlightRanges, onHoverNote, showImage, showNotes, zoom,
+    imageUrl, imageAlt, meiId, codestring, matches, highlightRanges, onHoverNote, showImage, showNotes, zoom,
 }: Props) {
     const [svg, setSvg] = useState<string | null>(null);
+    const [source, setSource] = useState<ReturnType<typeof prepareOverlay> | null>(null);
+    const [mapped, setMapped] = useState(false);
+    const aligned = mapped && codestring != null && source?.codestring === codestring.replace(/\s/g, '');
     const [status, setStatus] = useState<Status>('idle');
     const [imageFailed, setImageFailed] = useState(false);
     const [viewBox, setViewBox] = useState<string | null>(null);
@@ -114,9 +119,11 @@ export default function ScoreOverlay({
                     setStatus('missing');
                     return;
                 }
-                const rendered = toolkit.renderData(mei, {});
+                const prepared = prepareOverlay(mei);
+                const rendered = toolkit.renderData(prepared.mei, {});
                 if (cancelled) return;
                 setSvg(rendered);
+                setSource(prepared);
                 setStatus('ready');
             } catch (error) {
                 console.error(error);
@@ -136,27 +143,31 @@ export default function ScoreOverlay({
             setNoteBoxes([]);
             return;
         }
-        const notes = Array.from(container.querySelectorAll('g.note'));
+        const renderedNotes = new Map(Array.from(container.querySelectorAll('g.note')).map(note => [note.id, note]));
+        const ordered = source?.noteIds.map(id => renderedNotes.get(id)) ?? [];
+        const complete = ordered.length > 0 && ordered.every(Boolean);
+        const notes = complete ? ordered as Element[] : [];
+        setMapped(complete);
         notesRef.current = notes;
         noteIndex.current = new Map(notes.map((note, index) => [note, index]));
         const root = container.querySelector('svg');
         setViewBox(root?.getAttribute('viewBox') ?? null);
         // Invisible hit areas make every note hoverable even where staff lines or stems would otherwise catch the pointer.
         setNoteBoxes(root ? notes.map(note => userRect(root, note) ?? {x: 0, y: 0, width: 0, height: 0}) : []);
-    }, [svg, showNotes]);
+    }, [svg, showNotes, source]);
 
     // Colour notes by whether the n-gram starting at them appears on the other page.
     useLayoutEffect(() => {
         notesRef.current.forEach((note, index) => {
-            const colour = matches?.[index]?.length ? MATCH_COLOUR : OTHER_COLOUR;
+            const colour = aligned && matches?.[index]?.length ? MATCH_COLOUR : OTHER_COLOUR;
             note.setAttribute('style', `fill: ${colour}; stroke: ${colour}; color: ${colour}`);
         });
-    }, [matches, svg, showNotes]);
+    }, [matches, svg, showNotes, aligned]);
 
     // Outline the requested note ranges.
     useLayoutEffect(() => {
         const root = overlayRef.current?.querySelector('svg');
-        if (!root || !highlightRanges.length) {
+        if (!root || !aligned || !highlightRanges.length) {
             setBoxes([]);
             return;
         }
@@ -166,17 +177,13 @@ export default function ScoreOverlay({
             next.push(...boxesForNotes(root, notes));
         }
         setBoxes(next);
-    }, [highlightRanges, svg, showNotes]);
+    }, [highlightRanges, svg, showNotes, aligned]);
 
-    const noteCount = notesRef.current.length;
-    const alignmentWarning = useMemo(() => {
-        if (!matches || !noteCount || status !== 'ready') return null;
-        return Math.abs(noteCount - 1 - matches.length) > 2
-            ? `Recognised notes (${noteCount}) do not line up exactly with the indexed intervals (${matches.length}); colouring is approximate.`
-            : null;
-    }, [matches, noteCount, status]);
+    const alignmentWarning = codestring != null && status === 'ready' && !aligned
+        ? 'These recognised notes differ from the indexed music. Match highlights are unavailable for this page.' : null;
 
     function handleMouseOver(event: MouseEvent<HTMLDivElement>) {
+        if (!aligned) { onHoverNote(null); return; }
         const target = event.target as Element;
         const hit = target.closest?.('rect.note-hit');
         if (hit) {
@@ -221,7 +228,7 @@ export default function ScoreOverlay({
                      style={{visibility: showImage ? 'visible' : 'hidden'}}
                      onError={() => setImageFailed(true)}/>
             ) : (
-                <div className="scan-missing">{imageUrl ? 'Image not available' : 'No image'}</div>
+                !(showNotes && svg) && <div className="scan-missing">{imageUrl ? 'Image not available' : 'No image'}</div>
             )}
             {showNotes && svg && (
                 <div ref={overlayRef} className={`score-overlay${overlayInFlow ? ' in-flow' : ''}`}

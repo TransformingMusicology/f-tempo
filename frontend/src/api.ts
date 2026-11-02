@@ -7,6 +7,10 @@ export type Representation = 'maw' | '5gram';
 export type Ranking = 'jaccard' | 'boolean' | 'solr' | 'cosine';
 
 export interface SearchResult {
+    continuity?: {status: 'ok' | 'too-large'; n: number; score: number; coveredIntervals: number;
+        passages: {queryStart: number; matchStart: number; length: number}[]};
+    originalRank?: number;
+    belowThreshold?: boolean;
     id: string;
     library: string;
     book: string;
@@ -23,6 +27,11 @@ export interface SearchResult {
 }
 
 export interface SearchData {
+    continuityApplied?: boolean;
+    continuityCandidates?: number;
+    continuityFiltered?: number;
+    continuityMinimum?: number;
+    continuityNotice?: string;
     numQueryWords: number;
     numResults: number;
     results: SearchResult[];
@@ -49,6 +58,8 @@ export interface NextIdData {
 }
 
 export interface SearchRequest {
+    continuity?: boolean;
+    continuity_minimum?: number;
     id?: string;
     codestring?: string;
     representation: Representation;

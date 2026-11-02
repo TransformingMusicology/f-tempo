@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useLocation, useNavigate, useNavigation, useRevalidator, useRouteLoaderData, useSearchParams} from 'react-router';
 import {getRandomId, nextId} from '../api';
-import {applySettings, parseNgramLength, type SearchSettings} from '../util/params';
+import {applySettings, parseNgramLength, validSettings, type SearchSettings} from '../util/params';
 import {effectiveRanking, resultScore} from '../util/scores';
 import {lastSearch} from '../util/lastSearch';
 import {useComparison} from '../components/useComparison';
@@ -17,7 +17,9 @@ import type {SearchLoaderData} from './SearchPage';
  */
 export function useSearchSession(data: SearchLoaderData, basePath: string) {
     const {catalogues} = useRouteLoaderData('root') as RootData;
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
+    const [draftSettings, setDraftSettings] = useState(data.settings);
+    useEffect(() => { setDraftSettings(data.settings); }, [data.settings]);
     const navigate = useNavigate();
     const navigation = useNavigation();
     const revalidator = useRevalidator();
@@ -46,7 +48,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
     const [zoom, setZoom] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
-    const comparison = useComparison(data.queryCodestring, selected?.codestring ?? null, ngramLength);
+    const comparison = useComparison(data.queryCodestring, selected?.codestring ?? null, ngramLength, selected?.continuity);
 
     function setViewParam(key: 'sel' | 'ng' | 'ids', value: string) {
         const next = new URLSearchParams(searchParams);
@@ -66,7 +68,8 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
         return `${pathname}?${params}`;
     }
 
-    function submitSearch(settings = data.settings) {
+    function submitSearch(settings = draftSettings) {
+        if (busy || !validSettings(settings)) return;
         const query = data.mode === 'code' ? target.replace(/\s+/g, '')
             : showTarget ? target.trim() : data.displayedId ?? '';
         if (!query) return;
@@ -75,15 +78,12 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     /** Search a specific page ID regardless of the target box state. */
     function submitSearchWith(pageId: string) {
-        navigate(searchUrl(pageId, data.settings, basePath));
+        if (busy || !validSettings(draftSettings)) return;
+        navigate(searchUrl(pageId, draftSettings, basePath));
     }
 
     function changeSettings(settings: SearchSettings) {
-        if (data.query) {
-            navigate(searchUrl(data.query, settings));
-        } else {
-            setSearchParams(prev => applySettings(prev, settings), {replace: true});
-        }
+        setDraftSettings(settings);
     }
 
     function browseTo(pageId: string) {
@@ -123,7 +123,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
 
     function searchFromSelected() {
         if (!selected) return;
-        navigate(searchUrl(selected.id, data.settings, basePath));
+        submitSearchWith(selected.id);
     }
 
     const previous = lastSearch();
@@ -146,6 +146,7 @@ export function useSearchSession(data: SearchLoaderData, basePath: string) {
     const selectedScore = selected && searchData ? resultScore(selected, ranking, searchData) : null;
 
     return {
+        draftSettings,
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
         setViewParam, selectIndex, submitSearch, submitSearchWith, changeSettings, step, random, searchFromSelected, repeat,

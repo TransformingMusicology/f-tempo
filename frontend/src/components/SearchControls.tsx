@@ -1,5 +1,5 @@
 import {useId, type FormEvent, type ReactNode} from 'react';
-import type {SearchSettings} from '../util/params';
+import {validSettings, type SearchSettings} from '../util/params';
 import SettingsFields from './SettingsFields';
 
 interface Props {
@@ -31,7 +31,7 @@ export default function SearchControls({
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        if (targetEmpty || noCollections) return;
+        if (busy || targetEmpty || noCollections || !validSettings(settings)) return;
         // Leave the text box so the arrow-key shortcuts work on the results straight away.
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         onSubmit();
@@ -59,7 +59,7 @@ export default function SearchControls({
             <SettingsFields settings={settings} catalogues={catalogues} onChange={onSettingsChange}/>
 
             <div className="d-flex gap-2 align-items-center flex-wrap">
-                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || targetEmpty || noCollections}
+                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || targetEmpty || noCollections || !validSettings(settings)}
                         title={mode === 'id' && !showTarget ? 'Search with the displayed page (Enter)' : undefined}>
                     {mode === 'id' && !showTarget ? 'Search this page' : 'Search'}
                 </button>

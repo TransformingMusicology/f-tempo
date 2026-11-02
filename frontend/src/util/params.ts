@@ -23,6 +23,8 @@ export const REPRESENTATIONS: {value: Representation; label: string}[] = [
 ];
 
 export interface SearchSettings {
+    continuity?: boolean;
+    continuityMinimum?: number;
     representation: Representation;
     ranking: Ranking;
     numResults: number;
@@ -61,13 +63,21 @@ export function parseSettings(params: URLSearchParams, knownCollections?: string
         collections = knownCollections ? requested.filter(c => knownCollections.includes(c)) : requested;
         if (knownCollections && collections.length === knownCollections.length) collections = null;
     }
-    return {representation, ranking, numResults, collections};
+    const continuity = params.get('continuity') === '1';
+    const value = params.get('minContinuity');
+    const minimum = value !== null && value.trim() !== '' ? Number(value) : 25;
+    return {representation, ranking, numResults, collections,
+        ...(continuity ? {continuity: true, continuityMinimum: Number.isFinite(minimum) && minimum >= 0 && minimum <= 100 ? minimum : 25} : {})};
 }
 
 /** Write settings into URL parameters, omitting values that equal the defaults. */
 export function applySettings(params: URLSearchParams, settings: SearchSettings): URLSearchParams {
     const next = new URLSearchParams(params);
-    for (const key of ['rep', 'rank', 'n', 'coll']) next.delete(key);
+    for (const key of ['rep', 'rank', 'n', 'coll', 'continuity', 'minContinuity']) next.delete(key);
+    if (settings.continuity) {
+        next.set('continuity', '1');
+        next.set('minContinuity', String(settings.continuityMinimum ?? 25));
+    }
     if (settings.representation !== DEFAULT_SETTINGS.representation) next.set('rep', settings.representation);
     if (settings.ranking !== rankingFor(settings.representation, null)) next.set('rank', settings.ranking);
     if (settings.numResults !== DEFAULT_SETTINGS.numResults) next.set('n', String(settings.numResults));
@@ -78,6 +88,11 @@ export function applySettings(params: URLSearchParams, settings: SearchSettings)
 export function parseNgramLength(value: string | null): number {
     const n = Number(value);
     return (NGRAM_LENGTHS as readonly number[]).includes(n) ? n : DEFAULT_NGRAM_LENGTH;
+}
+
+export function validSettings(settings: SearchSettings): boolean {
+    const n = settings.continuityMinimum ?? 25;
+    return !settings.continuity || (Number.isFinite(n) && n >= 0 && n <= 100);
 }
 
 /** Parameters that only change which result is highlighted; loaders don't need to re-run for them. */

@@ -4,6 +4,7 @@
   "description": "Early Music Online search engine",
   "scripts": {
     "test": "jest",
+    "test:continuity": "node --import tsx --test server/services/continuity.test.ts",
     "start": "tsx server/server.ts",
     "watch": "nodemon --watch server --watch lib --ext ts --exec \"npm start\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",

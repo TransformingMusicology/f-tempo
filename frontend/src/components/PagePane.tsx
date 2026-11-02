@@ -8,6 +8,7 @@ interface Props {
     imageUrl: string | null;
     imageAlt: string;
     meiId: string | null;
+    codestring: string | null;
     titlepageUrl?: string | null;
     matches: number[][] | null;
     highlightRanges: NoteRange[];
@@ -27,7 +28,7 @@ interface Props {
  * (via key) when the page changes so the toggles reset.
  */
 export default function PagePane({
-    heading, subheading, imageUrl, imageAlt, meiId, titlepageUrl, matches, highlightRanges, onHoverNote,
+    heading, subheading, imageUrl, imageAlt, meiId, codestring, titlepageUrl, matches, highlightRanges, onHoverNote,
     showNotes, zoom, actions, children, footer,
 }: Props) {
     const [showImage, setShowImage] = useState(true);
@@ -63,7 +64,7 @@ export default function PagePane({
                         <img className="scan" src={titlepageUrl} alt="Title page of the book"/>
                     </div>
                 ) : (
-                    <ScoreOverlay imageUrl={imageUrl} imageAlt={imageAlt} meiId={meiId} matches={matches}
+                    <ScoreOverlay imageUrl={imageUrl} imageAlt={imageAlt} meiId={meiId} codestring={codestring} matches={matches}
                                   highlightRanges={highlightRanges} onHoverNote={onHoverNote}
                                   showImage={scanVisible} showNotes={showNotes} zoom={zoom}/>
                 )}

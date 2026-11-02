@@ -8,6 +8,8 @@ import {parseSettings, sameSearchParams, type SearchSettings} from '../util/para
 import {scoreColumnLabel} from '../util/scores';
 import {rememberSearch} from '../util/lastSearch';
 import CompareToolbar from '../components/CompareToolbar';
+import ContinuityDetails from '../components/ContinuityDetails';
+import ContinuitySummary from '../components/ContinuitySummary';
 import Notice from '../components/Notice';
 import PagePane from '../components/PagePane';
 import ResultsTable from '../components/ResultsTable';
@@ -45,6 +47,8 @@ function requestBody(settings: SearchSettings) {
         similarity_type: settings.ranking,
         num_results: settings.numResults,
         collections_to_search: settings.collections ?? [],
+        continuity: !!settings.continuity,
+        continuity_minimum: settings.continuityMinimum ?? 25,
     };
 }
 
@@ -106,11 +110,12 @@ export default function SearchPage() {
         catalogues, busy, results, searchData, ranking, selected, selectedIndex, ngramLength, showTarget,
         target, setTarget, notice, setNotice, showNotes, setShowNotes, zoom, setZoom, formRef, comparison,
         setViewParam, submitSearch, changeSettings, step, random, searchFromSelected, repeat,
-        queryTitlepage, selectedScore, revalidate,
+        queryTitlepage, selectedScore, revalidate, draftSettings,
     } = useSearchSession(data, '/');
     const compareToolbar = searchData && results.length > 0 ? (
-        <CompareToolbar showNotes={showNotes} onShowNotes={setShowNotes} zoom={zoom} onZoom={setZoom}
+        <><CompareToolbar showNotes={showNotes} onShowNotes={setShowNotes} zoom={zoom} onZoom={setZoom}
                         ngramLength={ngramLength} onNgramLength={n => setViewParam('ng', String(n))}/>
+            <ContinuityDetails result={selected} queryLength={data.queryCodestring?.replace(/\s/g, '').length ?? 0}/></>
     ) : null;
 
     return (
@@ -140,7 +145,7 @@ export default function SearchPage() {
                                       }
                                       imageUrl={data.displayedId ? pageImageUrl(data.displayedId) : null}
                                       imageAlt={`Scan of page ${data.displayedId}`}
-                                      meiId={data.displayedId} titlepageUrl={queryTitlepage}
+                                      meiId={data.displayedId} codestring={data.queryCodestring} titlepageUrl={queryTitlepage}
                                       matches={comparison.queryMatches} highlightRanges={comparison.queryRanges}
                                       onHoverNote={comparison.onHoverQuery} showNotes={showNotes} zoom={zoom}
                                       footer={compareToolbar}>
@@ -170,11 +175,17 @@ export default function SearchPage() {
                 <div className="col-lg-auto results-col">
                     <div className="card">
                         <div className="card-body py-2">
+                            <SearchControls mode={data.mode} settings={draftSettings} catalogues={catalogues}
+                                            target={target} onTargetChange={setTarget} onSubmit={() => submitSearch()}
+                                            onSettingsChange={changeSettings} onRepeat={repeat} busy={busy} formRef={formRef}
+                                            showTarget={showTarget}
+                                            onShowTarget={() => setViewParam('ids', '1')}/>
                             {data.search?.status === 'error' && (
                                 <Notice kind="danger" message={data.search.message}
                                         action={{label: 'Retry', onClick: revalidate}}/>
                             )}
-                            {searchData && results.length === 0 && (
+                            {searchData && <ContinuitySummary data={searchData}/>}
+                            {searchData && !searchData.continuityApplied && results.length === 0 && (
                                 <Notice kind="info" message="No results for this query."/>
                             )}
                             {searchData && results.length > 0 && (
@@ -183,11 +194,6 @@ export default function SearchPage() {
                                               queryCodestring={data.queryCodestring} selectedId={selected?.id ?? null}
                                               onSelect={id => setViewParam('sel', id)}/>
                             )}
-                            <SearchControls mode={data.mode} settings={data.settings} catalogues={catalogues}
-                                            target={target} onTargetChange={setTarget} onSubmit={() => submitSearch()}
-                                            onSettingsChange={changeSettings} onRepeat={repeat} busy={busy} formRef={formRef}
-                                            showTarget={showTarget}
-                                            onShowTarget={() => setViewParam('ids', '1')}/>
                         </div>
                     </div>
                 </div>
@@ -195,11 +201,11 @@ export default function SearchPage() {
                 <div className="col-lg pane-col">
                     {selected && searchData ? (
                         <PagePane key={selected.id}
-                                  heading={<>Result {selectedIndex + 1}: <span className="page-id">{selected.id}</span></>}
+                                  heading={<>{selected.belowThreshold ? 'Filtered-out result' : 'Result'} {selected.originalRank ?? selectedIndex + 1}: <span className="page-id">{selected.id}</span></>}
                                   subheading={<>{resultSummary(selected, searchData)}
                                       {selectedScore && <> · {scoreColumnLabel(ranking)} {selectedScore.text}</>}</>}
                                   imageUrl={pageImageUrl(selected.id)} imageAlt={`Scan of page ${selected.id}`}
-                                  meiId={selected.id} titlepageUrl={selected.titlepage ?? null}
+                                  meiId={selected.id} codestring={selected.codestring} titlepageUrl={selected.titlepage ?? null}
                                   matches={comparison.matchMatches} highlightRanges={comparison.matchRanges}
                                   onHoverNote={comparison.onHoverMatch} showNotes={showNotes} zoom={zoom}
                                   actions={

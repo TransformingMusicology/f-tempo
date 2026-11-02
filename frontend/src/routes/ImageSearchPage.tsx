@@ -106,7 +106,7 @@ export default function ImageSearchPage() {
                     </div>
                 </div>
                 {preview && (
-                    <PagePane key={preview} heading="Uploaded image" imageUrl={preview} imageAlt="Uploaded image" meiId={null}
+                    <PagePane key={preview} heading="Uploaded image" imageUrl={preview} imageAlt="Uploaded image" meiId={null} codestring={searchData?.query_codestring ?? null}
                               matches={null} highlightRanges={[]} onHoverNote={() => undefined}
                               showNotes={false} zoom={zoom}
                               footer={searchData && results.length > 0 ? (
@@ -140,7 +140,7 @@ export default function ImageSearchPage() {
                               subheading={<>{resultSummary(selected)}
                                   {selectedScore && <> · {scoreColumnLabel('jaccard')} {selectedScore.text}</>}</>}
                               imageUrl={pageImageUrl(selected.id)} imageAlt={`Scan of page ${selected.id}`}
-                              meiId={selected.id} titlepageUrl={selected.titlepage ?? null}
+                              meiId={selected.id} codestring={selected.codestring} titlepageUrl={selected.titlepage ?? null}
                               matches={comparison.matchMatches} highlightRanges={comparison.matchRanges}
                               onHoverNote={comparison.onHoverMatch} showNotes={showNotes} zoom={zoom}
                               actions={

@@ -1,4 +1,5 @@
 import express from 'express';
+import {CONTINUITY_CANDIDATES, filterContinuity} from '../services/continuity.js';
 import {
     get_codestring,
     get_random_id, MawsTooShortError, next_id, NextIdNotFound, NoMawsForDocumentError, UnknownSearchTypeError,
@@ -190,6 +191,38 @@ router.post('/api/query', async function (req, res, next) {
 
     let result: SearchResponse;
     try {
+        if (req.body.continuity !== undefined && typeof req.body.continuity !== 'boolean') {
+            return res.status(400).json({status: 'error', error: 'continuity must be a boolean'});
+        }
+        if (req.body.continuity) {
+            const minimum = req.body.continuity_minimum ?? 25;
+            if (typeof minimum !== 'number' || !Number.isFinite(minimum) || minimum < 0 || minimum > 100) {
+                return res.status(400).json({status: 'error', error: 'Minimum continuity must be a number between 0 and 100'});
+            }
+            if (!Number.isInteger(Number(req.body.num_results ?? 20)) || num_results < 1 || num_results > CONTINUITY_CANDIDATES) {
+                return res.status(400).json({status: 'error', error: 'Continuity ranking supports 1 to 100 results'});
+            }
+            const fivegram = req.body.representation === '5gram';
+            const ranking = similarity_type ?? (fivegram ? 'cosine' : 'jaccard');
+            if (!(fivegram ? ['cosine', 'jaccard', 'solr'] : ['boolean', 'jaccard', 'solr']).includes(ranking)) {
+                return res.status(400).json({status: 'error', error: 'Invalid candidate ranking'});
+            }
+            if (threshold) {
+                return res.status(400).json({status: 'error', error: 'Continuity ranking cannot be combined with score-gap pruning'});
+            }
+            const codestring = req.body.id ? await get_codestring(req.body.id) : req.body.codestring;
+            if (typeof codestring !== 'string' || !codestring.trim()) {
+                return res.status(400).json({status: 'error', error: 'Continuity ranking requires an indexed id or interval codestring'});
+            }
+            const candidates = fivegram
+                ? await search_fivegrams(codestring, collections_to_search, CONTINUITY_CANDIDATES, ranking)
+                : req.body.id
+                    ? await search_by_id(req.body.id, collections_to_search, CONTINUITY_CANDIDATES, 0, ranking)
+                    : await search_by_codestring(codestring, collections_to_search, CONTINUITY_CANDIDATES, 0, ranking);
+            return res.json({status: 'ok', data: {
+                ...candidates, ...filterContinuity<(typeof candidates.results)[number]>(codestring, candidates.results, num_results, minimum),
+            }});
+        }
         if (req.body.representation === '5gram') {
             const ranking = req.body.similarity_type ?? 'cosine';
             if (!['cosine', 'jaccard', 'solr'].includes(ranking)) {

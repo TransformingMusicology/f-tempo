@@ -1,5 +1,23 @@
 import {describe, expect, it} from 'vitest';
-import {applySettings, parseSettings, sameSearchParams} from './params';
+import {applySettings, parseSettings, sameSearchParams, validSettings} from './params';
+
+it('round-trips a continuity threshold including zero', () => {
+    const settings = parseSettings(new URLSearchParams('continuity=1&minContinuity=0'));
+    expect(settings.continuityMinimum).toBe(0);
+    expect(parseSettings(applySettings(new URLSearchParams(), settings))).toEqual(settings);
+});
+
+it('starts enabled filtering at 25 and rejects invalid draft thresholds', () => {
+    const settings = parseSettings(new URLSearchParams('continuity=1'));
+    expect(settings.continuityMinimum).toBe(25);
+    expect(validSettings({...settings, continuityMinimum: NaN})).toBe(false);
+    expect(validSettings({...settings, continuityMinimum: 101})).toBe(false);
+});
+
+it('changing the threshold requires a new server search', () => {
+    expect(sameSearchParams(new URL('http://x/?q=1&continuity=1&minContinuity=25'),
+        new URL('http://x/?q=1&continuity=1&minContinuity=70'))).toBe(false);
+});
 
 describe('parseSettings', () => {
     it('uses defaults for missing or invalid values', () => {

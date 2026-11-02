@@ -40,11 +40,13 @@ export default function ResultStrip({data, ranking, queryId, queryCodestring, se
                         <img className="result-thumb" src={pageImageUrl(result.id)} alt="" loading="lazy"/>
                         <div className="result-meta">
                             <div className="result-rank">
-                                {index + 1}
+                                {result.originalRank ?? index + 1}
+                                {result.belowThreshold && <span className="badge text-bg-warning ms-1">Filtered out</span>}
                                 {result.id === queryId && <span className="badge text-bg-info ms-1">query</span>}
                             </div>
                             <div className="result-id page-id text-truncate" title={result.id}>{result.id}</div>
                             <div className="result-lib text-muted text-truncate">{result.library} · {result.book}</div>
+                            {result.continuity && <div className="small">Continuity {(result.continuity.score * 100).toFixed(1)}%</div>}
                             <div className="progress" title={`${scoreColumnLabel(ranking)}: ${score.text}`}>
                                 <div className="progress-bar" role="progressbar" style={{width: `${score.fraction * 100}%`}}
                                      aria-valuenow={Math.round(score.fraction * 100)} aria-valuemin={0} aria-valuemax={100}

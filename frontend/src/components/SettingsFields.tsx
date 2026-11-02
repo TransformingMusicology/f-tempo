@@ -47,6 +47,20 @@ export default function SettingsFields({settings, catalogues, onChange}: Props) 
                 </div>
             </div>
 
+            <div className="mb-2">
+                <div className="form-check">
+                    <input id={`${ids}-continuity`} type="checkbox" className="form-check-input"
+                           checked={!!settings.continuity} onChange={e => onChange({...settings, continuity: e.target.checked})}/>
+                    <label htmlFor={`${ids}-continuity`} className="form-check-label">Filter scattered matches</label>
+                </div>
+                {settings.continuity && <>
+                    <label htmlFor={`${ids}-minimum`} className="form-label small mb-0">Minimum continuity (%)</label>
+                    <input id={`${ids}-minimum`} type="number" min={0} max={100} step="any" required
+                           className="form-control form-control-sm" value={Number.isNaN(settings.continuityMinimum) ? '' : settings.continuityMinimum ?? 25}
+                           onChange={e => onChange({...settings, continuityMinimum: e.target.value === '' ? NaN : Number(e.target.value)})}/>
+                    <div className="form-text">Start at 25. Raise it to remove more scattered matches; lower it if known matches disappear. Press Search to use this value.</div>
+                </>}
+            </div>
             <fieldset className="mb-2">
                 <legend className="form-label mb-0 small">Collections to search</legend>
                 <div className="d-flex flex-wrap gap-2">
@@ -76,5 +90,5 @@ export function describeSettings(settings: SearchSettings, catalogues: string[])
         : settings.collections.length === 0 ? 'no collections'
         : settings.collections.length === catalogues.length ? 'all collections'
         : settings.collections.join(', ');
-    return `${rep} · ${rank} · ${settings.numResults} results · ${coll}`;
+    return `${rep} · ${rank} · ${settings.numResults} results · ${coll}${settings.continuity ? ` · continuity ≥ ${settings.continuityMinimum ?? 25}%` : ''}`;
 }

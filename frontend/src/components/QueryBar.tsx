@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import type {PageMetadata} from '../api';
-import type {SearchSettings} from '../util/params';
+import {validSettings, type SearchSettings} from '../util/params';
 import SettingsFields, {describeSettings} from './SettingsFields';
 
 interface Props {
@@ -44,7 +44,7 @@ export default function QueryBar({
     function submit(event: FormEvent) {
         event.preventDefault();
         const id = draft.trim();
-        if (!id) return;
+        if (!id || busy || !validSettings(settings)) return;
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         setEditing(false);
         onSearch(id);
@@ -78,7 +78,7 @@ export default function QueryBar({
                 {metadata && !editing && (
                     <span className="text-muted small d-none d-xl-inline">{metadata.library} · {metadata.book}</span>
                 )}
-                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || noCollections || !draft.trim()}
+                <button type="submit" className="btn btn-primary btn-sm" disabled={busy || noCollections || !draft.trim() || !validSettings(settings)}
                         title="Search with this page (Enter)">
                     {busy ? <span className="spinner-border spinner-border-sm" role="status" aria-label="Searching"/> : 'Search'}
                 </button>
@@ -98,7 +98,7 @@ export default function QueryBar({
                     <div className="query-options-panel card shadow-sm">
                         <div className="card-body py-2">
                             <SettingsFields settings={settings} catalogues={catalogues} onChange={onSettingsChange}/>
-                            <div className="form-text">Changes re-run the current search.</div>
+                            <div className="form-text">Press Search to use these settings.</div>
                         </div>
                     </div>
                 )}

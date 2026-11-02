@@ -64,7 +64,7 @@ export default function BookBrowser({metadata, catalogues, panel}: {metadata: Pa
         {!data && !error && !(panel === 'pages' && !book) && <p>Loading…</p>}
         {data && <>
             <div className="small text-muted mb-2">{data.total} {book ? (library === 'cpdl' ? 'scores' : 'pages') : (library === 'cpdl' ? 'composers' : 'books')}</div>
-            <div className="book-contact-sheet">
+            <div className={`book-contact-sheet ${library === 'cpdl' ? 'cpdl-list' : ''}`}>
                 {data.entries.map(entry => <button key={entry.id} type="button"
                     className={`book-thumbnail ${(panel === 'books' ? selectedBook === entry.id : metadata?.siglum === entry.id || metadata?.score_id === entry.id.replace(/_part\d+$/, '')) ? 'selected' : ''}`}
                     onClick={() => {if (book) openPage(entry.id); else browse(next => {next.set('book', entry.id); next.delete('pagesPage');});}}>

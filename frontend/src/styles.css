@@ -378,3 +378,6 @@ body {
 .nearby-strip .book-thumbnail img {height:90px;}
 .nearby-strip .book-thumbnail span {max-height:3em;overflow:hidden;}
 .nearby-preview {max-height:65vh;overflow:auto;}
+.book-contact-sheet.cpdl-list,
+.main-browse > section:first-child .book-contact-sheet.cpdl-list {grid-template-columns:minmax(0,1fr);}
+.cpdl-list .book-thumbnail {text-align:left;padding:.6rem .75rem;}
